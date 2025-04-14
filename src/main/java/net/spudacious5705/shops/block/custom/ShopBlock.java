@@ -5,18 +5,19 @@ import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.EntityType;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.*;
 
 import net.minecraft.screen.NamedScreenHandlerFactory;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateManager;
 
 import net.minecraft.state.property.DirectionProperty;
+import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
@@ -28,6 +29,9 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.spudacious5705.shops.block.entity.ModBlockEntities;
 import net.spudacious5705.shops.block.entity.ShopEntity;
+import net.spudacious5705.shops.model.CushionResources;
+import net.spudacious5705.shops.properties.Colour;
+import net.spudacious5705.shops.properties.ModProperties;
 import org.jetbrains.annotations.Nullable;
 
 
@@ -36,6 +40,7 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider{
     public static final MapCodec<ShopBlock> CODEC = ShopBlock.createCodec(ShopBlock::new);
 
     public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
+    public static final EnumProperty<Colour> CUSHION_COLOUR = ModProperties.CUSHION_COLOUR;
 
     public static final VoxelShape CULLING_SHAPE = Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 8.0, 16.0);
 
@@ -70,7 +75,9 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider{
     public ShopBlock(Settings settings) {
         super(settings);
         this.setDefaultState(
-                this.stateManager.getDefaultState().with(FACING, Direction.NORTH)
+                this.stateManager.getDefaultState()
+                        .with(FACING, Direction.NORTH)
+                        .with(CUSHION_COLOUR, Colour.WHITE)
         );
     }
 
@@ -82,27 +89,25 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider{
     public Direction getFacing(BlockState state) {
         return state.get(FACING);
     }
+    public Colour getColour(BlockState state){ return state.get(CUSHION_COLOUR);}
 
     @Nullable
     @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
-        return this.getDefaultState().with(FACING, ctx.getHorizontalPlayerFacing().getOpposite());
+        return this.getDefaultState()
+                .with(FACING, ctx.getHorizontalPlayerFacing().getOpposite())
+                .with(CUSHION_COLOUR, Colour.RED);
     }
 
     @Override
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        switch (state.get(FACING)) {
-            case NORTH:
-                return NORTH_SHAPE;
-            case SOUTH:
-                return SOUTH_SHAPE;
-            case EAST:
-                return EAST_SHAPE;
-            case WEST:
-                return WEST_SHAPE;
-            default:
-                return CULLING_SHAPE;
-        }
+        return switch (state.get(FACING)) {
+            case NORTH -> NORTH_SHAPE;
+            case SOUTH -> SOUTH_SHAPE;
+            case EAST -> EAST_SHAPE;
+            case WEST -> WEST_SHAPE;
+            default -> CULLING_SHAPE;
+        };
     }
 
     @Override
@@ -117,7 +122,7 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider{
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
+        builder.add(FACING).add(CUSHION_COLOUR);
     }
 
     @Override
@@ -183,11 +188,9 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider{
 
         BlockEntity be = world.getBlockEntity(pos);
 
-        if(!( be instanceof ShopEntity shopEntity && player != null)) return ActionResult.FAIL;
-
+        if(!( be instanceof ShopEntity && player != null)) return ActionResult.FAIL;
 
         setOwner(world, pos, player);
-
 
         NamedScreenHandlerFactory screenHandlerFactory = (ShopEntity)world.getBlockEntity(pos);
         if (screenHandlerFactory != null) {
@@ -199,6 +202,32 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider{
 
     @Override
     protected ItemActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+            if(!stack.isEmpty()){
+                Item item = stack.getItem();
+                if(CushionResources.DYE_MAP.containsKey(item)){
+                    CushionResources.cushionColourGroup group = CushionResources.DYE_MAP.get(item);
+                    if(state.get(CUSHION_COLOUR) != group.colour()) {
+                        stack.decrement(1);
+                        world.setBlockState(pos, state.with(CUSHION_COLOUR, group.colour()));
+                        world.playSound(player,pos.getX(),pos.getY(),pos.getZ(), SoundEvents.ITEM_DYE_USE, SoundCategory.BLOCKS);
+                        attemptRenderDataForceUpdate(world, pos);
+                        return ItemActionResult.success(true);
+                    }
+                } else if (CushionResources.WOOL_MAP.containsKey(item)) {
+                    CushionResources.cushionColourGroup group = CushionResources.WOOL_MAP.get(item);
+                    Colour originalColour = state.get(CUSHION_COLOUR);
+                    if(originalColour != group.colour()) {
+                        world.setBlockState(pos, state.with(CUSHION_COLOUR, group.colour()));
+                        stack.decrement(1);
+                        group = CushionResources.COLOUR_MAP.get(originalColour);
+                        ItemStack releaseStack = new ItemStack(group.wool(),1);
+                        world.spawnEntity(new ItemEntity(world,pos.getX()+0.5f,pos.getY()+0.5f,pos.getZ()+0.5f,releaseStack,0f,1f,0f));
+                        world.playSound(player,pos.getX(),pos.getY(),pos.getZ(), SoundEvents.ENTITY_SHEEP_SHEAR, SoundCategory.BLOCKS);
+                        attemptRenderDataForceUpdate(world, pos);
+                        return ItemActionResult.success(true);
+                    }
+                }
+        }
         onUse(state, world, pos, player, hit);
         return ItemActionResult.success(false);
     }
@@ -214,6 +243,12 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider{
                 }
             }
             super.onStateReplaced(state, world, pos, newState, moved);
+        }
+    }
+
+    private static void attemptRenderDataForceUpdate(World world,BlockPos pos){
+        if(world.getBlockEntity(pos) instanceof ShopEntity shop) {
+            if(world.isClient())shop.forceUpdateRenderData();
         }
     }
 

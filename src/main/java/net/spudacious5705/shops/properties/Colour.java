@@ -1,0 +1,43 @@
+package net.spudacious5705.shops.properties;
+
+import net.minecraft.util.StringIdentifiable;
+
+public enum Colour implements StringIdentifiable {
+    RED("red", 0),
+    WHITE("white", 1),
+    BLUE("blue", 2),
+    PURPLE("purple", 3),
+    GREEN("green", 4),
+    LIME("lime", 5),
+    ORANGE("orange", 6),
+    GRAY("gray", 7),
+    BLACK("black", 8),
+    LIGHT_GREY("light_grey", 9),
+    BROWN("brown", 10),
+    YELLOW("yellow", 11),
+    LIGHT_BLUE("light_blue", 12),
+    CYAN("cyan", 13),
+    MAGENTA("magenta", 14),
+    PINK("pink", 15);
+
+    private final String name;
+    private final int id;
+    Colour(String colour) {
+        name = colour;
+        this.id = -1; // Default ID for colors without an explicit ID
+    }
+
+    Colour(String colour, int i) {
+        name = colour;
+        id = i;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    @Override
+    public String asString() {
+        return name;
+    }
+}

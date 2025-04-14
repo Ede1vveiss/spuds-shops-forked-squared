@@ -1,18 +1,17 @@
 package net.spudacious5705.shops.block;
 
-import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraft.item.ToolItem;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
-import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.Identifier;
 import net.spudacious5705.shops.SpudaciousShops;
 import net.spudacious5705.shops.block.custom.*;
+import net.spudacious5705.shops.item.custom.ShopItem;
+import net.spudacious5705.shops.properties.Colour;
 
 public class ModBlocks {
 
@@ -20,37 +19,43 @@ public class ModBlocks {
             .nonOpaque()
             .resistance(Float.MAX_VALUE);
 
-    public static final ShopBlock SHOP_BLOCK_ACACIA = registerBlock("shop_acacia",
+    public static final ShopBlock SHOP_BLOCK_ACACIA = registerShopBlock("shop_acacia",
             new ShopBlock(settings));
-    public static final ShopBlock SHOP_BLOCK_BAMBOO = registerBlock("shop_bamboo",
+    public static final ShopBlock SHOP_BLOCK_BAMBOO = registerShopBlock("shop_bamboo",
             new ShopBlock(settings));
-    public static final ShopBlock SHOP_BLOCK_BIRCH = registerBlock("shop_birch",
+    public static final ShopBlock SHOP_BLOCK_BIRCH = registerShopBlock("shop_birch",
             new ShopBlock(settings));
-    public static final ShopBlock SHOP_BLOCK_CHERRY = registerBlock("shop_cherry",
+    public static final ShopBlock SHOP_BLOCK_CHERRY = registerShopBlock("shop_cherry",
             new ShopBlock(settings));
-    public static final ShopBlock SHOP_BLOCK_CRIMSON = registerBlock("shop_crimson",
+    public static final ShopBlock SHOP_BLOCK_CRIMSON = registerShopBlock("shop_crimson",
             new ShopBlock(settings));
-    public static final ShopBlock SHOP_BLOCK_DARK_OAK = registerBlock("shop_dark_oak",
+    public static final ShopBlock SHOP_BLOCK_DARK_OAK = registerShopBlock("shop_dark_oak",
             new ShopBlock(settings));
-    public static final ShopBlock SHOP_BLOCK_MANGROVE = registerBlock("shop_mangrove",
+    public static final ShopBlock SHOP_BLOCK_MANGROVE = registerShopBlock("shop_mangrove",
             new ShopBlock(settings));
-    public static final ShopBlock SHOP_BLOCK_OAK = registerBlock("shop_oak",
+    public static final ShopBlock SHOP_BLOCK_OAK = registerShopBlock("shop_oak",
             new ShopBlock(settings));
-    public static final ShopBlock SHOP_BLOCK_SPRUCE = registerBlock("shop_spruce",
+    public static final ShopBlock SHOP_BLOCK_SPRUCE = registerShopBlock("shop_spruce",
             new ShopBlock(settings));
-    public static final ShopBlock SHOP_BLOCK_WARPED = registerBlock("shop_warped",
+    public static final ShopBlock SHOP_BLOCK_WARPED = registerShopBlock("shop_warped",
             new ShopBlock(settings));
-    public static final ShopBlock SHOP_BLOCK_JUNGLE = registerBlock("shop_jungle",
+    public static final ShopBlock SHOP_BLOCK_JUNGLE = registerShopBlock("shop_jungle",
             new ShopBlock(settings));
-    /*public static final Block TROPHY = registerBlock("trophy",
-            new Trophy(new Block(FabricBlockSettings.copyOf(Blocks.GOLD_BLOCK).nonOpaque()),FabricBlockSettings.copyOf(Blocks.GOLD_BLOCK).nonOpaque()));
-*/
-    private static <T extends Block> T registerBlock(String name, T block) {
-        registerBlockItem(name, block);
-        return Registry.register(Registries.BLOCK,Identifier.of(SpudaciousShops.MOD_ID, name), block);
+
+    private static <T extends ShopBlock> T registerShopBlock(String name, T block) {
+        /*for(Colour colour : Colour.values()) {
+            registerShopBlockItem(name+"_"+colour.name(), block, colour);
+        }*/
+        registerBlockItem(name,block);
+        return Registry.register(Registries.BLOCK, Identifier.of(SpudaciousShops.MOD_ID, name), block);
     }
 
-    private static void registerBlockItem(String name, Block block) {
+    private static void registerShopBlockItem(String name, ShopBlock block, Colour colour) {
+        Registry.register(Registries.ITEM, Identifier.of(SpudaciousShops.MOD_ID, name),
+                new ShopItem(block, new Item.Settings(), colour));
+    }
+
+    private static void registerBlockItem(String name, ShopBlock block) {
         Registry.register(Registries.ITEM, Identifier.of(SpudaciousShops.MOD_ID, name),
                 new BlockItem(block, new Item.Settings()));
     }

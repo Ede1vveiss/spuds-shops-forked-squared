@@ -3,6 +3,7 @@ package net.spudacious5705.shops.block.entity.renderer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
@@ -10,20 +11,29 @@ import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.text.Text;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 import net.spudacious5705.shops.block.entity.ShopEntity;
 import net.spudacious5705.shops.item.ModItems;
+import net.spudacious5705.shops.model.CushionModel;
 
 public class ShopBlockEntityRenderer implements BlockEntityRenderer<ShopEntity> {
 
     private final BlockEntityRendererFactory.Context context;
 
+    private final CushionModel model;
+
+    private static final Direction[] dirs = new Direction[]{
+            Direction.NORTH,
+            Direction.EAST,
+            Direction.SOUTH,
+            Direction.WEST
+    };
+
     public ShopBlockEntityRenderer(BlockEntityRendererFactory.Context ctx) {
         this.context = ctx;
-
+        model = new CushionModel(ctx.getLayerModelPart(CushionModel.LAYER_LOCATION));
     }
 
     @Override
@@ -33,7 +43,23 @@ public class ShopBlockEntityRenderer implements BlockEntityRenderer<ShopEntity> 
 
         data.tickAccumulator(tickDelta);
 
+
+        matrices.push();
+        matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(
+                switch (shop.getCachedFacingDirection()) {
+                    default -> 0f;
+                    case EAST -> 270f;
+                    case SOUTH -> 180f;
+                    case WEST -> 90f;
+                }),
+                0.5f,0f,0.5f);
+        this.model.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntitySolid(data.getCushionTexture())), light, overlay);
+        matrices.pop();
+
+
         if (data.shopFunctional()) {
+
+            //render item being sold
             matrices.push();
             matrices.translate(0.5f, 0.58f, 0.5f);
 
@@ -48,8 +74,10 @@ public class ShopBlockEntityRenderer implements BlockEntityRenderer<ShopEntity> 
                 mode = ModelTransformationMode.GUI;
             }
 
-            this.context.getItemRenderer().renderItem(data.displayItem(), mode, data.lightLevel(), OverlayTexture.DEFAULT_UV, matrices, vertexConsumers, data.world(), 1);
+            this.context.getItemRenderer().renderItem(data.displayItem(), mode, light, OverlayTexture.DEFAULT_UV, matrices, vertexConsumers, data.world(), 1);
             matrices.pop();
+
+            //render price (count of currency)
             matrices.push();
 
 
@@ -96,6 +124,45 @@ public class ShopBlockEntityRenderer implements BlockEntityRenderer<ShopEntity> 
                     light
             );
             matrices.pop();
+
+
+            //render amount being sold
+                matrices.push();
+
+
+                matrices.translate(0.3f, 0.675f, .25f);
+
+                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(
+                                switch (data.direction()) {
+                                    default -> 0f;
+                                    case EAST -> 270f;
+                                    case SOUTH -> 180f;
+                                    case WEST -> 90f;
+                                }),
+                        0.2f, 0f, 0.25f);
+
+                matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(180.0f));
+                matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-67.5f));
+
+
+                matrices.scale(0.018f, 0.018f, 0.018f);
+
+                this.context.getTextRenderer().draw(
+                        data.stockQuantity,
+                        data.qWidth(),
+                        -4f,
+                        0xffff00,
+                        false,
+                        matrices.peek().getPositionMatrix(),
+                        vertexConsumers,
+                        TextRenderer.TextLayerType.NORMAL,
+                        0xffffff,
+                        light
+                );
+                matrices.pop();
+
+
+            //render currency type
             matrices.push();
             if(data.direction() == Direction.NORTH){
                 matrices.translate(0.385f, 0.16f, 0.0525f);
@@ -118,7 +185,7 @@ public class ShopBlockEntityRenderer implements BlockEntityRenderer<ShopEntity> 
                 matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-22.5f));
             }
             matrices.scale(0.18f, 0.18f, 0.18f);
-            this.context.getItemRenderer().renderItem(data.paymentType(), ModelTransformationMode.GUI, data.lightLevel(), OverlayTexture.DEFAULT_UV, matrices, vertexConsumers, data.world(), 1);
+            this.context.getItemRenderer().renderItem(data.paymentType(), ModelTransformationMode.GUI, light, overlay, matrices, vertexConsumers, data.world(), 1);
             matrices.pop();
 
             if(data.stockWarning || data.paymentWarning){
@@ -161,15 +228,15 @@ public class ShopBlockEntityRenderer implements BlockEntityRenderer<ShopEntity> 
 
                     matrices.translate(0.5f, 0.0f, 0.0f);
 
-                    this.context.getItemRenderer().renderItem(new ItemStack(ModItems.STOCK_WARNING),ModelTransformationMode.GUI, data.lightLevel(), OverlayTexture.DEFAULT_UV, matrices, vertexConsumers, data.world(), 1);
+                    this.context.getItemRenderer().renderItem(new ItemStack(ModItems.STOCK_WARNING),ModelTransformationMode.GUI, light, overlay, matrices, vertexConsumers, data.world(), 1);
                     matrices.translate(-1.0f, 0.0f, 0.0f);
-                    this.context.getItemRenderer().renderItem(new ItemStack(ModItems.PAYMENT_WARNING),ModelTransformationMode.GUI, data.lightLevel(), OverlayTexture.DEFAULT_UV, matrices, vertexConsumers, data.world(), 1);
+                    this.context.getItemRenderer().renderItem(new ItemStack(ModItems.PAYMENT_WARNING),ModelTransformationMode.GUI, light, overlay, matrices, vertexConsumers, data.world(), 1);
                     matrices.pop();
                 } else if (data.stockWarning) {
-                    this.context.getItemRenderer().renderItem(new ItemStack(ModItems.STOCK_WARNING),ModelTransformationMode.GUI, data.lightLevel(), OverlayTexture.DEFAULT_UV, matrices, vertexConsumers, data.world(), 1);
+                    this.context.getItemRenderer().renderItem(new ItemStack(ModItems.STOCK_WARNING),ModelTransformationMode.GUI, light, overlay, matrices, vertexConsumers, data.world(), 1);
                     matrices.pop();
                 } else {
-                    this.context.getItemRenderer().renderItem(new ItemStack(ModItems.PAYMENT_WARNING),ModelTransformationMode.GUI, data.lightLevel(), OverlayTexture.DEFAULT_UV, matrices, vertexConsumers, data.world(), 1);
+                    this.context.getItemRenderer().renderItem(new ItemStack(ModItems.PAYMENT_WARNING),ModelTransformationMode.GUI, light, overlay, matrices, vertexConsumers, data.world(), 1);
                     matrices.pop();
                 }
             }

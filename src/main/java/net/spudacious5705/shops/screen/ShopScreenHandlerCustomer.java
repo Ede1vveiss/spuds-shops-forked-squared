@@ -79,7 +79,7 @@ public class ShopScreenHandlerCustomer extends ScreenHandler {
     public ItemStack quickMove(PlayerEntity player, int invSlot) {
         ItemStack newStack = ItemStack.EMPTY;
         Slot slot = this.slots.get(invSlot);
-        if (slot == null || !slot.hasStack()) {return newStack;}
+        if (!slot.hasStack()) {return newStack;}
         ItemStack originalStack = slot.getStack();
         newStack = originalStack.copy();
 
