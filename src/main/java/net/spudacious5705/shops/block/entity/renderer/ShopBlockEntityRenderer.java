@@ -17,6 +17,8 @@ import net.minecraft.util.math.RotationAxis;
 import net.spudacious5705.shops.block.entity.ShopEntity;
 import net.spudacious5705.shops.item.ModItems;
 import net.spudacious5705.shops.model.CushionModel;
+import net.spudacious5705.shops.model.CushionTextures;
+import net.spudacious5705.shops.properties.Colour;
 
 public class ShopBlockEntityRenderer implements BlockEntityRenderer<ShopEntity> {
 
@@ -45,6 +47,10 @@ public class ShopBlockEntityRenderer implements BlockEntityRenderer<ShopEntity> 
 
 
         matrices.push();
+        this.model.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntitySolid(CushionTextures.TEXTURE_GREEN)), light, overlay);
+        matrices.pop();
+
+        matrices.push();
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(
                 switch (shop.getCachedFacingDirection()) {
                     default -> 0f;
@@ -53,7 +59,7 @@ public class ShopBlockEntityRenderer implements BlockEntityRenderer<ShopEntity> 
                     case WEST -> 90f;
                 }),
                 0.5f,0f,0.5f);
-        this.model.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntitySolid(data.getCushionTexture())), light, overlay);
+        this.model.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntitySolid(shop.getCushionTexureID())), light, overlay);
         matrices.pop();
 
 

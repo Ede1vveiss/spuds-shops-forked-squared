@@ -9,7 +9,7 @@
       "item": "minecraft:glass"
     },
     "p": {
-      "item": "minecraft:oak_planks"
+      "item": "minecraft:jungle_planks"
     },
     "w": {
       "item": "minecraft:white_wool"
@@ -21,7 +21,7 @@
     "ccc"
   ],
   "result": {
-    "count": 1,
-    "id": "spudaciousshops:shop_oak"
-  }
+    "item": "spudaciousshops:shop_jungle"
+  },
+  "show_notification": true
 }

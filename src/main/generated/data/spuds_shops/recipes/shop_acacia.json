@@ -21,7 +21,7 @@
     "ccc"
   ],
   "result": {
-    "count": 1,
-    "id": "spudaciousshops:shop_acacia"
-  }
+    "item": "spudaciousshops:shop_acacia"
+  },
+  "show_notification": true
 }

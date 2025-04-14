@@ -5,7 +5,9 @@
       "conditions": {
         "items": [
           {
-            "items": "minecraft:chest"
+            "items": [
+              "minecraft:chest"
+            ]
           }
         ]
       },
@@ -15,7 +17,9 @@
       "conditions": {
         "items": [
           {
-            "items": "minecraft:glass"
+            "items": [
+              "minecraft:glass"
+            ]
           }
         ]
       },
@@ -25,7 +29,9 @@
       "conditions": {
         "items": [
           {
-            "items": "minecraft:jungle_planks"
+            "items": [
+              "minecraft:jungle_planks"
+            ]
           }
         ]
       },
@@ -41,7 +47,9 @@
       "conditions": {
         "items": [
           {
-            "items": "minecraft:white_wool"
+            "items": [
+              "minecraft:white_wool"
+            ]
           }
         ]
       },
@@ -50,16 +58,17 @@
   },
   "requirements": [
     [
-      "has_the_recipe",
       "has_glass",
       "has_chest",
       "has_jungle_planks",
-      "has_white_wool"
+      "has_white_wool",
+      "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
       "spudaciousshops:shop_jungle"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }

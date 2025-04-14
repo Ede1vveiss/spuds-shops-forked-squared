@@ -13,14 +13,17 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.property.Properties;
@@ -34,21 +37,22 @@ import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import net.spudacious5705.shops.block.custom.ShopBlock;
 import net.spudacious5705.shops.model.CushionTextures;
-import net.spudacious5705.shops.network.BlockPosPayload;
 import net.spudacious5705.shops.properties.Colour;
 import net.spudacious5705.shops.properties.ModProperties;
 import net.spudacious5705.shops.screen.ShopScreenHandlerCustomer;
 import net.spudacious5705.shops.screen.ShopScreenHandlerOwner;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.UUID;
 
-public class ShopEntity extends BlockEntity implements ExtendedScreenHandlerFactory<BlockPosPayload>{
+public class ShopEntity extends BlockEntity implements ExtendedScreenHandlerFactory, Inventory {
     private final int INV_SIZE = 78;
     private final ShopEntity self =  this;
     private  final  DefaultedList<ItemStack> itemStacks = DefaultedList.ofSize(INV_SIZE, ItemStack.EMPTY);
 
-    private final Inventory inv = new Inventory() {
+    protected final PropertyDelegate propertyDelegate;
+
 
         @Override
         public int size() {
@@ -82,7 +86,9 @@ public class ShopEntity extends BlockEntity implements ExtendedScreenHandlerFact
 
         @Override
         public void markDirty() {
-            self.markDirty();
+            assert world != null;
+            world.updateListeners(pos,getCachedState(),getCachedState(),3);
+            super.markDirty();
         }
 
         @Override
@@ -94,15 +100,15 @@ public class ShopEntity extends BlockEntity implements ExtendedScreenHandlerFact
         public void clear() {
             itemStacks.clear();
         }
-    };
+
 
     public Inventory getInventory() {
-        return inv;
+        return (Inventory) this;
     }
 
 
     private void update() {
-        markDirty();
+        //markDirty();
         if(world != null)
             world.updateListeners(pos, getCachedState(), getCachedState(), Block.NOTIFY_ALL);
     }
@@ -113,19 +119,62 @@ public class ShopEntity extends BlockEntity implements ExtendedScreenHandlerFact
     private static final int STOCK_END = 53;
     private static final int PROFIT_END = 75;
 
-    private RendererData rendererData;
+    private final RendererData rendererData;
 
     private UUID ownerID;
 
+
     public ShopEntity(BlockPos pos, BlockState state) {
+
         super(ModBlockEntities.SHOP_ENTITY, pos, state);
+
+        rendererData = new RendererData(this);
+
+        this.propertyDelegate = new PropertyDelegate() {
+            @Override
+            public int get(int index) {
+                return ShopEntity.this.getStack(index).getCount();
+            }
+
+            @Override
+            public void set(int index, int value) {
+            }
+
+            @Override
+            public int size() {
+                return 0;
+            }
+        };
+
+        rendererData.update();
     }
 
-    public void setOwnerID(UUID id) {
+    @Nullable
+    private static RendererData createRendererData(ShopEntity shop){
+        if(Objects.requireNonNull(shop.getWorld()).isClient()){
+            return newData(shop);
+        }
+        noNewData();
+        return null;
+    }
+
+    @Environment(EnvType.CLIENT)
+    private static RendererData newData(ShopEntity shop){
+        return new RendererData(shop);
+    }
+
+    @Environment(EnvType.SERVER)
+    private static void noNewData(){
+
+    }
+
+    public boolean setOwnerID(UUID id) {
         if (this.ownerID == null) {
             this.ownerID = id;
+            markDirty();
+            return true;
         }
-        markDirty();
+        return false;
     }
 
     public boolean hasEnoughStock(){
@@ -168,11 +217,11 @@ public class ShopEntity extends BlockEntity implements ExtendedScreenHandlerFact
 
         int result = player.getUuid().compareTo(ownerID);
 
-        if(result==0) return new ShopScreenHandlerOwner(syncId, playerInventory, this, this.inv);
+        if(result==0) return new ShopScreenHandlerOwner(syncId, playerInventory, this, this.propertyDelegate);
 
         if(!isShopFunctional()) {return null;}
 
-        return new ShopScreenHandlerCustomer(syncId, playerInventory, this, this.inv);
+        return new ShopScreenHandlerCustomer(syncId, playerInventory, this, this.propertyDelegate);
     }
 
     @Override
@@ -180,15 +229,8 @@ public class ShopEntity extends BlockEntity implements ExtendedScreenHandlerFact
         return super.getCachedState();
     }
 
-    @Override
-    public void markDirty() {
-        assert world != null;
-        world.updateListeners(pos,getCachedState(),getCachedState(),3);
-        super.markDirty();
-    }
-
     public Item getPaymentType() {
-        return this.inv.getStack(PAYMENT_SLOT).getItem();
+        return this.getStack(PAYMENT_SLOT).getItem();
     }
 
     public boolean isShopFunctional(){
@@ -200,21 +242,21 @@ public class ShopEntity extends BlockEntity implements ExtendedScreenHandlerFact
     }
 
     @Override
-    public void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup wrapper) {
-        super.readNbt(nbt, wrapper);
-        Inventories.readNbt(nbt, itemStacks, wrapper);
+    public void readNbt(NbtCompound nbt) {
+        super.readNbt(nbt);
+        Inventories.readNbt(nbt, itemStacks);
         if(nbt.containsUuid("owner_id")) {
             this.ownerID = nbt.getUuid("owner_id");
         }
     }
 
     @Override
-    protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup wrapper) {
-        Inventories.writeNbt(nbt, itemStacks, wrapper);
+    protected void writeNbt(NbtCompound nbt) {
+        Inventories.writeNbt(nbt, itemStacks);
         if(this.ownerID != null) {
             nbt.putUuid("owner_id", this.ownerID);
         }
-        super.writeNbt(nbt, wrapper);
+        super.writeNbt(nbt);
     }
 
     @Nullable
@@ -223,11 +265,6 @@ public class ShopEntity extends BlockEntity implements ExtendedScreenHandlerFact
         return BlockEntityUpdateS2CPacket.create(this);
     }
 
-
-    @Override
-    public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registryLookup) {
-        return createNbt(registryLookup);
-    }
 
     public Direction getFacingDirection() {
         assert this.world != null;
@@ -251,9 +288,9 @@ public class ShopEntity extends BlockEntity implements ExtendedScreenHandlerFact
         return colour;
     }
 
-    public Item getDisplayItem() {return this.inv.getStack(VENDING_SLOT).getItem();}
+    public Item getDisplayItem() {return this.getStack(VENDING_SLOT).getItem();}
 
-    public int getVendingQuantity() {return this.inv.getStack(VENDING_SLOT).getCount();}
+    public int getVendingQuantity() {return this.getStack(VENDING_SLOT).getCount();}
 
     public int getPrice() {
         if(this.itemStacks.get(PAYMENT_SLOT).isEmpty()){return 0;}
@@ -266,9 +303,6 @@ public class ShopEntity extends BlockEntity implements ExtendedScreenHandlerFact
 
     public void tick(World world1, BlockPos pos, BlockState state1) {
         if(world1.isClient()){
-            if(this.rendererData == null) {
-                this.rendererData = new RendererData(this);;
-            }
             this.rendererData.onTick();
         }
     }
@@ -283,15 +317,10 @@ public class ShopEntity extends BlockEntity implements ExtendedScreenHandlerFact
         return this.isOwner(player.getUuid());
     }
 
-    @Override
-    public BlockPosPayload getScreenOpeningData(ServerPlayerEntity player) {
-        return new BlockPosPayload(this.pos);
-    }
-
     public void itemScatter(World world, BlockPos pos) {
         itemStacks.set(PAYMENT_SLOT, ItemStack.EMPTY);
         itemStacks.set(VENDING_SLOT, ItemStack.EMPTY);
-        ItemScatterer.spawn(world, pos, inv);
+        ItemScatterer.spawn(world, pos, this);
     }
 
     public Identifier getCushionTexureID() {
@@ -303,6 +332,15 @@ public class ShopEntity extends BlockEntity implements ExtendedScreenHandlerFact
     @Environment(EnvType.CLIENT)
     public void forceUpdateRenderData() {
         this.rendererData.update();
+    }
+
+    @Override
+    public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
+        buf.writeBlockPos(this.pos);
+    }
+
+    public boolean canTakeItems(PlayerEntity player) {
+        return hasEnoughStock() && spaceForMoney() && player.getInventory().contains(itemStacks.get(PAYMENT_SLOT));
     }
 
     @Environment(EnvType.CLIENT)
@@ -331,19 +369,16 @@ public class ShopEntity extends BlockEntity implements ExtendedScreenHandlerFact
         public boolean paymentWarning = false;
         public final BlockPos pos;
         private float qWidth;
-        private Identifier cushion_texture;
 
         public RendererData(ShopEntity shop1){
             this.shop = shop1;
             this.world = shop1.getWorld();
-            cushion_texture = shop1.getCushionTexureID();
+            shop1.getCushionTexureID();
             pos = shop1.getPos();
         }
 
         public void update(){
             this.shopFunctional = shop.isShopFunctional();
-
-            cushion_texture = shop.getCushionTexureID();
 
             if(this.shopFunctional) {
                 this.paymentType = new ItemStack(shop.getPaymentType());
@@ -408,9 +443,6 @@ public class ShopEntity extends BlockEntity implements ExtendedScreenHandlerFact
             return LightmapTextureManager.pack(bLight, sLight);
         }
 
-        public Identifier getCushionTexture(){
-            return cushion_texture;
-        }
 
         private void getRotation(){
             this.rotation = switch (direction) {

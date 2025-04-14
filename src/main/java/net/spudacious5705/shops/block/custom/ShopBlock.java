@@ -1,14 +1,14 @@
 package net.spudacious5705.shops.block.custom;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.*;
 
 import net.minecraft.screen.NamedScreenHandlerFactory;
@@ -32,12 +32,11 @@ import net.spudacious5705.shops.block.entity.ShopEntity;
 import net.spudacious5705.shops.model.CushionResources;
 import net.spudacious5705.shops.properties.Colour;
 import net.spudacious5705.shops.properties.ModProperties;
+import net.spudacious5705.shops.properties.PermissionLevel;
 import org.jetbrains.annotations.Nullable;
 
 
-public class ShopBlock extends BlockWithEntity implements BlockEntityProvider{
-
-    public static final MapCodec<ShopBlock> CODEC = ShopBlock.createCodec(ShopBlock::new);
+public class ShopBlock extends BlockWithEntity implements BlockEntityProvider {
 
     public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
     public static final EnumProperty<Colour> CUSHION_COLOUR = ModProperties.CUSHION_COLOUR;
@@ -79,11 +78,6 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider{
                         .with(FACING, Direction.NORTH)
                         .with(CUSHION_COLOUR, Colour.WHITE)
         );
-    }
-
-    @Override
-    protected MapCodec<? extends BlockWithEntity> getCodec() {
-        return CODEC;
     }
 
     public Direction getFacing(BlockState state) {
@@ -173,24 +167,33 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider{
         return new ShopEntity(pos, state);
     }
 
-    private void setOwner(World world, BlockPos pos, PlayerEntity player) {
+    private PermissionLevel userSignIn(World world, BlockPos pos, PlayerEntity player) {
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof ShopEntity shopEntity) {
-            shopEntity.setOwnerID(player.getUuid());
+            if(shopEntity.setOwnerID(player.getUuid())){
+                return PermissionLevel.OWNER;
+            }
         }
+        return PermissionLevel.CUSTOMER;
     }
 
 
     @Override
-    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
+    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 
         if (world.isClient) return ActionResult.SUCCESS;
+
+        ItemStack stack = player.getStackInHand(hand);
+
+        if(!stack.isEmpty()){
+            if(onUseWithItem(stack,state,world,pos,player)) return ActionResult.SUCCESS;
+        }
 
         BlockEntity be = world.getBlockEntity(pos);
 
         if(!( be instanceof ShopEntity && player != null)) return ActionResult.FAIL;
 
-        setOwner(world, pos, player);
+        PermissionLevel perm = userSignIn(world, pos, player);
 
         NamedScreenHandlerFactory screenHandlerFactory = (ShopEntity)world.getBlockEntity(pos);
         if (screenHandlerFactory != null) {
@@ -200,8 +203,7 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider{
         return ActionResult.SUCCESS;
     }
 
-    @Override
-    protected ItemActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+    protected boolean onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player) {
             if(!stack.isEmpty()){
                 Item item = stack.getItem();
                 if(CushionResources.DYE_MAP.containsKey(item)){
@@ -209,9 +211,9 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider{
                     if(state.get(CUSHION_COLOUR) != group.colour()) {
                         stack.decrement(1);
                         world.setBlockState(pos, state.with(CUSHION_COLOUR, group.colour()));
-                        world.playSound(player,pos.getX(),pos.getY(),pos.getZ(), SoundEvents.ITEM_DYE_USE, SoundCategory.BLOCKS);
+                        world.playSound(player,pos, SoundEvents.ITEM_DYE_USE, SoundCategory.BLOCKS);
                         attemptRenderDataForceUpdate(world, pos);
-                        return ItemActionResult.success(true);
+                        return true;
                     }
                 } else if (CushionResources.WOOL_MAP.containsKey(item)) {
                     CushionResources.cushionColourGroup group = CushionResources.WOOL_MAP.get(item);
@@ -221,15 +223,14 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider{
                         stack.decrement(1);
                         group = CushionResources.COLOUR_MAP.get(originalColour);
                         ItemStack releaseStack = new ItemStack(group.wool(),1);
-                        world.spawnEntity(new ItemEntity(world,pos.getX()+0.5f,pos.getY()+0.5f,pos.getZ()+0.5f,releaseStack,0f,1f,0f));
-                        world.playSound(player,pos.getX(),pos.getY(),pos.getZ(), SoundEvents.ENTITY_SHEEP_SHEAR, SoundCategory.BLOCKS);
+                        world.spawnEntity(new ItemEntity(world,pos.getX()+0.5f,pos.getY()+0.5f,pos.getZ()+0.5f,releaseStack,0f,0.1f,0f));
+                        world.playSound(player,pos, SoundEvents.ENTITY_SHEEP_SHEAR, SoundCategory.BLOCKS);
                         attemptRenderDataForceUpdate(world, pos);
-                        return ItemActionResult.success(true);
+                        return true;
                     }
                 }
         }
-        onUse(state, world, pos, player, hit);
-        return ItemActionResult.success(false);
+        return false;
     }
 
     @Override
@@ -247,21 +248,23 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider{
     }
 
     private static void attemptRenderDataForceUpdate(World world,BlockPos pos){
+        if(world.isClient()){
         if(world.getBlockEntity(pos) instanceof ShopEntity shop) {
             if(world.isClient())shop.forceUpdateRenderData();
+        }} else{
+            world.isClient();
         }
     }
 
-    @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
         if(!world.isClient()) {
             return null;
         }
-
-        return validateTicker(type, ModBlockEntities.SHOP_ENTITY,
+        return checkType(type, ModBlockEntities.SHOP_ENTITY,
                 (world1, pos, state1, blockEntity) -> blockEntity.tick(world1,pos,state1));
     }
 }
+
 
 

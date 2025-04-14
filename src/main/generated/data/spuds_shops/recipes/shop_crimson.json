@@ -21,7 +21,7 @@
     "ccc"
   ],
   "result": {
-    "count": 1,
-    "id": "spudaciousshops:shop_crimson"
-  }
+    "item": "spudaciousshops:shop_crimson"
+  },
+  "show_notification": true
 }

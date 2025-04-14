@@ -1,21 +1,25 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_birch_planks": {
+    "has_chest": {
       "conditions": {
         "items": [
           {
-            "items": "minecraft:birch_planks"
+            "items": [
+              "minecraft:chest"
+            ]
           }
         ]
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_chest": {
+    "has_dark_oak_planks": {
       "conditions": {
         "items": [
           {
-            "items": "minecraft:chest"
+            "items": [
+              "minecraft:dark_oak_planks"
+            ]
           }
         ]
       },
@@ -25,7 +29,9 @@
       "conditions": {
         "items": [
           {
-            "items": "minecraft:glass"
+            "items": [
+              "minecraft:glass"
+            ]
           }
         ]
       },
@@ -33,7 +39,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "spudaciousshops:shop_birch"
+        "recipe": "spudaciousshops:shop_dark_oak"
       },
       "trigger": "minecraft:recipe_unlocked"
     },
@@ -41,7 +47,9 @@
       "conditions": {
         "items": [
           {
-            "items": "minecraft:white_wool"
+            "items": [
+              "minecraft:white_wool"
+            ]
           }
         ]
       },
@@ -50,16 +58,17 @@
   },
   "requirements": [
     [
-      "has_the_recipe",
       "has_glass",
       "has_chest",
-      "has_birch_planks",
-      "has_white_wool"
+      "has_dark_oak_planks",
+      "has_white_wool",
+      "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "spudaciousshops:shop_birch"
+      "spudaciousshops:shop_dark_oak"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }

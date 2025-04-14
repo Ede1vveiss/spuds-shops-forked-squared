@@ -11,8 +11,8 @@ import net.spudacious5705.shops.block.ModBlocks;
 public class ModBlockEntities {
 
     public static final BlockEntityType<ShopEntity> SHOP_ENTITY =
-            Registry.register(Registries.BLOCK_ENTITY_TYPE, Identifier.of(SpudaciousShops.MOD_ID, "shop_b_e"),
-                    BlockEntityType.Builder.create(ShopEntity::new,
+            Registry.register(Registries.BLOCK_ENTITY_TYPE, new Identifier(SpudaciousShops.MOD_ID, "shop_b_e"),
+                    FabricBlockEntityTypeBuilder.create(ShopEntity::new,
                             ModBlocks.SHOP_BLOCK_OAK,
                             ModBlocks.SHOP_BLOCK_BAMBOO,
                             ModBlocks.SHOP_BLOCK_BIRCH,
@@ -24,7 +24,7 @@ public class ModBlockEntities {
                             ModBlocks.SHOP_BLOCK_SPRUCE,
                             ModBlocks.SHOP_BLOCK_WARPED,
                             ModBlocks.SHOP_BLOCK_JUNGLE
-                            ).build());
+                    ).build());
 
 
     public static void registerBlockEntities() {

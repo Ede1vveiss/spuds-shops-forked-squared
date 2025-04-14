@@ -9,7 +9,7 @@
       "item": "minecraft:glass"
     },
     "p": {
-      "item": "minecraft:dark_oak_planks"
+      "item": "minecraft:spruce_planks"
     },
     "w": {
       "item": "minecraft:white_wool"
@@ -21,7 +21,7 @@
     "ccc"
   ],
   "result": {
-    "count": 1,
-    "id": "spudaciousshops:shop_dark_oak"
-  }
+    "item": "spudaciousshops:shop_spruce"
+  },
+  "show_notification": true
 }
