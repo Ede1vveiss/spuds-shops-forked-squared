@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "colour=black": { "model": "spudaciousshops:block/cushion_black" },
+    "colour=white": { "model": "spudaciousshops:block/cushion_white" },
+    "colour=red": { "model": "spudaciousshops:block/cushion_red" },
+    "colour=blue": { "model": "spudaciousshops:block/cushion_blue" },
+    "colour=purple": { "model": "spudaciousshops:block/cushion_purple" },
+    "colour=green": { "model": "spudaciousshops:block/cushion_green" },
+    "colour=lime": { "model": "spudaciousshops:block/cushion_lime" },
+    "colour=orange": { "model": "spudaciousshops:block/cushion_orange" },
+    "colour=grey": { "model": "spudaciousshops:block/cushion_grey" },
+    "colour=light_grey": { "model": "spudaciousshops:block/cushion_light_grey" },
+    "colour=brown": { "model": "spudaciousshops:block/cushion_brown" },
+    "colour=yellow": { "model": "spudaciousshops:block/cushion_yellow" },
+    "colour=light_blue": { "model": "spudaciousshops:block/cushion_light_blue" },
+    "colour=cyan": { "model": "spudaciousshops:block/cushion_cyan" },
+    "colour=magenta": { "model": "spudaciousshops:block/cushion_magenta" },
+    "colour=pink": { "model": "spudaciousshops:block/cushion_pink" }
+  }
+}

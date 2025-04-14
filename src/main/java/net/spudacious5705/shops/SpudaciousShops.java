@@ -5,11 +5,13 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.item.ItemGroups;
+import net.minecraft.util.Identifier;
 import net.spudacious5705.shops.block.ModBlocks;
 import net.spudacious5705.shops.block.entity.ModBlockEntities;
 import net.spudacious5705.shops.event.ShopBreakHandler;
 import net.spudacious5705.shops.item.ModItemGroups;
 import net.spudacious5705.shops.item.ModItems;
+import net.spudacious5705.shops.properties.ModProperties;
 import net.spudacious5705.shops.screen.ModScreenHandlers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +24,8 @@ public class SpudaciousShops implements ModInitializer {
 	@Override
 	public void onInitialize() {
 
+		ModProperties.registerModProperties();
+
 		ModItems.registerModItems();
 		ModBlocks.registerModBlocks();
 
@@ -31,6 +35,10 @@ public class SpudaciousShops implements ModInitializer {
 
 		ModItemGroups.initialise();
 
+	}
+
+	public static Identifier id(String path) {
+		return Identifier.of(MOD_ID, path);
 	}
 
 }

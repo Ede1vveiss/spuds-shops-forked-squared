@@ -2,9 +2,8 @@
 	"credit": "Made with Blockbench, by Spudacious5705 and Janko1902",
 	"texture_size": [32, 32],
 	"textures": {
-		"cussion": "spudaciousshops:block/cussion_red",
 		"glass": "spudaciousshops:block/shop_glass",
-		"particle": "minecraft:s/acacia_planks"
+		"particle": "minecraft:block/acacia_planks"
 	},
 	"elements": [
 		{
@@ -33,20 +32,6 @@
 				"west": {"uv": [5, 10, 10, 11.5], "texture": "glass"},
 				"up": {"uv": [6, 5, 0, 0], "texture": "glass"},
 				"down": {"uv": [6, 5, 0, 10], "texture": "glass"}
-			}
-		},
-		{
-			"name": "cussion",
-			"from": [3, 11, 6],
-			"to": [13, 12, 13],
-			"rotation": {"angle": -22.5, "axis": "x", "origin": [0, 7, 16]},
-			"faces": {
-				"north": {"uv": [5, 0, 10, 0.5], "texture": "cussion"},
-				"east": {"uv": [5, 1, 8.5, 1.5], "texture": "cussion"},
-				"south": {"uv": [5, 0.5, 10, 1], "texture": "cussion"},
-				"west": {"uv": [5, 1.5, 8.5, 2], "texture": "cussion"},
-				"up": {"uv": [5, 3.5, 0, 0], "texture": "cussion"},
-				"down": {"uv": [5, 3.5, 0, 7], "texture": "cussion"}
 			}
 		},
 		{
