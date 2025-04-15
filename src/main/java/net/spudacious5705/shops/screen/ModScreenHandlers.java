@@ -14,7 +14,7 @@ public class ModScreenHandlers {
                     new ExtendedScreenHandlerType<>(ShopScreenHandlerOwner::new));
 
     public  static  final ScreenHandlerType<ShopScreenHandlerCustomer> SHOP_SCREEN_HANDLER_CUSTOMER =
-            new ExtendedScreenHandlerType<>(ShopScreenHandlerCustomer::new);
+                    new ExtendedScreenHandlerType<>(ShopScreenHandlerCustomer::new);
 
 
     public static Identifier id(String path) {

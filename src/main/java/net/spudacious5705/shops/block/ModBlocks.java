@@ -1,5 +1,6 @@
 package net.spudacious5705.shops.block;
 
+import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
@@ -47,17 +48,17 @@ public class ModBlocks {
             registerShopBlockItem(name+"_"+colour.name(), block, colour);
         }*/
         registerBlockItem(name,block);
-        return Registry.register(Registries.BLOCK, Identifier.of(SpudaciousShops.MOD_ID, name), block);
+        return Registry.register(Registries.BLOCK, new Identifier(SpudaciousShops.MOD_ID, name), block);
     }
 
     private static void registerShopBlockItem(String name, ShopBlock block, Colour colour) {
-        Registry.register(Registries.ITEM, Identifier.of(SpudaciousShops.MOD_ID, name),
-                new ShopItem(block, new Item.Settings(), colour));
+        Registry.register(Registries.ITEM, new Identifier(SpudaciousShops.MOD_ID, name),
+                new ShopItem(block, new FabricItemSettings(), colour));
     }
 
-    private static void registerBlockItem(String name, ShopBlock block) {
-        Registry.register(Registries.ITEM, Identifier.of(SpudaciousShops.MOD_ID, name),
-                new BlockItem(block, new Item.Settings()));
+    private static Item registerBlockItem(String name, Block block) {
+        return Registry.register(Registries.ITEM, new Identifier(SpudaciousShops.MOD_ID, name),
+                new BlockItem(block, new FabricItemSettings()));
     }
 
     public static void registerModBlocks() {

@@ -45,11 +45,6 @@ public class ShopBlockEntityRenderer implements BlockEntityRenderer<ShopEntity> 
 
         data.tickAccumulator(tickDelta);
 
-
-        matrices.push();
-        this.model.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntitySolid(CushionTextures.TEXTURE_GREEN)), light, overlay);
-        matrices.pop();
-
         matrices.push();
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(
                 switch (shop.getCachedFacingDirection()) {

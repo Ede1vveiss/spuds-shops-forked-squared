@@ -181,9 +181,9 @@ public class ShopEntity extends BlockEntity implements ExtendedScreenHandlerFact
         int stock = 0;
         Item displayItem = this.getDisplayItem();
         for (int i = 0; i <= STOCK_END; i++) {
-            if(this.itemStacks.get(i).getItem() == displayItem){
-                stock += this.itemStacks.get(i).getCount();
-                if(stock >= this.itemStacks.get(VENDING_SLOT).getCount()){return true;};
+            if(this.getStack(i).getItem() == displayItem){
+                stock += this.getStack(i).getCount();
+                if(stock >= this.getStack(VENDING_SLOT).getCount()){return true;};
             }
         }
         return false;
@@ -265,6 +265,10 @@ public class ShopEntity extends BlockEntity implements ExtendedScreenHandlerFact
         return BlockEntityUpdateS2CPacket.create(this);
     }
 
+    @Override
+    public NbtCompound toInitialChunkDataNbt() {
+        return createNbt();
+    }
 
     public Direction getFacingDirection() {
         assert this.world != null;
