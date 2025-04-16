@@ -3,6 +3,8 @@ package net.spudacious5705.shops;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.spudacious5705.shops.datagen.*;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class SpudaciousShopsDataGenerator implements DataGeneratorEntrypoint {
 	@Override

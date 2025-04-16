@@ -1,14 +1,20 @@
 package net.spudacious5705.shops.datagen;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.data.server.recipe.RecipeJsonProvider;
 import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
+import net.minecraft.item.Item;
 import net.minecraft.recipe.book.RecipeCategory;
 import net.minecraft.registry.RegistryWrapper;
 import net.spudacious5705.shops.block.ModBlocks;
+import net.spudacious5705.shops.block.custom.ShopBlock;
+import net.spudacious5705.shops.model.CushionResources;
+import net.spudacious5705.shops.properties.Colour;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -20,33 +26,63 @@ public class ModRecipieProvider extends FabricRecipeProvider {
 
     @Override
     public void generate(Consumer<RecipeJsonProvider> consumer) {
-        makeShopRecipie(consumer,ModBlocks.SHOP_BLOCK_ACACIA, Blocks.ACACIA_WOOD);
-        makeShopRecipie(consumer,ModBlocks.SHOP_BLOCK_BAMBOO, Blocks.BAMBOO_PLANKS);
-        makeShopRecipie(consumer,ModBlocks.SHOP_BLOCK_BIRCH, Blocks.BIRCH_PLANKS);
-        makeShopRecipie(consumer,ModBlocks.SHOP_BLOCK_CHERRY, Blocks.CHERRY_PLANKS);
-        makeShopRecipie(consumer,ModBlocks.SHOP_BLOCK_CRIMSON, Blocks.CRIMSON_PLANKS);
-        makeShopRecipie(consumer,ModBlocks.SHOP_BLOCK_DARK_OAK, Blocks.DARK_OAK_PLANKS);
-        makeShopRecipie(consumer,ModBlocks.SHOP_BLOCK_MANGROVE, Blocks.MANGROVE_PLANKS);
-        makeShopRecipie(consumer,ModBlocks.SHOP_BLOCK_OAK, Blocks.OAK_PLANKS);
-        makeShopRecipie(consumer,ModBlocks.SHOP_BLOCK_SPRUCE, Blocks.SPRUCE_PLANKS);
-        makeShopRecipie(consumer,ModBlocks.SHOP_BLOCK_WARPED, Blocks.WARPED_PLANKS);
-        makeShopRecipie(consumer,ModBlocks.SHOP_BLOCK_JUNGLE, Blocks.JUNGLE_PLANKS);
+        CushionResources.initialise();
+
+        for(Colour colour: Colour.values()) {
+
+            for(Wood wood: Wood.values()){
+                makeShopRecipie(consumer, wood.shopBlock.getColouredShopItem(colour),wood.block,CushionResources.COLOUR_MAP.get(colour).wool());
+            }
+
+        }
     }
 
-    private void makeShopRecipie(Consumer<RecipeJsonProvider> consumer, Block shop, Block wood){
-        ShapedRecipeJsonBuilder.create(RecipeCategory.BUILDING_BLOCKS, shop)
+    private void makeShopRecipie(Consumer<RecipeJsonProvider> consumer, Item shopItem, Block wood, Item wool){
+        ShapedRecipeJsonBuilder.create(RecipeCategory.BUILDING_BLOCKS, shopItem)
                 .pattern(" g ").pattern("pwp").pattern("ccc")
                 .input('g', Blocks.GLASS)
                 .input('c', Blocks.CHEST)
                 .input('p', wood)
-                .input('w', Blocks.WHITE_WOOL)
+                .input('w', wool)
                 .criterion(hasItem(Blocks.GLASS), conditionsFromItem(Blocks.GLASS))
                 .criterion(hasItem(Blocks.CHEST),
                         conditionsFromItem(Blocks.CHEST))
                 .criterion(hasItem(wood), conditionsFromItem(wood))
-                .criterion(hasItem(Blocks.WHITE_WOOL),
-                        conditionsFromItem(Blocks.WHITE_WOOL))
+                .criterion(hasItem(wool),
+                        conditionsFromItem(wool))
                 .offerTo(consumer);
 
+    }
+
+    public enum Wood {
+        ACACIA(ModBlocks.SHOP_BLOCK_ACACIA, Blocks.ACACIA_WOOD),
+        BAMBOO(ModBlocks.SHOP_BLOCK_BAMBOO, Blocks.BAMBOO_PLANKS),
+        BIRCH(ModBlocks.SHOP_BLOCK_BIRCH, Blocks.BIRCH_PLANKS),
+        CHERRY(ModBlocks.SHOP_BLOCK_CHERRY, Blocks.CHERRY_PLANKS),
+        CRIMSON(ModBlocks.SHOP_BLOCK_CRIMSON, Blocks.CRIMSON_PLANKS),
+        DARK_OAK(ModBlocks.SHOP_BLOCK_DARK_OAK, Blocks.DARK_OAK_PLANKS),
+        MANGROVE(ModBlocks.SHOP_BLOCK_MANGROVE, Blocks.MANGROVE_PLANKS),
+        OAK(ModBlocks.SHOP_BLOCK_OAK, Blocks.OAK_PLANKS),
+        SPRUCE(ModBlocks.SHOP_BLOCK_SPRUCE, Blocks.SPRUCE_PLANKS),
+        WARPED(ModBlocks.SHOP_BLOCK_WARPED, Blocks.WARPED_PLANKS),
+        JUNGLE(ModBlocks.SHOP_BLOCK_JUNGLE, Blocks.JUNGLE_PLANKS);
+
+        private final ShopBlock shopBlock;
+        private final Block block;
+
+        // Constructor
+        Wood(ShopBlock shopBlock, Block block) {
+            this.shopBlock = shopBlock;
+            this.block = block;
+        }
+
+        // Getters for the properties
+        public ShopBlock getShopBlock() {
+            return shopBlock;
+        }
+
+        public Block getBlock() {
+            return block;
+        }
     }
 }

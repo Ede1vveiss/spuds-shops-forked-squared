@@ -19,7 +19,7 @@ public class ShopBreakHandler implements AttackBlockCallback {
         if(be instanceof ShopEntity shop){
             if(!shop.canBreak(player)){
                 if(world.isClient()) {
-                    player.sendMessage(Text.of("Cannot break"), true);
+                    player.sendMessage(shop.cantBreakMessage(), true);
                 }
                 return ActionResult.SUCCESS;}
         }

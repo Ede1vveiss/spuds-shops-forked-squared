@@ -16,17 +16,17 @@ public final class ModItemGroups {
             .icon(() -> new ItemStack(ModBlocks.SHOP_BLOCK_OAK))
             .entries((displayContext, entries) -> {
 
-                        entries.add(ModBlocks.SHOP_BLOCK_ACACIA);
-                        entries.add(ModBlocks.SHOP_BLOCK_BAMBOO);
-                        entries.add(ModBlocks.SHOP_BLOCK_BIRCH);
-                        entries.add(ModBlocks.SHOP_BLOCK_CHERRY);
-                        entries.add(ModBlocks.SHOP_BLOCK_CRIMSON);
-                        entries.add(ModBlocks.SHOP_BLOCK_OAK);
-                        entries.add(ModBlocks.SHOP_BLOCK_MANGROVE);
-                        entries.add(ModBlocks.SHOP_BLOCK_DARK_OAK);
-                        entries.add(ModBlocks.SHOP_BLOCK_SPRUCE);
-                        entries.add(ModBlocks.SHOP_BLOCK_WARPED);
-                        entries.add(ModBlocks.SHOP_BLOCK_JUNGLE);
+                        entries.add(ModBlocks.SHOP_BLOCK_ACACIA.getDefaultColouredShopItem());
+                        entries.add(ModBlocks.SHOP_BLOCK_BAMBOO.getDefaultColouredShopItem());
+                        entries.add(ModBlocks.SHOP_BLOCK_BIRCH.getDefaultColouredShopItem());
+                        entries.add(ModBlocks.SHOP_BLOCK_CHERRY.getDefaultColouredShopItem());
+                        entries.add(ModBlocks.SHOP_BLOCK_CRIMSON.getDefaultColouredShopItem());
+                        entries.add(ModBlocks.SHOP_BLOCK_OAK.getDefaultColouredShopItem());
+                        entries.add(ModBlocks.SHOP_BLOCK_MANGROVE.getDefaultColouredShopItem());
+                        entries.add(ModBlocks.SHOP_BLOCK_DARK_OAK.getDefaultColouredShopItem());
+                        entries.add(ModBlocks.SHOP_BLOCK_SPRUCE.getDefaultColouredShopItem());
+                        entries.add(ModBlocks.SHOP_BLOCK_WARPED.getDefaultColouredShopItem());
+                        entries.add(ModBlocks.SHOP_BLOCK_JUNGLE.getDefaultColouredShopItem());
 
                     })
             .displayName(Text.translatable("itemGroup.spudaciousshops.shop_item_group"))

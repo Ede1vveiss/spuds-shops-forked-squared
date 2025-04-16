@@ -9,6 +9,8 @@ import net.spudacious5705.shops.block.ModBlocks;
 
 import java.util.concurrent.CompletableFuture;
 
+import net.spudacious5705.shops.datagen.ModRecipieProvider.Wood;
+
 public class ModBlockTagProvider extends FabricTagProvider.BlockTagProvider {
     public ModBlockTagProvider(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
         super(output, registriesFuture);
@@ -16,6 +18,7 @@ public class ModBlockTagProvider extends FabricTagProvider.BlockTagProvider {
 
     @Override
     protected void configure(RegistryWrapper.WrapperLookup wrapperLookup) {
+
         getOrCreateTagBuilder(BlockTags.AXE_MINEABLE)
                 .add(ModBlocks.SHOP_BLOCK_ACACIA)
                 .add(ModBlocks.SHOP_BLOCK_BAMBOO)

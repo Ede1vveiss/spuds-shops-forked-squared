@@ -43,21 +43,22 @@ public class ShopBlockEntityRenderer implements BlockEntityRenderer<ShopEntity> 
         ModelTransformationMode mode;
         ShopEntity.RendererData data = shop.getRendererData();
 
-        data.tickAccumulator(tickDelta);
-
         matrices.push();
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(
-                switch (shop.getCachedFacingDirection()) {
-                    default -> 0f;
-                    case EAST -> 270f;
-                    case SOUTH -> 180f;
-                    case WEST -> 90f;
-                }),
+                        switch (shop.getCachedFacingDirection()) {
+                            default -> 0f;
+                            case EAST -> 270f;
+                            case SOUTH -> 180f;
+                            case WEST -> 90f;
+                        }),
                 0.5f,0f,0.5f);
         this.model.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntitySolid(shop.getCushionTexureID())), light, overlay);
         matrices.pop();
 
-
+        if(data == null){
+            return;
+        }
+        data.tickAccumulator(tickDelta);
         if (data.shopFunctional()) {
 
             //render item being sold
@@ -88,26 +89,26 @@ public class ShopBlockEntityRenderer implements BlockEntityRenderer<ShopEntity> 
                 matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(180.0f));
                 matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-22.5f));
                 matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(0.0f));
-                }
+            }
             if(data.direction() == Direction.EAST){
                 matrices.translate(0.9475f, 0.139375f, 0.57f);
                 matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(180.0f));
                 matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(90.0f));
                 matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-22.5f));
 
-                }
+            }
             if(data.direction() == Direction.SOUTH){
                 matrices.translate(0.43f, 0.139375f, 0.9475f);
                 matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(180.0f));
                 matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180.0f));
                 matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-22.5f));
-                }
+            }
             if(data.direction() == Direction.WEST){
                 matrices.translate(0.0525f, 0.139375f, .43f);
                 matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(180.0f));
                 matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(270.0f));
                 matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-22.5f));
-                }
+            }
 
 
             matrices.scale(0.018f, 0.018f, 0.018f);
@@ -128,39 +129,39 @@ public class ShopBlockEntityRenderer implements BlockEntityRenderer<ShopEntity> 
 
 
             //render amount being sold
-                matrices.push();
+            matrices.push();
 
 
-                matrices.translate(0.3f, 0.675f, .25f);
+            matrices.translate(0.3f, 0.675f, .25f);
 
-                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(
-                                switch (data.direction()) {
-                                    default -> 0f;
-                                    case EAST -> 270f;
-                                    case SOUTH -> 180f;
-                                    case WEST -> 90f;
-                                }),
-                        0.2f, 0f, 0.25f);
+            matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(
+                            switch (data.direction()) {
+                                default -> 0f;
+                                case EAST -> 270f;
+                                case SOUTH -> 180f;
+                                case WEST -> 90f;
+                            }),
+                    0.2f, 0f, 0.25f);
 
-                matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(180.0f));
-                matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-67.5f));
+            matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(180.0f));
+            matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-67.5f));
 
 
-                matrices.scale(0.018f, 0.018f, 0.018f);
+            matrices.scale(0.018f, 0.018f, 0.018f);
 
-                this.context.getTextRenderer().draw(
-                        data.stockQuantity,
-                        data.qWidth(),
-                        -4f,
-                        0xffff00,
-                        false,
-                        matrices.peek().getPositionMatrix(),
-                        vertexConsumers,
-                        TextRenderer.TextLayerType.NORMAL,
-                        0xffffff,
-                        light
-                );
-                matrices.pop();
+            this.context.getTextRenderer().draw(
+                    data.stockQuantity,
+                    data.qWidth(),
+                    -4f,
+                    0xffff00,
+                    false,
+                    matrices.peek().getPositionMatrix(),
+                    vertexConsumers,
+                    TextRenderer.TextLayerType.NORMAL,
+                    0xffffff,
+                    light
+            );
+            matrices.pop();
 
 
             //render currency type

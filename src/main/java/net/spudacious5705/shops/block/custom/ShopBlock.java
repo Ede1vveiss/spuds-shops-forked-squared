@@ -4,6 +4,8 @@ import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -29,11 +31,15 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.spudacious5705.shops.block.entity.ModBlockEntities;
 import net.spudacious5705.shops.block.entity.ShopEntity;
+import net.spudacious5705.shops.item.custom.ShopItem;
 import net.spudacious5705.shops.model.CushionResources;
 import net.spudacious5705.shops.properties.Colour;
 import net.spudacious5705.shops.properties.ModProperties;
 import net.spudacious5705.shops.properties.PermissionLevel;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class ShopBlock extends BlockWithEntity implements BlockEntityProvider {
@@ -148,12 +154,10 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider {
     @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
         if(placer != null) {
-            if (placer.isPlayer()) {
-                PlayerEntity player = (PlayerEntity) placer;
+            if (placer instanceof PlayerEntity player) {
                 BlockEntity blockEntity = world.getBlockEntity(pos);
-                if (blockEntity instanceof ShopEntity) {
-                    ShopEntity shopEntity = (ShopEntity) blockEntity;
-                    shopEntity.setOwnerID(player.getUuid());
+                if (blockEntity instanceof ShopEntity shopEntity) {
+                    shopEntity.setOwnerID(player);
                 }
             }
         }
@@ -170,7 +174,7 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider {
     private PermissionLevel userSignIn(World world, BlockPos pos, PlayerEntity player) {
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof ShopEntity shopEntity) {
-            if(shopEntity.setOwnerID(player.getUuid())){
+            if(shopEntity.setOwnerID(player)){
                 return PermissionLevel.OWNER;
             }
         }
@@ -254,6 +258,20 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider {
         }} else{
             world.isClient();
         }
+    }
+
+    private final Map<Colour,ShopItem> dropMap = new HashMap<>();
+
+    public void addDropItem(ShopItem shopItem, Colour colour) {
+        dropMap.put(colour, shopItem);
+    }
+
+    public ShopItem getColouredShopItem(Colour colour) {
+        return dropMap.getOrDefault(colour,getDefaultColouredShopItem());
+    }
+
+    public ShopItem getDefaultColouredShopItem() {
+        return dropMap.get(Colour.RED);
     }
 
     @Override

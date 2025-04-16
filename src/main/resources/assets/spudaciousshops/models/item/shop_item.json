@@ -3,8 +3,7 @@
 	"texture_size": [32, 32],
 	"textures": {
 		"glass": "spudaciousshops:block/shop_glass",
-		"particle": "minecraft:block/acacia_planks",
-		"cushion": "spudaciousshops:block/cushion/red"
+		"particle": "minecraft:block/acacia_planks"
 	},
 	"elements": [
 		{
