@@ -4,13 +4,9 @@ import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.*;
 
 import net.minecraft.screen.NamedScreenHandlerFactory;
@@ -39,6 +35,7 @@ import net.spudacious5705.shops.properties.PermissionLevel;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 
@@ -94,9 +91,24 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider {
     @Nullable
     @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
+        Colour colour = getColourUsed(ctx);
+
         return this.getDefaultState()
                 .with(FACING, ctx.getHorizontalPlayerFacing().getOpposite())
-                .with(CUSHION_COLOUR, Colour.RED);
+                .with(CUSHION_COLOUR, colour);
+    }
+
+    private static Colour getColourUsed(ItemPlacementContext ctx){
+        PlayerEntity player = ctx.getPlayer();
+        if(player != null) {
+            Iterator<ItemStack> iterator = player.getHandItems().iterator();
+            if (iterator.next().getItem() instanceof ShopItem item) {
+                return item.colour;
+            } else if (iterator.next().getItem() instanceof ShopItem item) {
+                return item.colour;
+            }
+        }
+        return Colour.RED;//default colour
     }
 
     @Override
