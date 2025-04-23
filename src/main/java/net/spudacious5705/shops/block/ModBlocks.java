@@ -1,5 +1,7 @@
 package net.spudacious5705.shops.block;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
@@ -15,8 +17,9 @@ import net.spudacious5705.shops.item.custom.ShopItem;
 import net.spudacious5705.shops.properties.Colour;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class ModBlocks {
+public abstract class ModBlocks{
 
     public static final ArrayList<ShopItem> SHOP_ITEM_LIST = new ArrayList<>(numbOfShopItems());
 
@@ -26,42 +29,40 @@ public class ModBlocks {
 
     private static final AbstractBlock.Settings settings = AbstractBlock.Settings.copy(Blocks.OAK_PLANKS)
             .nonOpaque()
+            .hardness(-1f)
             .resistance(Float.MAX_VALUE);
 
-    public static final ShopBlock SHOP_BLOCK_ACACIA = registerShopBlock("shop_acacia",
-            new ShopBlock(settings));
-    public static final ShopBlock SHOP_BLOCK_BAMBOO = registerShopBlock("shop_bamboo",
-            new ShopBlock(settings));
-    public static final ShopBlock SHOP_BLOCK_BIRCH = registerShopBlock("shop_birch",
-            new ShopBlock(settings));
-    public static final ShopBlock SHOP_BLOCK_CHERRY = registerShopBlock("shop_cherry",
-            new ShopBlock(settings));
-    public static final ShopBlock SHOP_BLOCK_CRIMSON = registerShopBlock("shop_crimson",
-            new ShopBlock(settings));
-    public static final ShopBlock SHOP_BLOCK_DARK_OAK = registerShopBlock("shop_dark_oak",
-            new ShopBlock(settings));
-    public static final ShopBlock SHOP_BLOCK_MANGROVE = registerShopBlock("shop_mangrove",
-            new ShopBlock(settings));
-    public static final ShopBlock SHOP_BLOCK_OAK = registerShopBlock("shop_oak",
-            new ShopBlock(settings));
-    public static final ShopBlock SHOP_BLOCK_SPRUCE = registerShopBlock("shop_spruce",
-            new ShopBlock(settings));
-    public static final ShopBlock SHOP_BLOCK_WARPED = registerShopBlock("shop_warped",
-            new ShopBlock(settings));
-    public static final ShopBlock SHOP_BLOCK_JUNGLE = registerShopBlock("shop_jungle",
-            new ShopBlock(settings));
+    private static final List<ShopBlock> ALL_SHOPS = new ArrayList<>(11);
+
+    public static final ShopBlock SHOP_BLOCK_ACACIA = registerShopBlock("shop_acacia");
+    public static final ShopBlock SHOP_BLOCK_BAMBOO = registerShopBlock("shop_bamboo");
+    public static final ShopBlock SHOP_BLOCK_BIRCH = registerShopBlock("shop_birch");
+    public static final ShopBlock SHOP_BLOCK_CHERRY = registerShopBlock("shop_cherry");
+    public static final ShopBlock SHOP_BLOCK_CRIMSON = registerShopBlock("shop_crimson");
+    public static final ShopBlock SHOP_BLOCK_DARK_OAK = registerShopBlock("shop_dark_oak");
+    public static final ShopBlock SHOP_BLOCK_MANGROVE = registerShopBlock("shop_mangrove");
+    public static final ShopBlock SHOP_BLOCK_OAK = registerShopBlock("shop_oak");
+    public static final ShopBlock SHOP_BLOCK_SPRUCE = registerShopBlock("shop_spruce");
+    public static final ShopBlock SHOP_BLOCK_WARPED = registerShopBlock("shop_warped");
+    public static final ShopBlock SHOP_BLOCK_JUNGLE = registerShopBlock("shop_jungle");
 
 
     private static int numbOfShopItems(){
         return SHOP_COUNT*COLOUR_COUNT;
     }
 
-    private static <T extends ShopBlock> T registerShopBlock(String name, T block) {
+    private static ShopBlock registerShopBlock(String name) {
+        ShopBlock block = new ShopBlock(settings);
         for(Colour colour : Colour.values()) {
             block.addDropItem(registerShopBlockItem(name, block, colour), colour);
         }
         //registerBlockItem(name,block);
-        return Registry.register(Registries.BLOCK, new Identifier(SpudaciousShops.MOD_ID, name), block);
+        return AddToAllShops(Registry.register(Registries.BLOCK, new Identifier(SpudaciousShops.MOD_ID, name), block));
+    }
+
+    private static ShopBlock AddToAllShops(ShopBlock register) {
+        ALL_SHOPS.add(register);
+        return register;
     }
 
     private static ShopItem registerShopBlockItem(String name, ShopBlock block, Colour colour) {
@@ -77,5 +78,9 @@ public class ModBlocks {
 
     public static void registerModBlocks() {
         SpudaciousShops.LOGGER.info("Registering mod blocks for " + SpudaciousShops.MOD_ID);
+    }
+
+    public static List<ShopBlock> getAllShops(){
+        return ALL_SHOPS;
     }
 }

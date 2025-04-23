@@ -18,7 +18,7 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
     public final ShopEntity shop;
 
     public ShopScreenHandlerOwner(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {
-        this(syncId, playerInventory, playerInventory.player.getWorld().getBlockEntity(buf.readBlockPos()),
+        this(syncId, playerInventory, (ShopEntity) playerInventory.player.getWorld().getBlockEntity(buf.readBlockPos()),
                 new ArrayPropertyDelegate(1));
     }
 
@@ -32,9 +32,8 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
     private static final int stock_itemStacks_start = 0;
     private static final int stock_itemStacks_range = 53;
 
-    public ShopScreenHandlerOwner(int syncId, PlayerInventory playerInventory, BlockEntity blockEntity, PropertyDelegate arrayPropertyDelegate) {
+    public ShopScreenHandlerOwner(int syncId, PlayerInventory playerInventory, ShopEntity shop, PropertyDelegate arrayPropertyDelegate) {
         super(ModScreenHandlers.SHOP_SCREEN_HANDLER_OWNER, syncId);
-        ShopEntity shop = (ShopEntity) blockEntity;
         Inventory inv = shop.getInventory();
         checkSize(inv, 78 );
         this.shopInventory = inv;

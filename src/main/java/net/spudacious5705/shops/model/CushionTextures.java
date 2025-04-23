@@ -22,9 +22,9 @@ public class CushionTextures {
     public static final Identifier TEXTURE_GREEN = registerTexture(GREEN,"textures/block/cushion/green.png");
     public static final Identifier TEXTURE_LIME = registerTexture(LIME,"textures/block/cushion/lime.png");
     public static final Identifier TEXTURE_ORANGE = registerTexture(ORANGE,"textures/block/cushion/orange.png");
-    public static final Identifier TEXTURE_GREY = registerTexture(GRAY,"textures/block/cushion/grey.png");
+    public static final Identifier TEXTURE_GRAY = registerTexture(GRAY,"textures/block/cushion/gray.png");
     public static final Identifier TEXTURE_BLACK = registerTexture(BLACK,"textures/block/cushion/black.png");
-    public static final Identifier TEXTURE_LIGHT_GREY = registerTexture(LIGHT_GREY,"textures/block/cushion/light_grey.png");
+    public static final Identifier TEXTURE_LIGHT_GRAY = registerTexture(LIGHT_GRAY,"textures/block/cushion/light_gray.png");
     public static final Identifier TEXTURE_BROWN = registerTexture(BROWN,"textures/block/cushion/brown.png");
     public static final Identifier TEXTURE_YELLOW = registerTexture(YELLOW,"textures/block/cushion/yellow.png");
     public static final Identifier TEXTURE_LIGHT_BLUE = registerTexture(LIGHT_BLUE,"textures/block/cushion/light_blue.png");

@@ -17,6 +17,7 @@ import net.spudacious5705.shops.screen.*;
 public class SpudaciousShopsClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
+
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.SHOP_BLOCK_BIRCH, RenderLayer.getCutout());
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.SHOP_BLOCK_OAK, RenderLayer.getCutout());
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.SHOP_BLOCK_WARPED, RenderLayer.getCutout());
@@ -38,7 +39,6 @@ public class SpudaciousShopsClient implements ClientModInitializer {
         CushionResources.initialise();
 
         BlockEntityRendererFactories.register(ModBlockEntities.SHOP_ENTITY, ShopBlockEntityRenderer::new);
-        //BlockEntityRendererFactories.register(ModBlockEntities.SHOP_ENTITY, ShopBlockEntityRenderer::new);
 
     }
 }

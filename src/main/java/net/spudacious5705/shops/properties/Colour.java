@@ -12,7 +12,7 @@ public enum Colour implements StringIdentifiable {
     ORANGE("orange", 6),
     GRAY("gray", 7),
     BLACK("black", 8),
-    LIGHT_GREY("light_grey", 9),
+    LIGHT_GRAY("light_gray", 9),
     BROWN("brown", 10),
     YELLOW("yellow", 11),
     LIGHT_BLUE("light_blue", 12),

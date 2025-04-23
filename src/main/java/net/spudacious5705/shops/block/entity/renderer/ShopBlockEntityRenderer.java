@@ -17,8 +17,6 @@ import net.minecraft.util.math.RotationAxis;
 import net.spudacious5705.shops.block.entity.ShopEntity;
 import net.spudacious5705.shops.item.ModItems;
 import net.spudacious5705.shops.model.CushionModel;
-import net.spudacious5705.shops.model.CushionTextures;
-import net.spudacious5705.shops.properties.Colour;
 
 public class ShopBlockEntityRenderer implements BlockEntityRenderer<ShopEntity> {
 
@@ -52,7 +50,7 @@ public class ShopBlockEntityRenderer implements BlockEntityRenderer<ShopEntity> 
                             case WEST -> 90f;
                         }),
                 0.5f,0f,0.5f);
-        this.model.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntitySolid(shop.getCushionTexureID())), light, overlay);
+        this.model.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntitySolid(shop.getCushionTextureID())), light, overlay);
         matrices.pop();
 
         if(data == null){

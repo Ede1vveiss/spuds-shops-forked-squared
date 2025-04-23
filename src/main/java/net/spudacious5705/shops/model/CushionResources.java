@@ -24,9 +24,9 @@ public class CushionResources {
     public static final cushionColourGroup GREEN_GROUP = registerColourGroup(Colour.GREEN, Items.GREEN_DYE, Items.GREEN_WOOL);
     public static final cushionColourGroup LIME_GROUP = registerColourGroup(Colour.LIME, Items.LIME_DYE, Items.LIME_WOOL);
     public static final cushionColourGroup ORANGE_GROUP = registerColourGroup(Colour.ORANGE, Items.ORANGE_DYE, Items.ORANGE_WOOL);
-    public static final cushionColourGroup GREY_GROUP = registerColourGroup(Colour.GRAY, Items.GRAY_DYE, Items.GRAY_WOOL); // Note: Spelling may differ for "gray/grey"
+    public static final cushionColourGroup GRAY_GROUP = registerColourGroup(Colour.GRAY, Items.GRAY_DYE, Items.GRAY_WOOL); // Note: Spelling may differ for "gray/grey"
     public static final cushionColourGroup BLACK_GROUP = registerColourGroup(Colour.BLACK, Items.BLACK_DYE, Items.BLACK_WOOL);
-    public static final cushionColourGroup LIGHT_GREY_GROUP = registerColourGroup(Colour.LIGHT_GREY, Items.LIGHT_GRAY_DYE, Items.LIGHT_GRAY_WOOL); // Note: Same gray/grey spelling check
+    public static final cushionColourGroup LIGHT_GREY_GROUP = registerColourGroup(Colour.LIGHT_GRAY, Items.LIGHT_GRAY_DYE, Items.LIGHT_GRAY_WOOL); // Note: Same gray/grey spelling check
     public static final cushionColourGroup BROWN_GROUP = registerColourGroup(Colour.BROWN, Items.BROWN_DYE, Items.BROWN_WOOL);
     public static final cushionColourGroup YELLOW_GROUP = registerColourGroup(Colour.YELLOW, Items.YELLOW_DYE, Items.YELLOW_WOOL);
     public static final cushionColourGroup LIGHT_BLUE_GROUP = registerColourGroup(Colour.LIGHT_BLUE, Items.LIGHT_BLUE_DYE, Items.LIGHT_BLUE_WOOL);
