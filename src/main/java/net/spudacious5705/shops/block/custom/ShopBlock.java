@@ -6,7 +6,6 @@ import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -28,7 +27,6 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
 import net.minecraft.world.event.GameEvent;
 import net.minecraft.world.tick.TickPriority;
 import net.spudacious5705.shops.block.entity.ModBlockEntities;
@@ -359,15 +357,12 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider {
         if(type != ModBlockEntities.SHOP_ENTITY){
             return null;
         }
-        if(world instanceof ClientWorld) {
+        if(world.isClient()) {
             return checkType(type, ModBlockEntities.SHOP_ENTITY,
                     (world1, pos, state1, blockEntity) -> blockEntity.renderTick());
         }
-        if(world instanceof ServerWorld) {
-            return checkType(type, ModBlockEntities.SHOP_ENTITY,
-                    (world1, pos, shopState, blockEntity) -> blockEntity.serverTick((ServerWorld) world1, pos, (ShopBlockState) shopState));
-        }
-        return null;
+        return checkType(type, ModBlockEntities.SHOP_ENTITY,
+                (world1, pos, shopState, blockEntity) -> blockEntity.serverTick((ServerWorld) world1, pos, (ShopBlockState) shopState));
     }
 
     @Override

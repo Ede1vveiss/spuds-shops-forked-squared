@@ -1,13 +1,8 @@
 package net.spudacious5705.shops.block;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
@@ -19,7 +14,7 @@ import net.spudacious5705.shops.properties.Colour;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class ModBlocks{
+public abstract class       ModBlocks{
 
     public static final ArrayList<ShopItem> SHOP_ITEM_LIST = new ArrayList<>(numbOfShopItems());
 
@@ -67,14 +62,16 @@ public abstract class ModBlocks{
 
     private static ShopItem registerShopBlockItem(String name, ShopBlock block, Colour colour) {
         name = name + "_" + colour.asString();
+
         return Registry.register(Registries.ITEM, new Identifier(SpudaciousShops.MOD_ID, name),
                 new ShopItem(block, new FabricItemSettings(), colour));
+
     }
 
-    private static Item registerBlockItem(String name, Block block) {
+    /*private static Item registerBlockItem(String name, Block block) {
         return Registry.register(Registries.ITEM, new Identifier(SpudaciousShops.MOD_ID, name),
                 new BlockItem(block, new FabricItemSettings()));
-    }
+    }*/
 
     public static void registerModBlocks() {
         SpudaciousShops.LOGGER.info("Registering mod blocks for " + SpudaciousShops.MOD_ID);

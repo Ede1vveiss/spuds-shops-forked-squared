@@ -24,13 +24,6 @@ public class ShopBlockEntityRenderer implements BlockEntityRenderer<ShopEntity> 
 
     private final CushionModel model;
 
-    private static final Direction[] dirs = new Direction[]{
-            Direction.NORTH,
-            Direction.EAST,
-            Direction.SOUTH,
-            Direction.WEST
-    };
-
     public ShopBlockEntityRenderer(BlockEntityRendererFactory.Context ctx) {
         this.context = ctx;
         model = new CushionModel(ctx.getLayerModelPart(CushionModel.LAYER_LOCATION));
@@ -39,7 +32,7 @@ public class ShopBlockEntityRenderer implements BlockEntityRenderer<ShopEntity> 
     @Override
     public void render(ShopEntity shop, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
         ModelTransformationMode mode;
-        ShopEntity.RendererData data = shop.getRendererData();
+        final ShopEntity.RendererData data = shop.getRendererData();
 
         matrices.push();
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(
