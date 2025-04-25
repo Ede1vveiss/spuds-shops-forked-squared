@@ -146,7 +146,7 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider {
             if (placer instanceof PlayerEntity player) {
                 BlockEntity blockEntity = world.getBlockEntity(pos);
                 if (blockEntity instanceof ShopEntity shopEntity) {
-                    shopEntity.setOwnerID(player);
+                    shopEntity.setOwner(player);
                 }
             }
         }
@@ -163,9 +163,7 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider {
     private static PermissionLevel userSignIn(World world, BlockPos pos, PlayerEntity player) {
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof ShopEntity shopEntity) {
-            if(shopEntity.setOwnerID(player)){
-                return PermissionLevel.OWNER;
-            }
+            return shopEntity.userSignIn(player);
         }
         return PermissionLevel.CUSTOMER;
     }

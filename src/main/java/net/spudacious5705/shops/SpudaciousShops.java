@@ -2,12 +2,10 @@ package net.spudacious5705.shops;
 
 import net.fabricmc.api.ModInitializer;
 
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.minecraft.util.Identifier;
+import net.spudacious5705.shops.block.ModBlockTags;
 import net.spudacious5705.shops.block.ModBlocks;
 import net.spudacious5705.shops.block.entity.ModBlockEntities;
-import net.spudacious5705.shops.command.DebugShopsStatesCommand;
 import net.spudacious5705.shops.item.ModItemGroups;
 import net.spudacious5705.shops.item.ModItems;
 import net.spudacious5705.shops.properties.ModProperties;
@@ -23,7 +21,7 @@ public class SpudaciousShops implements ModInitializer {
 	@Override
 	public void onInitialize() {
 
-
+		ModBlockTags.initialise();
         ModProperties.registerModProperties();
 
 		ModBlocks.registerModBlocks();

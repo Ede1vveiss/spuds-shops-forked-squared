@@ -33,6 +33,7 @@ import net.spudacious5705.shops.block.custom.ShopBlock;
 import net.spudacious5705.shops.model.CushionTextures;
 import net.spudacious5705.shops.properties.Colour;
 import net.spudacious5705.shops.properties.ModProperties;
+import net.spudacious5705.shops.properties.PermissionLevel;
 import net.spudacious5705.shops.screen.ShopScreenHandlerCustomer;
 import net.spudacious5705.shops.screen.ShopScreenHandlerOwner;
 import org.jetbrains.annotations.Nullable;
@@ -49,14 +50,27 @@ public class ShopEntity extends BlockEntity implements ExtendedScreenHandlerFact
 
     private int breakableTicks = 0;
 
-    private final inventoryDelegate<ShopEntity> inventoryDelegate;
+    private final inventoryDelegate inventoryDelegate;
 
-    private class inventoryDelegate<S extends ShopEntity> implements Inventory{
+    public PermissionLevel userSignIn(PlayerEntity player) {
+        if(ownerID == null){
+            setOwner(player);
+        }
+        if(isOwner(player))return PermissionLevel.OWNER;
+        return PermissionLevel.CUSTOMER;
+    }
 
-        private final S shop;
+    private void clearAllPermissions(){
+        this.ownerName = null;
+        this.ownerID = null;
+    }
+
+    private class inventoryDelegate implements Inventory{
+
+        private final ShopEntity shop;
         //private final PermissionLevel permissions;
 
-        public inventoryDelegate(S shop) {
+        public inventoryDelegate(ShopEntity shop) {
             this.shop = shop;
             //this.permissions = permissions; ##### future improvement
         }
@@ -127,12 +141,12 @@ public class ShopEntity extends BlockEntity implements ExtendedScreenHandlerFact
     public ShopEntity(BlockPos pos, BlockState state) {
 
         super(ModBlockEntities.SHOP_ENTITY, pos, state);
-        this.inventoryDelegate = new inventoryDelegate<>(this);
+        this.inventoryDelegate = new inventoryDelegate(this);
 
         this.propertyDelegate = new PropertyDelegate() {
             @Override
             public int get(int index) {
-                return 0; /*ShopEntity.this.getStack(index).getCount();*/
+                return ShopEntity.this.inventoryDelegate.getStack(index).getCount();
             }
 
             @Override
@@ -146,14 +160,10 @@ public class ShopEntity extends BlockEntity implements ExtendedScreenHandlerFact
         };
     }
 
-    public boolean setOwnerID(PlayerEntity player) {
-        if (this.ownerID == null) {
+    public void setOwner(PlayerEntity player) {
             this.ownerID = player.getUuid();
             this.ownerName = player.getEntityName();
             markDirty();
-            return true;
-        }
-        return false;
     }
 
     public boolean hasEnoughStock(){
@@ -212,12 +222,27 @@ public class ShopEntity extends BlockEntity implements ExtendedScreenHandlerFact
         return this.inventoryDelegate.getStack(PAYMENT_SLOT).getItem();
     }
 
-    public boolean isShopFunctional(){
+    private boolean functionalCheck(){
         if(null == ownerID){return false;}
         if(null == this.itemStacks){return false;}
         if(this.itemStacks.get(PAYMENT_SLOT).isEmpty()){return false;}
         if(this.itemStacks.get(VENDING_SLOT).isEmpty()){return false;}
         return this.getWorld() != null;
+    }
+
+    private int decayTimer = -1;
+
+    private static final int hourInTicks = 72000;
+
+    public boolean isShopFunctional(){
+        if(functionalCheck()){
+            decayTimer = -1;
+            return true;
+        }
+        if(decayTimer < 0){
+            decayTimer = 0;//starts decay timer.
+        }
+        return false;
     }
 
     @Override
@@ -299,6 +324,10 @@ public class ShopEntity extends BlockEntity implements ExtendedScreenHandlerFact
             this.rendererData.onTick();
     }
 
+    public boolean isOwner(PlayerEntity player){
+        return isOwner(player.getUuid());
+    }
+
     public boolean isOwner(UUID id) {
         if(ownerID == null){return true;}
         return id.compareTo(ownerID) == 0;
@@ -352,6 +381,14 @@ public class ShopEntity extends BlockEntity implements ExtendedScreenHandlerFact
             return;
         }
         shopState.makeUnbreakable(world,pos);
+        if(decayTimer>-1){
+            decayTimer++;
+            if(decayTimer>hourInTicks){
+                 if(!isShopFunctional()){
+                     clearAllPermissions();
+                 }
+            }
+        }
     }
 
     @Environment(EnvType.CLIENT)
