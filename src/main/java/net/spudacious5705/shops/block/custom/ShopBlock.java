@@ -293,6 +293,10 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider {
             return !this.get(BREAKABLE);
         }
 
+        public void makeBreakable(ServerWorld world, BlockPos pos) {
+            world.setBlockState(pos,this.withIfExists(BREAKABLE,true));
+        }
+
         public void makeUnbreakable(ServerWorld world, BlockPos pos) {
             world.setBlockState(pos,this.withIfExists(BREAKABLE,false));
         }

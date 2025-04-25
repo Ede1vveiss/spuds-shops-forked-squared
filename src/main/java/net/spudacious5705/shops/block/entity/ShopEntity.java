@@ -379,13 +379,17 @@ public class ShopEntity extends BlockEntity implements ExtendedScreenHandlerFact
             if(decayTimer>hourInTicks){
                 if(!isShopFunctional()){
                     clearAllPermissions();
+                    breakableTicks = 140;
+                    shopState.makeBreakable(world, pos);
                 }
             }
         }
         if(shopState.unbreakable())return;
         if(breakableTicks > 0){
-            breakableTicks--;
-            return;
+            if(this.ownerID != null) {
+                breakableTicks--;
+                return;
+            }
         }
         shopState.makeUnbreakable(world,pos);
     }
