@@ -90,9 +90,7 @@ public class ShopEntity extends BlockEntity implements ExtendedScreenHandlerFact
         }
 
         @Override
-        public ItemStack removeStack(int slot, int amount) {
-            return shop.itemStacks.get(slot).split(amount);
-        }
+        public ItemStack removeStack(int slot, int amount) {return shop.itemStacks.get(slot).split(amount);}
 
         @Override
         public ItemStack removeStack(int slot) {
@@ -108,6 +106,7 @@ public class ShopEntity extends BlockEntity implements ExtendedScreenHandlerFact
         public void markDirty() {
             assert shop.world != null;
             shop.world.updateListeners(pos,getCachedState(),getCachedState(),3);
+            shop.isShopFunctional();
             shop.markDirty();
         }
 
@@ -375,20 +374,20 @@ public class ShopEntity extends BlockEntity implements ExtendedScreenHandlerFact
     }
 
     public void serverTick(ServerWorld world, BlockPos pos, ShopBlock.ShopBlockState shopState) {
+        if(decayTimer > -1){
+            decayTimer++;
+            if(decayTimer>hourInTicks){
+                if(!isShopFunctional()){
+                    clearAllPermissions();
+                }
+            }
+        }
         if(shopState.unbreakable())return;
         if(breakableTicks > 0){
             breakableTicks--;
             return;
         }
         shopState.makeUnbreakable(world,pos);
-        if(decayTimer>-1){
-            decayTimer++;
-            if(decayTimer>hourInTicks){
-                 if(!isShopFunctional()){
-                     clearAllPermissions();
-                 }
-            }
-        }
     }
 
     @Environment(EnvType.CLIENT)
@@ -459,6 +458,9 @@ public class ShopEntity extends BlockEntity implements ExtendedScreenHandlerFact
 
 
                 displayType = displayItem.getItem() instanceof BlockItem;
+            } else {
+                this.displayItem = ItemStack.EMPTY;
+                this.paymentType = ItemStack.EMPTY;
             }
         }
 

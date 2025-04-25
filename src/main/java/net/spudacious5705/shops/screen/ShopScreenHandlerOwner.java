@@ -46,8 +46,8 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
 
         addShopInventory();
 
-        this.addSlot(new shop_set_slot(shopInventory, PAYMENT_SLOT,23,11));
-        this.addSlot(new shop_set_slot(shopInventory, VENDING_SLOT,23,49));
+        this.addSlot(new shop_set_slot(shopInventory, PAYMENT_SLOT, 23, 11));
+        this.addSlot(new shop_set_slot(shopInventory, VENDING_SLOT, 23, 49));
 
 
         this.addProperties(arrayPropertyDelegate);
@@ -139,7 +139,7 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
         return this.shopInventory.canPlayerUse(player);
     }
 
-    class player_slot extends Slot {
+    static class player_slot extends Slot {
 
         public player_slot(Inventory inventory, int index, int x, int y) {
             super(inventory, index, x, y);
@@ -148,7 +148,7 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
         public boolean isPlayerSlot() {return true;}
     }
 
-    class shop_set_slot extends Slot {
+    static class shop_set_slot extends Slot {
 
         public shop_set_slot(Inventory inventory, int index, int x, int y) {
             super(inventory, index, x, y);
@@ -157,8 +157,8 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
         @Override
         public ItemStack takeStack(int amount) {
             super.takeStack(amount);
-            return ItemStack.EMPTY;
 
+            return ItemStack.EMPTY;
         }
 
         @Override
