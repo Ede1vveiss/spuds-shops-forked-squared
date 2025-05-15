@@ -31,10 +31,8 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 import net.minecraft.world.tick.TickPriority;
-import net.spudacious5705.shops.block.ModBlocks;
 import net.spudacious5705.shops.block.entity.ModBlockEntities;
 import net.spudacious5705.shops.block.entity.ShopEntity;
-import net.spudacious5705.shops.item.ModItemGroups;
 import net.spudacious5705.shops.item.custom.ShopItem;
 import net.spudacious5705.shops.model.CushionResources;
 import net.spudacious5705.shops.properties.Colour;
@@ -85,7 +83,11 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider, B
 
     protected final StateManager<Block, BlockState> shopStateManager;
 
-    public ShopBlock(Settings settings) {
+    protected final Item WOOD_TYPE;
+
+    public static final Map<Item, ShopBlock> WOOD_TYPE_TO_SHOP_TYPE = new HashMap<>();
+
+    public ShopBlock(Settings settings, Item woodType) {
         super(settings);
         StateManager.Builder<Block, BlockState> builder = new StateManager.Builder<>(this);
         this.appendProperties(builder);
@@ -97,6 +99,9 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider, B
                         .with(CUSHION_COLOUR, Colour.WHITE)
                         .with(BREAKABLE, false)
         );
+
+        WOOD_TYPE_TO_SHOP_TYPE.put(woodType,this);
+        WOOD_TYPE = woodType;
     }
 
     @Override
@@ -190,7 +195,8 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider, B
             }
             ShopEntity shop = (ShopEntity) world.getBlockEntity(pos);
             assert shop != null;
-            if(shop.canBreak(player)){
+            PermissionLevel perms = shop.userSignIn(player);
+            if(perms.canBreakBlock()){
                 world.setBlockState(pos,this.withIfExists(BREAKABLE,true));
                 world.scheduleBlockTick(pos, this.owner,140, TickPriority.EXTREMELY_HIGH);
             }else{
@@ -233,7 +239,7 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider, B
             PermissionLevel perm = userSignIn(world, pos, player);
 
             if(!stack.isEmpty() && perm.canEditTrades()){
-                if(onUseWithItem(stack,this.asBlockState(),world,pos,player)) return ActionResult.SUCCESS;
+                if(((ShopBlock)getBlock()).onUseWithItem(stack,this.asBlockState(),world,pos,player)) return ActionResult.SUCCESS;
             }
 
             NamedScreenHandlerFactory screenHandlerFactory = (ShopEntity)world.getBlockEntity(pos);
@@ -272,7 +278,7 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider, B
 
         @Override
         public void onStateReplaced(World world, BlockPos pos, BlockState newState, boolean moved) {
-            if (this.getBlock() != newState.getBlock()) {
+            if (!(newState instanceof ShopBlockState)) {
                 BlockEntity blockEntity = world.getBlockEntity(pos);
                 if (blockEntity != null) {
                     if (blockEntity instanceof ShopEntity shopEntity) {
@@ -306,11 +312,17 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider, B
         public void makeUnbreakable(ServerWorld world, BlockPos pos) {
             world.setBlockState(pos,this.withIfExists(BREAKABLE,false));
         }
+
+        public BlockState importProperties(BlockState state) {
+            return this
+                    .with(FACING, state.get(FACING))
+                    .with(CUSHION_COLOUR, state.get(CUSHION_COLOUR))
+                    .with(BREAKABLE, state.get(BREAKABLE));
+        }
     }//end of ShopBlockState
 
-
-    protected static boolean onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player) {
-            if(!stack.isEmpty()){
+    protected boolean onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player) {
+        if(!stack.isEmpty()){
                 Item item = stack.getItem();
                 if(CushionResources.DYE_MAP.containsKey(item)){
                     CushionResources.cushionColourGroup group = CushionResources.DYE_MAP.get(item);
@@ -334,6 +346,15 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider, B
                         attemptRenderDataForceUpdate(world, pos);
                         return true;
                     }
+                } else if (WOOD_TYPE_TO_SHOP_TYPE.containsKey(item)){
+                    ShopBlock block = WOOD_TYPE_TO_SHOP_TYPE.get(item);
+                    if(WOOD_TYPE != item){
+                    if(block.getDefaultState() instanceof ShopBlockState shopState){
+                        world.spawnEntity(new ItemEntity(world,pos.getX()+0.5f,pos.getY()+0.5f,pos.getZ()+0.5f,WOOD_TYPE.getDefaultStack(),0f,0.1f,0f));
+                        BlockState newBlockState = shopState.importProperties(state);
+                        world.setBlockState(pos, newBlockState);
+                        return true;
+                    }}
                 }
         }
         return false;

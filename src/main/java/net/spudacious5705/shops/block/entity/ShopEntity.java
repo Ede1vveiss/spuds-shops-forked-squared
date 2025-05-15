@@ -57,6 +57,7 @@ public class ShopEntity extends BlockEntity implements ExtendedScreenHandlerFact
             setOwner(player);
         }
         if(isOwner(player))return PermissionLevel.OWNER;
+        if(player.isCreative()) return PermissionLevel.SERVER_ADMIN;
         return PermissionLevel.CUSTOMER;
     }
 

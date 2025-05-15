@@ -3,16 +3,21 @@ package net.spudacious5705.shops.block;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Blocks;
+import net.minecraft.item.Item;
+import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 import net.spudacious5705.shops.SpudaciousShops;
 import net.spudacious5705.shops.block.custom.*;
 import net.spudacious5705.shops.item.custom.ShopItem;
+import net.spudacious5705.shops.model.CushionResources;
 import net.spudacious5705.shops.properties.Colour;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public abstract class       ModBlocks{
 
@@ -29,25 +34,24 @@ public abstract class       ModBlocks{
 
     private static final List<ShopBlock> ALL_SHOPS = new ArrayList<>(11);
 
-    public static final ShopBlock SHOP_BLOCK_ACACIA = registerShopBlock("shop_acacia");
-    public static final ShopBlock SHOP_BLOCK_BAMBOO = registerShopBlock("shop_bamboo");
-    public static final ShopBlock SHOP_BLOCK_BIRCH = registerShopBlock("shop_birch");
-    public static final ShopBlock SHOP_BLOCK_CHERRY = registerShopBlock("shop_cherry");
-    public static final ShopBlock SHOP_BLOCK_CRIMSON = registerShopBlock("shop_crimson");
-    public static final ShopBlock SHOP_BLOCK_DARK_OAK = registerShopBlock("shop_dark_oak");
-    public static final ShopBlock SHOP_BLOCK_MANGROVE = registerShopBlock("shop_mangrove");
-    public static final ShopBlock SHOP_BLOCK_OAK = registerShopBlock("shop_oak");
-    public static final ShopBlock SHOP_BLOCK_SPRUCE = registerShopBlock("shop_spruce");
-    public static final ShopBlock SHOP_BLOCK_WARPED = registerShopBlock("shop_warped");
-    public static final ShopBlock SHOP_BLOCK_JUNGLE = registerShopBlock("shop_jungle");
-
+    public static final ShopBlock SHOP_BLOCK_ACACIA = registerShopBlock("shop_acacia", Items.ACACIA_PLANKS);
+    public static final ShopBlock SHOP_BLOCK_BAMBOO = registerShopBlock("shop_bamboo", Items.BAMBOO_PLANKS);
+    public static final ShopBlock SHOP_BLOCK_BIRCH = registerShopBlock("shop_birch", Items.BIRCH_PLANKS);
+    public static final ShopBlock SHOP_BLOCK_CHERRY = registerShopBlock("shop_cherry", Items.CHERRY_PLANKS);
+    public static final ShopBlock SHOP_BLOCK_CRIMSON = registerShopBlock("shop_crimson", Items.CRIMSON_PLANKS);
+    public static final ShopBlock SHOP_BLOCK_DARK_OAK = registerShopBlock("shop_dark_oak", Items.DARK_OAK_PLANKS);
+    public static final ShopBlock SHOP_BLOCK_MANGROVE = registerShopBlock("shop_mangrove", Items.MANGROVE_PLANKS);
+    public static final ShopBlock SHOP_BLOCK_OAK = registerShopBlock("shop_oak", Items.OAK_PLANKS);
+    public static final ShopBlock SHOP_BLOCK_SPRUCE = registerShopBlock("shop_spruce", Items.SPRUCE_PLANKS);
+    public static final ShopBlock SHOP_BLOCK_WARPED = registerShopBlock("shop_warped", Items.WARPED_PLANKS);
+    public static final ShopBlock SHOP_BLOCK_JUNGLE = registerShopBlock("shop_jungle", Items.JUNGLE_PLANKS);
 
     private static int numbOfShopItems(){
         return SHOP_COUNT*COLOUR_COUNT;
     }
 
-    private static ShopBlock registerShopBlock(String name) {
-        ShopBlock block = new ShopBlock(settings);
+    private static ShopBlock registerShopBlock(String name, Item woodType) {
+        ShopBlock block = new ShopBlock(settings, woodType);
         for(Colour colour : Colour.values()) {
             block.addDropItem(registerShopBlockItem(name, block, colour), colour);
         }

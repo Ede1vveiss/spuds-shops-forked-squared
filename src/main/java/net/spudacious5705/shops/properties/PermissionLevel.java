@@ -1,7 +1,7 @@
 package net.spudacious5705.shops.properties;
 
 public enum PermissionLevel {
-    ADMIN(true, false,false,false,false,false,false),
+    SERVER_ADMIN(true, false,false,false,false,false,false),
     OWNER(true,true,true,true,true,true,true),
     MANAGER(false,true,true,true,true,false,true),
     SUPERVISOR(false,false,true,true,true,false,true),
