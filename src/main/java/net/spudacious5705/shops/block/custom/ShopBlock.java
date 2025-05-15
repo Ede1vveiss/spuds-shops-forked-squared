@@ -2,6 +2,7 @@ package net.spudacious5705.shops.block.custom;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.MapCodec;
+import net.fabricmc.fabric.api.block.BlockPickInteractionAware;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
@@ -20,6 +21,7 @@ import net.minecraft.state.StateManager;
 import net.minecraft.state.property.*;
 import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
@@ -29,8 +31,10 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 import net.minecraft.world.tick.TickPriority;
+import net.spudacious5705.shops.block.ModBlocks;
 import net.spudacious5705.shops.block.entity.ModBlockEntities;
 import net.spudacious5705.shops.block.entity.ShopEntity;
+import net.spudacious5705.shops.item.ModItemGroups;
 import net.spudacious5705.shops.item.custom.ShopItem;
 import net.spudacious5705.shops.model.CushionResources;
 import net.spudacious5705.shops.properties.Colour;
@@ -44,7 +48,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 
-public class ShopBlock extends BlockWithEntity implements BlockEntityProvider {
+public class ShopBlock extends BlockWithEntity implements BlockEntityProvider, BlockPickInteractionAware {
 
     public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
     public static final EnumProperty<Colour> CUSHION_COLOUR = ModProperties.CUSHION_COLOUR;
@@ -168,6 +172,11 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider {
         return PermissionLevel.CUSTOMER;
     }
 
+    @Override
+    public ItemStack getPickedStack(BlockState state, BlockView view, BlockPos pos, PlayerEntity player, HitResult result) {
+        return getColouredShopItem(state.get(CUSHION_COLOUR)).getDefaultStack();
+    }
+
     public static class ShopBlockState extends BlockState{
 
         public ShopBlockState(Block block, ImmutableMap<Property<?>, Comparable<?>> immutableMap, MapCodec<BlockState> mapCodec) {
@@ -194,13 +203,10 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider {
             super.onBlockBreakStart(world, pos, player);
         }
 
-
         @Override
         public void onBlockAdded(World world, BlockPos pos, BlockState state, boolean notify) {
             super.onBlockAdded(world, pos, state, notify);
         }
-
-
 
         @Override
         public float getHardness(BlockView world, BlockPos pos) {
