@@ -1,0 +1,265 @@
+package net.spudacious5705.shops.block.custom;
+
+import com.google.common.collect.ImmutableMap;
+import com.mojang.serialization.MapCodec;
+import net.fabricmc.fabric.api.block.BlockPickInteractionAware;
+import net.minecraft.block.*;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.screen.NamedScreenHandlerFactory;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.*;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.BlockMirror;
+import net.minecraft.util.BlockRotation;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.random.Random;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
+import net.minecraft.world.event.GameEvent;
+import net.minecraft.world.tick.TickPriority;
+import net.spudacious5705.shops.block.entity.ModBlockEntities;
+import net.spudacious5705.shops.block.entity.ShopEntity;
+import net.spudacious5705.shops.properties.ModProperties;
+import net.spudacious5705.shops.properties.PermissionLevel;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Function;
+
+
+public abstract class AbstractShopBlock extends BlockWithEntity implements BlockEntityProvider, BlockPickInteractionAware {
+
+    public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
+    public static final BooleanProperty BREAKABLE = ModProperties.BREAKABLE;
+
+
+    protected final StateManager<Block, BlockState> shopStateManager;
+
+    public AbstractShopBlock(Settings settings, StateManager.Factory<Block, BlockState> shopBlockStateFactory) {
+        super(settings);
+        StateManager.Builder<Block, BlockState> builder = new StateManager.Builder<>(this);
+        builder.add(FACING).add(BREAKABLE);
+        this.appendProperties(builder);
+
+        this.shopStateManager = builder.build(Block::getDefaultState, shopBlockStateFactory);
+
+        this.setDefaultState(
+                furtherDefaultStateProperties(
+                        (AbstractShopBlockState) this.shopStateManager.getDefaultState()
+                        .with(FACING, Direction.NORTH)
+                        .with(BREAKABLE, false)
+                )
+        );
+    }
+
+    protected abstract AbstractShopBlockState furtherDefaultStateProperties(AbstractShopBlockState state);
+
+    @Override
+    public final StateManager<Block, BlockState> getStateManager() {
+        return this.shopStateManager;
+    }
+
+    @Override
+    protected final ImmutableMap<BlockState, VoxelShape> getShapesForStates(Function<BlockState, VoxelShape> stateToShape) {
+        return this.shopStateManager.getStates().stream().collect(ImmutableMap.toImmutableMap(Function.identity(), stateToShape));
+    }
+
+    @Override
+    public final BlockRenderType getRenderType(BlockState state) {
+        return BlockRenderType.MODEL;
+    }
+
+    @Override
+    public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
+        if(placer != null) {
+            if (placer instanceof PlayerEntity player) {
+                BlockEntity blockEntity = world.getBlockEntity(pos);
+                if (blockEntity instanceof ShopEntity shopEntity) {
+                    shopEntity.setOwner(player);
+                }
+            }
+        }
+        super.onPlaced(world, pos, state, placer, itemStack);
+    }
+
+
+    @Nullable
+    @Override
+    public abstract BlockEntity createBlockEntity(BlockPos pos, BlockState state);
+
+    private static PermissionLevel userSignIn(World world, BlockPos pos, PlayerEntity player) {
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+        if (blockEntity instanceof ShopEntity shopEntity) {
+            return shopEntity.userSignIn(player);
+        }
+        return PermissionLevel.CUSTOMER;
+    }
+
+    public abstract static class AbstractShopBlockState extends BlockState {
+
+        public AbstractShopBlockState(Block block, ImmutableMap<Property<?>, Comparable<?>> immutableMap, MapCodec<BlockState> mapCodec) {
+            super(block, immutableMap, mapCodec);
+        }
+
+        @Override
+        public void onBlockBreakStart(World world, BlockPos pos, PlayerEntity player) {
+            if(this.getBlock() instanceof AbstractShopBlock) {
+                ShopEntity shop = (ShopEntity) world.getBlockEntity(pos);
+                assert shop != null;
+                PermissionLevel perms = shop.userSignIn(player);
+                if (perms.canBreakBlock()) {
+                    world.setBlockState(pos, this.withIfExists(BREAKABLE, true));
+                    world.scheduleBlockTick(pos, this.owner, 140, TickPriority.EXTREMELY_HIGH);
+                } else {
+                    world.setBlockState(pos, this.withIfExists(BREAKABLE, false));
+                    if (world.isClient()) {
+                        player.sendMessage(shop.cantBreakMessage(), true);
+                    }
+                    return;
+                }
+            }
+
+            super.onBlockBreakStart(world, pos, player);
+        }
+
+        @Override
+        public void onBlockAdded(World world, BlockPos pos, BlockState state, boolean notify) {
+            super.onBlockAdded(world, pos, state, notify);
+        }
+
+        @Override
+        public final float getHardness(BlockView world, BlockPos pos) {
+            if(this.get(BREAKABLE))return 2.0f;
+            return -1f;
+        }
+
+        @Override
+        public final void scheduledTick(ServerWorld world, BlockPos pos, Random random) {
+            world.setBlockState(pos,this.withIfExists(BREAKABLE,false));
+        }
+
+        @Override
+        public ActionResult onUse(World world, PlayerEntity player, Hand hand, BlockHitResult hit) {
+            BlockPos pos = hit.getBlockPos();
+            if (world.isClient) return ActionResult.SUCCESS;
+
+            ItemStack stack = player.getStackInHand(hand);
+
+            BlockEntity be = world.getBlockEntity(pos);
+
+            if(!(be instanceof ShopEntity)) return ActionResult.FAIL;
+
+            PermissionLevel perm = userSignIn(world, pos, player);
+
+            if(!stack.isEmpty() && perm.canEditTrades()){
+                if(((AbstractShopBlock)getBlock()).onUseWithItem(stack,this.asBlockState(),world,pos,player)) return ActionResult.SUCCESS;
+            }
+
+            NamedScreenHandlerFactory screenHandlerFactory = (ShopEntity)world.getBlockEntity(pos);
+            if (screenHandlerFactory != null) {
+                player.openHandledScreen(screenHandlerFactory);
+            }
+
+            return ActionResult.SUCCESS;
+        }
+
+        @Override
+        public abstract VoxelShape getCullingShape(BlockView world, BlockPos pos);
+
+        @Override
+        public abstract VoxelShape getOutlineShape(BlockView world, BlockPos pos, ShapeContext context);
+
+        @Override
+        public abstract VoxelShape getCollisionShape(BlockView world, BlockPos pos);
+
+        @Override
+        public final BlockState rotate(BlockRotation rotation) {
+            return this.with(FACING, rotation.rotate(this.get(FACING)));
+        }
+
+        @Override
+        public final BlockState mirror(BlockMirror mirror) {
+            return this.rotate(mirror.getRotation(this.get(FACING)));
+        }
+
+        @Override
+        public final void onStateReplaced(World world, BlockPos pos, BlockState newState, boolean moved) {
+            if (newState instanceof AbstractShopBlockState newShopState) {
+                if(onStateReplacedValid(newShopState)){
+                    return;
+                }
+            }
+            BlockEntity blockEntity = world.getBlockEntity(pos);
+            if (blockEntity != null) {
+                if (blockEntity instanceof ShopEntity shopEntity) {
+                    shopEntity.itemScatter(world,pos);
+                    world.updateComparators(pos, this.getBlock());
+                }
+            }
+            world.removeBlockEntity(pos);
+        }
+
+        protected abstract boolean onStateReplacedValid(AbstractShopBlockState newShopState);
+
+        public final boolean unbreakable() {
+            return !this.get(BREAKABLE);
+        }
+
+        public final void makeBreakable(ServerWorld world, BlockPos pos) {
+            world.setBlockState(pos,this.withIfExists(BREAKABLE,true));
+        }
+
+        public final void makeUnbreakable(ServerWorld world, BlockPos pos) {
+            world.setBlockState(pos,this.withIfExists(BREAKABLE,false));
+        }
+    }//end of ShopBlockState
+
+    protected abstract boolean onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player);
+
+    static void attemptRenderDataForceUpdate(World world, BlockPos pos){
+        if(world.isClient()){
+        if(world.getBlockEntity(pos) instanceof ShopEntity shop) {
+            if(world.isClient())shop.forceUpdateRenderData();
+        }}
+    }
+
+    @Override
+    public final <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type){
+        if(type != ModBlockEntities.SHOP_ENTITY){
+            return null;
+        }
+        if(world.isClient()) {
+            return checkType(type, ModBlockEntities.SHOP_ENTITY,
+                    (world1, pos, state1, blockEntity) -> blockEntity.renderTick());
+        }
+        return checkType(type, ModBlockEntities.SHOP_ENTITY,
+                (world1, pos, shopState, blockEntity) -> blockEntity.serverTick((ServerWorld) world1, pos, (ShopBlock.ShopBlockState) shopState));
+    }
+
+    @Override
+    public final void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+        BlockEntity be = world.getBlockEntity(pos);
+        if(be instanceof ShopEntity shop){
+            if(!shop.canBreak(player)){
+                if(world.isClient()) {
+                    player.sendMessage(shop.cantBreakMessage(), true);
+                }
+                return;
+            }
+        }
+        this.spawnBreakParticles(world, player, pos, state);
+        world.emitGameEvent(GameEvent.BLOCK_DESTROY, pos, GameEvent.Emitter.of(player, state));
+    }
+}
+
+
+

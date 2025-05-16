@@ -2,36 +2,28 @@ package net.spudacious5705.shops.block.custom;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.MapCodec;
-import net.fabricmc.fabric.api.block.BlockPickInteractionAware;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityTicker;
-import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 
 import net.minecraft.screen.NamedScreenHandlerFactory;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.state.StateManager;
 
+import net.minecraft.state.StateManager;
 import net.minecraft.state.property.*;
 import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import net.minecraft.world.event.GameEvent;
 import net.minecraft.world.tick.TickPriority;
-import net.spudacious5705.shops.block.entity.ModBlockEntities;
 import net.spudacious5705.shops.block.entity.ShopEntity;
 import net.spudacious5705.shops.item.custom.ShopItem;
 import net.spudacious5705.shops.model.CushionResources;
@@ -43,14 +35,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.function.Function;
 
 
-public class ShopBlock extends BlockWithEntity implements BlockEntityProvider, BlockPickInteractionAware {
+public class ShopBlock extends AbstractShopBlock {
 
-    public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
     public static final EnumProperty<Colour> CUSHION_COLOUR = ModProperties.CUSHION_COLOUR;
-    public static final BooleanProperty BREAKABLE = ModProperties.BREAKABLE;
 
     public static final VoxelShape CULLING_SHAPE = Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 8.0, 16.0);
 
@@ -81,44 +70,28 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider, B
             BASE_WEST
     );
 
-    protected final StateManager<Block, BlockState> shopStateManager;
-
     protected final Item WOOD_TYPE;
 
     public static final Map<Item, ShopBlock> WOOD_TYPE_TO_SHOP_TYPE = new HashMap<>();
 
-    public ShopBlock(Settings settings, Item woodType) {
-        super(settings);
-        StateManager.Builder<Block, BlockState> builder = new StateManager.Builder<>(this);
-        this.appendProperties(builder);
-        this.shopStateManager = builder.build(Block::getDefaultState, ShopBlockState::new);
 
-        this.setDefaultState(
-                this.shopStateManager.getDefaultState()
-                        .with(FACING, Direction.NORTH)
-                        .with(CUSHION_COLOUR, Colour.WHITE)
-                        .with(BREAKABLE, false)
-        );
+
+    public ShopBlock(Settings settings, Item woodType) {
+        super(settings, ShopBlockState::new);
 
         WOOD_TYPE_TO_SHOP_TYPE.put(woodType,this);
         WOOD_TYPE = woodType;
     }
 
     @Override
-    public StateManager<Block, BlockState> getStateManager() {
-        return this.shopStateManager;
-    }
-
-    @Override
-    protected ImmutableMap<BlockState, VoxelShape> getShapesForStates(Function<BlockState, VoxelShape> stateToShape) {
-        return this.shopStateManager.getStates().stream().collect(ImmutableMap.toImmutableMap(Function.identity(), stateToShape));
+    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+    builder.add(CUSHION_COLOUR);
     }
 
     @Nullable
     @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
         Colour colour = getColourUsed(ctx);
-
         return this.getDefaultState()
                 .with(FACING, ctx.getHorizontalPlayerFacing().getOpposite())
                 .with(CUSHION_COLOUR, colour)
@@ -140,13 +113,8 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider, B
 
 
     @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(FACING).add(CUSHION_COLOUR).add(BREAKABLE);
-    }
-
-    @Override
-    public BlockRenderType getRenderType(BlockState state) {
-        return BlockRenderType.MODEL;
+    protected AbstractShopBlockState furtherDefaultStateProperties(AbstractShopBlockState state) {
+        return (ShopBlockState) state.with(CUSHION_COLOUR, Colour.RED);
     }
 
     @Override
@@ -182,7 +150,7 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider, B
         return getColouredShopItem(state.get(CUSHION_COLOUR)).getDefaultStack();
     }
 
-    public static class ShopBlockState extends BlockState{
+    public static class ShopBlockState extends AbstractShopBlockState{
 
         public ShopBlockState(Block block, ImmutableMap<Property<?>, Comparable<?>> immutableMap, MapCodec<BlockState> mapCodec) {
             super(block, immutableMap, mapCodec);
@@ -190,19 +158,18 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider, B
 
         @Override
         public void onBlockBreakStart(World world, BlockPos pos, PlayerEntity player) {
-            if(this.getBlock() instanceof ShopBlock){
-                world.getBlockEntity(pos);
-            }
-            ShopEntity shop = (ShopEntity) world.getBlockEntity(pos);
-            assert shop != null;
-            PermissionLevel perms = shop.userSignIn(player);
-            if(perms.canBreakBlock()){
-                world.setBlockState(pos,this.withIfExists(BREAKABLE,true));
-                world.scheduleBlockTick(pos, this.owner,140, TickPriority.EXTREMELY_HIGH);
-            }else{
-                world.setBlockState(pos,this.withIfExists(BREAKABLE,false));
-                if(world.isClient()){
-                    player.sendMessage(shop.cantBreakMessage(),true);
+            if(this.getBlock() instanceof AbstractShopBlock) {
+                ShopEntity shop = (ShopEntity) world.getBlockEntity(pos);
+                assert shop != null;
+                PermissionLevel perms = shop.userSignIn(player);
+                if (perms.canBreakBlock()) {
+                    world.setBlockState(pos, this.withIfExists(BREAKABLE, true));
+                    world.scheduleBlockTick(pos, this.owner, 140, TickPriority.EXTREMELY_HIGH);
+                } else {
+                    world.setBlockState(pos, this.withIfExists(BREAKABLE, false));
+                    if (world.isClient()) {
+                        player.sendMessage(shop.cantBreakMessage(), true);
+                    }
                 }
             }
 
@@ -212,17 +179,6 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider, B
         @Override
         public void onBlockAdded(World world, BlockPos pos, BlockState state, boolean notify) {
             super.onBlockAdded(world, pos, state, notify);
-        }
-
-        @Override
-        public float getHardness(BlockView world, BlockPos pos) {
-            if(this.get(BREAKABLE))return 2.0f;
-            return -1f;
-        }
-
-        @Override
-        public void scheduledTick(ServerWorld world, BlockPos pos, Random random) {
-            world.setBlockState(pos,this.withIfExists(BREAKABLE,false));
         }
 
         @Override
@@ -267,27 +223,8 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider, B
         }
 
         @Override
-        public BlockState rotate(BlockRotation rotation) {
-            return this.with(FACING, rotation.rotate(this.get(FACING)));
-        }
-
-        @Override
-        public BlockState mirror(BlockMirror mirror) {
-            return this.rotate(mirror.getRotation(this.get(FACING)));
-        }
-
-        @Override
-        public void onStateReplaced(World world, BlockPos pos, BlockState newState, boolean moved) {
-            if (!(newState instanceof ShopBlockState)) {
-                BlockEntity blockEntity = world.getBlockEntity(pos);
-                if (blockEntity != null) {
-                    if (blockEntity instanceof ShopEntity shopEntity) {
-                        shopEntity.itemScatter(world,pos);
-                        world.updateComparators(pos, this.getBlock());
-                    }
-                }
-                world.removeBlockEntity(pos);
-            }
+        protected boolean onStateReplacedValid(AbstractShopBlockState newShopState) {
+            return newShopState instanceof ShopBlockState;
         }
 
         @Override
@@ -301,24 +238,6 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider, B
             };
         }
 
-        public boolean unbreakable() {
-            return !this.get(BREAKABLE);
-        }
-
-        public void makeBreakable(ServerWorld world, BlockPos pos) {
-            world.setBlockState(pos,this.withIfExists(BREAKABLE,true));
-        }
-
-        public void makeUnbreakable(ServerWorld world, BlockPos pos) {
-            world.setBlockState(pos,this.withIfExists(BREAKABLE,false));
-        }
-
-        public BlockState importProperties(BlockState state) {
-            return this
-                    .with(FACING, state.get(FACING))
-                    .with(CUSHION_COLOUR, state.get(CUSHION_COLOUR))
-                    .with(BREAKABLE, state.get(BREAKABLE));
-        }
     }//end of ShopBlockState
 
     protected boolean onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player) {
@@ -349,9 +268,9 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider, B
                 } else if (WOOD_TYPE_TO_SHOP_TYPE.containsKey(item)){
                     ShopBlock block = WOOD_TYPE_TO_SHOP_TYPE.get(item);
                     if(WOOD_TYPE != item){
-                    if(block.getDefaultState() instanceof ShopBlockState shopState){
+                    if(block.getDefaultState() instanceof ShopBlockState defaultShopState){
                         world.spawnEntity(new ItemEntity(world,pos.getX()+0.5f,pos.getY()+0.5f,pos.getZ()+0.5f,WOOD_TYPE.getDefaultStack(),0f,0.1f,0f));
-                        BlockState newBlockState = shopState.importProperties(state);
+                        BlockState newBlockState = importProperties(defaultShopState, state);
                         world.setBlockState(pos, newBlockState);
                         return true;
                     }}
@@ -360,11 +279,11 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider, B
         return false;
     }
 
-    private static void attemptRenderDataForceUpdate(World world,BlockPos pos){
-        if(world.isClient()){
-        if(world.getBlockEntity(pos) instanceof ShopEntity shop) {
-            if(world.isClient())shop.forceUpdateRenderData();
-        }}
+    public static BlockState importProperties(BlockState defaultState, BlockState originalState) {
+        return defaultState
+                .with(FACING, originalState.get(FACING))
+                .with(CUSHION_COLOUR, originalState.get(CUSHION_COLOUR))
+                .with(BREAKABLE, originalState.get(BREAKABLE));
     }
 
     private final Map<Colour,ShopItem> dropMap = new HashMap<>();
@@ -379,34 +298,6 @@ public class ShopBlock extends BlockWithEntity implements BlockEntityProvider, B
 
     public ShopItem getDefaultColouredShopItem() {
         return dropMap.get(Colour.RED);
-    }
-
-    @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        if(type != ModBlockEntities.SHOP_ENTITY){
-            return null;
-        }
-        if(world.isClient()) {
-            return checkType(type, ModBlockEntities.SHOP_ENTITY,
-                    (world1, pos, state1, blockEntity) -> blockEntity.renderTick());
-        }
-        return checkType(type, ModBlockEntities.SHOP_ENTITY,
-                (world1, pos, shopState, blockEntity) -> blockEntity.serverTick((ServerWorld) world1, pos, (ShopBlockState) shopState));
-    }
-
-    @Override
-    public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
-        BlockEntity be = world.getBlockEntity(pos);
-        if(be instanceof ShopEntity shop){
-            if(!shop.canBreak(player)){
-                if(world.isClient()) {
-                    player.sendMessage(shop.cantBreakMessage(), true);
-                }
-                return;
-            }
-        }
-        this.spawnBreakParticles(world, player, pos, state);
-        world.emitGameEvent(GameEvent.BLOCK_DESTROY, pos, GameEvent.Emitter.of(player, state));
     }
 }
 
