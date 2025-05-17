@@ -1,6 +1,5 @@
 package net.spudacious5705.shops.screen;
 
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
@@ -10,15 +9,16 @@ import net.minecraft.screen.ArrayPropertyDelegate;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
-import net.spudacious5705.shops.block.entity.ShopEntity;
+import net.spudacious5705.shops.block.entity.AbstractShopEntity;
+import net.spudacious5705.shops.block.entity.AngledShopEntity;
 
 public class ShopScreenHandlerOwner extends ScreenHandler {
     private final Inventory shopInventory;
-    private final PropertyDelegate propertyDelegate;
-    public final ShopEntity shop;
+    //private final PropertyDelegate propertyDelegate;
+    public final AbstractShopEntity shop;
 
     public ShopScreenHandlerOwner(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {
-        this(syncId, playerInventory, (ShopEntity) playerInventory.player.getWorld().getBlockEntity(buf.readBlockPos()),
+        this(syncId, playerInventory, (AbstractShopEntity) playerInventory.player.getWorld().getBlockEntity(buf.readBlockPos()),
                 new ArrayPropertyDelegate(1));
     }
 
@@ -32,13 +32,13 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
     private static final int stock_itemStacks_start = 0;
     private static final int stock_itemStacks_range = 53;
 
-    public ShopScreenHandlerOwner(int syncId, PlayerInventory playerInventory, ShopEntity shop, PropertyDelegate arrayPropertyDelegate) {
+    public ShopScreenHandlerOwner(int syncId, PlayerInventory playerInventory, AbstractShopEntity shop, PropertyDelegate arrayPropertyDelegate) {
         super(ModScreenHandlers.SHOP_SCREEN_HANDLER_OWNER, syncId);
         Inventory inv = shop.getInventory();
         checkSize(inv, 78 );
         this.shopInventory = inv;
         playerInventory.onOpen(playerInventory.player);
-        this.propertyDelegate = arrayPropertyDelegate;
+        //this.propertyDelegate = arrayPropertyDelegate;
         this.shop = shop;
 
 

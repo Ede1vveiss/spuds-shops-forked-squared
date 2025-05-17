@@ -10,9 +10,9 @@ import net.spudacious5705.shops.block.ModBlocks;
 
 public class ModBlockEntities {
 
-    public static final BlockEntityType<ShopEntity> SHOP_ENTITY =
+    public static final BlockEntityType<AngledShopEntity> SHOP_ENTITY =
             Registry.register(Registries.BLOCK_ENTITY_TYPE, new Identifier(SpudaciousShops.MOD_ID, "shop_b_e"),
-                    FabricBlockEntityTypeBuilder.create(ShopEntity::new,
+                    FabricBlockEntityTypeBuilder.create(AngledShopEntity::new,
                             ModBlocks.SHOP_BLOCK_OAK,
                             ModBlocks.SHOP_BLOCK_BAMBOO,
                             ModBlocks.SHOP_BLOCK_BIRCH,
