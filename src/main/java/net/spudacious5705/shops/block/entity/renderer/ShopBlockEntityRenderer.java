@@ -1,6 +1,5 @@
 package net.spudacious5705.shops.block.entity.renderer;
 
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
@@ -9,16 +8,13 @@ import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
-import net.spudacious5705.shops.block.entity.ShopEntity;
-import net.spudacious5705.shops.item.ModItems;
+import net.spudacious5705.shops.block.entity.AngledShopEntity;
+import net.spudacious5705.shops.block.entity.AbstractShopEntity.RendererData;
 import net.spudacious5705.shops.model.CushionModel;
 
-public class ShopBlockEntityRenderer implements BlockEntityRenderer<ShopEntity> {
+public class ShopBlockEntityRenderer implements BlockEntityRenderer<AngledShopEntity> {
 
     private final BlockEntityRendererFactory.Context context;
 
@@ -30,17 +26,17 @@ public class ShopBlockEntityRenderer implements BlockEntityRenderer<ShopEntity> 
     }
 
     @Override
-    public void render(ShopEntity shop, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
+    public void render(AngledShopEntity shop, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
         ModelTransformationMode mode;
-        final ShopEntity.RendererData data = shop.getRendererData();
+        final RendererData data = shop.rendererData;
 
         matrices.push();
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(
                         switch (shop.getCachedFacingDirection()) {
-                            default -> 0f;
                             case EAST -> 270f;
                             case SOUTH -> 180f;
                             case WEST -> 90f;
+                            default -> 0f;
                         }),
                 0.5f,0f,0.5f);
         this.model.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntitySolid(shop.getCushionTextureID())), light, overlay);
@@ -127,10 +123,10 @@ public class ShopBlockEntityRenderer implements BlockEntityRenderer<ShopEntity> 
 
             matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(
                             switch (data.direction()) {
-                                default -> 0f;
                                 case EAST -> 270f;
                                 case SOUTH -> 180f;
                                 case WEST -> 90f;
+                                default -> 0f;
                             }),
                     0.2f, 0f, 0.25f);
 
@@ -181,61 +177,7 @@ public class ShopBlockEntityRenderer implements BlockEntityRenderer<ShopEntity> 
             this.context.getItemRenderer().renderItem(data.paymentType(), ModelTransformationMode.GUI, light, overlay, matrices, vertexConsumers, data.world(), 1);
             matrices.pop();
 
-            if(data.stockWarning || data.paymentWarning){
-
-
-                if(data.updateIconRotation()) {
-                    PlayerEntity player1 = MinecraftClient.getInstance().player;
-                    if(player1 != null){
-                        double x = player1.getX() - ((double) shop.getPos().getX() + 0.5);
-                        double z = player1.getZ() - ((double) shop.getPos().getZ() + 0.5);
-                        data.targetRotation = -MathHelper.atan2(z, x);
-                    }
-                }
-
-                data.frameRotation = (data.targetRotation - data.lastRotation);
-                if(data.frameRotation > Math.PI){
-                    data.frameRotation -= Math.PI*2;
-                } else if (data.frameRotation < -Math.PI){
-                    data.frameRotation += Math.PI*2;
-                }
-
-                data.frameRotation *= tickDelta*0.08;
-
-                data.lastRotation += data.frameRotation;
-
-                if(data.lastRotation > Math.PI){
-                    data.lastRotation -= data.doublePi;
-                } else if (data.lastRotation < -Math.PI){
-                    data.lastRotation += data.doublePi;
-                }
-
-                matrices.push();
-                matrices.translate(0.5f, 1.4f, 0.5f);
-                matrices.multiply(RotationAxis.POSITIVE_Y.rotation((float)data.lastRotation));
-                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(90.0f));
-                matrices.scale(0.5f, 0.5f, 0.5f);
-
-                if(data.stockWarning && data.paymentWarning){
-
-
-                    matrices.translate(0.5f, 0.0f, 0.0f);
-
-                    this.context.getItemRenderer().renderItem(new ItemStack(ModItems.STOCK_WARNING),ModelTransformationMode.GUI, light, overlay, matrices, vertexConsumers, data.world(), 1);
-                    matrices.translate(-1.0f, 0.0f, 0.0f);
-                    this.context.getItemRenderer().renderItem(new ItemStack(ModItems.PAYMENT_WARNING),ModelTransformationMode.GUI, light, overlay, matrices, vertexConsumers, data.world(), 1);
-                    matrices.pop();
-                } else if (data.stockWarning) {
-                    this.context.getItemRenderer().renderItem(new ItemStack(ModItems.STOCK_WARNING),ModelTransformationMode.GUI, light, overlay, matrices, vertexConsumers, data.world(), 1);
-                    matrices.pop();
-                } else {
-                    this.context.getItemRenderer().renderItem(new ItemStack(ModItems.PAYMENT_WARNING),ModelTransformationMode.GUI, light, overlay, matrices, vertexConsumers, data.world(), 1);
-                    matrices.pop();
-                }
-            }
-
-
-
+            ShopRenderUtils.renderShopWarns(tickDelta,matrices,vertexConsumers,light,overlay,data,context,0);
 
 
         }

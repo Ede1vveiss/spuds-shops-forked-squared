@@ -12,19 +12,19 @@ import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.text.Text;
-import net.minecraft.util.ItemScatterer;
-import net.spudacious5705.shops.block.entity.ShopEntity;
+import net.spudacious5705.shops.block.entity.AbstractShopEntity;
+import net.spudacious5705.shops.block.entity.AngledShopEntity;
 
 import static net.minecraft.block.Block.dropStack;
 
 public class ShopScreenHandlerCustomer extends ScreenHandler {
     private final Inventory shopInventory;
-    private final PropertyDelegate propertyDelegate;
+    //private final PropertyDelegate propertyDelegate;
     private final PlayerInventory playerInventory;
-    public final ShopEntity shop;
+    public final AbstractShopEntity shop;
 
     public ShopScreenHandlerCustomer(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {
-        this(syncId, playerInventory, playerInventory.player.getWorld().getBlockEntity(buf.readBlockPos()),
+        this(syncId, playerInventory, (AbstractShopEntity) playerInventory.player.getWorld().getBlockEntity(buf.readBlockPos()),
                 new ArrayPropertyDelegate(1));
     }
 
@@ -35,16 +35,15 @@ public class ShopScreenHandlerCustomer extends ScreenHandler {
     private static final int STOCK_END = 53;
     private static final int PROFIT_END = 75;
 
-    public ShopScreenHandlerCustomer(int syncId, PlayerInventory playerInventory1, BlockEntity blockEntity, PropertyDelegate arrayPropertyDelegate) {
+    public ShopScreenHandlerCustomer(int syncId, PlayerInventory playerInventory1, AbstractShopEntity blockEntity, PropertyDelegate arrayPropertyDelegate) {
         super(ModScreenHandlers.SHOP_SCREEN_HANDLER_CUSTOMER, syncId);
-        ShopEntity shop = (ShopEntity) blockEntity;
+        shop = blockEntity;
         Inventory inv = shop.getInventory();
         checkSize(inv, 78 );
         this.shopInventory = inv;
         this.playerInventory = playerInventory1;
         playerInventory.onOpen(playerInventory.player);
-        this.propertyDelegate = arrayPropertyDelegate;
-        this.shop = shop;
+        //this.propertyDelegate = arrayPropertyDelegate;
 
         addPlayerInventory(playerInventory);
         addCustomerInventory();
