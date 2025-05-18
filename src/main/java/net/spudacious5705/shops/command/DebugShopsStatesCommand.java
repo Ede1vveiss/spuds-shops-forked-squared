@@ -3,7 +3,6 @@ package net.spudacious5705.shops.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.block.BlockState;
 import net.minecraft.command.CommandRegistryAccess;
@@ -14,19 +13,14 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.spudacious5705.shops.block.ModBlocks;
-import net.spudacious5705.shops.block.custom.ShopBlock;
+import net.spudacious5705.shops.block.custom.AngledShopBlock;
 // getString(ctx, "string")
-import static com.mojang.brigadier.arguments.StringArgumentType.getString;
 // word()
-import static com.mojang.brigadier.arguments.StringArgumentType.word;
 // literal("foo")
-import static net.minecraft.server.command.CommandManager.literal;
 // argument("bar", word())
 import static net.minecraft.server.command.CommandManager.argument;
 // Import everything in the CommandManager
-import static net.minecraft.server.command.CommandManager.*;
 
-import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
 
 public class DebugShopsStatesCommand {
 
@@ -81,7 +75,7 @@ public class DebugShopsStatesCommand {
         int x = 0;
         int y = 0;
 
-        for(ShopBlock shop :ModBlocks.getAllShops()){
+        for(AngledShopBlock shop :ModBlocks.getAllShops()){
             x+=2;
             for(BlockState state:shop.getStateManager().getStates()){
                 y+=2;

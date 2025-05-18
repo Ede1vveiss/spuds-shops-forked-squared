@@ -1,7 +1,5 @@
 package net.spudacious5705.shops.datagen;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.minecraft.block.Block;
@@ -10,13 +8,11 @@ import net.minecraft.data.server.recipe.RecipeJsonProvider;
 import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
 import net.minecraft.item.Item;
 import net.minecraft.recipe.book.RecipeCategory;
-import net.minecraft.registry.RegistryWrapper;
 import net.spudacious5705.shops.block.ModBlocks;
-import net.spudacious5705.shops.block.custom.ShopBlock;
+import net.spudacious5705.shops.block.custom.AngledShopBlock;
 import net.spudacious5705.shops.model.CushionResources;
 import net.spudacious5705.shops.properties.Colour;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 public class ModRecipieProvider extends FabricRecipeProvider {
@@ -31,7 +27,7 @@ public class ModRecipieProvider extends FabricRecipeProvider {
         for(Colour colour: Colour.values()) {
 
             for(Wood wood: Wood.values()){
-                makeShopRecipie(consumer, wood.shopBlock.getColouredShopItem(colour),wood.block,CushionResources.COLOUR_MAP.get(colour).wool());
+                makeShopRecipie(consumer, wood.angledShopBlock.getColouredShopItem(colour),wood.block,CushionResources.COLOUR_MAP.get(colour).wool());
             }
 
         }
@@ -67,18 +63,18 @@ public class ModRecipieProvider extends FabricRecipeProvider {
         WARPED(ModBlocks.SHOP_BLOCK_WARPED, Blocks.WARPED_PLANKS),
         JUNGLE(ModBlocks.SHOP_BLOCK_JUNGLE, Blocks.JUNGLE_PLANKS);
 
-        private final ShopBlock shopBlock;
+        private final AngledShopBlock angledShopBlock;
         private final Block block;
 
         // Constructor
-        Wood(ShopBlock shopBlock, Block block) {
-            this.shopBlock = shopBlock;
+        Wood(AngledShopBlock angledShopBlock, Block block) {
+            this.angledShopBlock = angledShopBlock;
             this.block = block;
         }
 
         // Getters for the properties
-        public ShopBlock getShopBlock() {
-            return shopBlock;
+        public AngledShopBlock getShopBlock() {
+            return angledShopBlock;
         }
 
         public Block getBlock() {

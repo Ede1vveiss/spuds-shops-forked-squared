@@ -3,6 +3,7 @@ package net.spudacious5705.shops.block.entity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -28,7 +29,7 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
-import net.spudacious5705.shops.block.custom.ShopBlock;
+import net.spudacious5705.shops.block.custom.AngledShopBlock;
 import net.spudacious5705.shops.properties.PermissionLevel;
 import net.spudacious5705.shops.screen.ShopScreenHandlerCustomer;
 import net.spudacious5705.shops.screen.ShopScreenHandlerOwner;
@@ -41,8 +42,6 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
     protected final DefaultedList<ItemStack> itemStacks = DefaultedList.ofSize(INV_SIZE, ItemStack.EMPTY);
 
     protected final PropertyDelegate propertyDelegate;
-
-    protected int breakableTicks = 0;
 
 
     final inventoryDelegate inventoryDelegate;
@@ -152,6 +151,10 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
                 return 0;
             }
         };
+
+        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+            this.rendererData = new RendererData(this);
+        }
     }
 
     public void setOwner(PlayerEntity player) {
@@ -193,7 +196,10 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
     }
 
     @Environment(EnvType.CLIENT)
-    public RendererData rendererData = new RendererData(this);
+    protected RendererData rendererData;
+
+    @Environment(EnvType.CLIENT)
+    public RendererData rendererData(){return  rendererData;}
 
     @Nullable
     @Override
@@ -221,7 +227,6 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
 
     protected final boolean functionalCheck(){
         if(null == ownerID){return false;}
-        if(null == this.itemStacks){return false;}
         if(this.itemStacks.get(PAYMENT_SLOT).isEmpty()){return false;}
         if(this.itemStacks.get(VENDING_SLOT).isEmpty()){return false;}
         return this.getWorld() != null;
@@ -279,7 +284,7 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
         assert this.world != null;
         if(!this.world.isClient()) {return Direction.NORTH;}
         BlockState state = this.world.getBlockState(this.pos);
-        if(!(state.getBlock() instanceof ShopBlock)) {return Direction.NORTH;}
+        if(!(state.getBlock() instanceof AngledShopBlock)) {return Direction.NORTH;}
         Direction dir = state.get(Properties.HORIZONTAL_FACING);
         if(dir == null){return Direction.NORTH;}
         return dir;
@@ -309,11 +314,8 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
     }
 
     public boolean canBreak(PlayerEntity player) {
-        breakableTicks = 140;
         if(player.isCreative())return true;
-        if(this.isOwner(player.getUuid())) return true;
-        breakableTicks = 0;
-        return false;
+        return this.isOwner(player.getUuid());
     }
 
     public void itemScatter(World world, BlockPos pos) {
@@ -344,26 +346,39 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
         return Text.of("Cannot break - Owned by " + ownerName);
     }
 
-    public void serverTick(ServerWorld world, BlockPos pos, ShopBlock.ShopBlockState shopState) {
+    public void serverTick(ServerWorld world, BlockPos pos, AngledShopBlock.ShopBlockState shopState) {
         if(decayTimer > -1){
-            decayTimer++;
             if(decayTimer>hourInTicks){
                 if(!isShopFunctional()){
-                    clearAllPermissions();
+                    if(ownerID!=null){
+                        clearAllPermissions();
+                        shopState.makeBreakable(world, pos);
+                    }
                     breakableTicks = 140;
-                    shopState.makeBreakable(world, pos);
+                } else {
+                    decayTimer = -1;
                 }
+            } else {
+                decayTimer++;
             }
         }
         if(shopState.unbreakable())return;
-        if(breakableTicks > 0){
-            if(this.ownerID != null) {
-                breakableTicks--;
-                return;
-            }
+
+        if (breakableTicks > 0) {
+            breakableTicks--;
+            return;
         }
-        shopState.makeUnbreakable(world,pos);
+
+        if (breakableTicks == -1) {
+            // Shop has become breakable; start the countdown (140 ticks)
+            breakableTicks = 140;
+        } else {
+            shopState.makeUnbreakable(world, pos);
+            breakableTicks = -1; // Reset
+        }
     }
+
+    protected int breakableTicks = -1;
 
     @Environment(EnvType.CLIENT)
     public static class RendererData{

@@ -28,7 +28,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 import net.minecraft.world.tick.TickPriority;
 import net.spudacious5705.shops.block.entity.ModBlockEntities;
-import net.spudacious5705.shops.block.entity.ShopEntity;
+import net.spudacious5705.shops.block.entity.AbstractShopEntity;
 import net.spudacious5705.shops.properties.ModProperties;
 import net.spudacious5705.shops.properties.PermissionLevel;
 import org.jetbrains.annotations.Nullable;
@@ -83,7 +83,7 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
         if(placer != null) {
             if (placer instanceof PlayerEntity player) {
                 BlockEntity blockEntity = world.getBlockEntity(pos);
-                if (blockEntity instanceof ShopEntity shopEntity) {
+                if (blockEntity instanceof AbstractShopEntity shopEntity) {
                     shopEntity.setOwner(player);
                 }
             }
@@ -98,7 +98,7 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
 
     private static PermissionLevel userSignIn(World world, BlockPos pos, PlayerEntity player) {
         BlockEntity blockEntity = world.getBlockEntity(pos);
-        if (blockEntity instanceof ShopEntity shopEntity) {
+        if (blockEntity instanceof AbstractShopEntity shopEntity) {
             return shopEntity.userSignIn(player);
         }
         return PermissionLevel.CUSTOMER;
@@ -113,7 +113,7 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
         @Override
         public void onBlockBreakStart(World world, BlockPos pos, PlayerEntity player) {
             if(this.getBlock() instanceof AbstractShopBlock) {
-                ShopEntity shop = (ShopEntity) world.getBlockEntity(pos);
+                AbstractShopEntity shop = (AbstractShopEntity) world.getBlockEntity(pos);
                 assert shop != null;
                 PermissionLevel perms = shop.userSignIn(player);
                 if (perms.canBreakBlock()) {
@@ -124,11 +124,8 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
                     if (world.isClient()) {
                         player.sendMessage(shop.cantBreakMessage(), true);
                     }
-                    return;
                 }
             }
-
-            super.onBlockBreakStart(world, pos, player);
         }
 
         @Override
@@ -156,7 +153,7 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
 
             BlockEntity be = world.getBlockEntity(pos);
 
-            if(!(be instanceof ShopEntity)) return ActionResult.FAIL;
+            if(!(be instanceof AbstractShopEntity)) return ActionResult.FAIL;
 
             PermissionLevel perm = userSignIn(world, pos, player);
 
@@ -164,7 +161,7 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
                 if(((AbstractShopBlock)getBlock()).onUseWithItem(stack,this.asBlockState(),world,pos,player)) return ActionResult.SUCCESS;
             }
 
-            NamedScreenHandlerFactory screenHandlerFactory = (ShopEntity)world.getBlockEntity(pos);
+            NamedScreenHandlerFactory screenHandlerFactory = (AbstractShopEntity)world.getBlockEntity(pos);
             if (screenHandlerFactory != null) {
                 player.openHandledScreen(screenHandlerFactory);
             }
@@ -200,7 +197,7 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
             }
             BlockEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity != null) {
-                if (blockEntity instanceof ShopEntity shopEntity) {
+                if (blockEntity instanceof AbstractShopEntity shopEntity) {
                     shopEntity.itemScatter(world,pos);
                     world.updateComparators(pos, this.getBlock());
                 }
@@ -227,7 +224,7 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
 
     static void attemptRenderDataForceUpdate(World world, BlockPos pos){
         if(world.isClient()){
-        if(world.getBlockEntity(pos) instanceof ShopEntity shop) {
+        if(world.getBlockEntity(pos) instanceof AbstractShopEntity shop) {
             if(world.isClient())shop.forceUpdateRenderData();
         }}
     }
@@ -242,13 +239,13 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
                     (world1, pos, state1, blockEntity) -> blockEntity.renderTick());
         }
         return checkType(type, ModBlockEntities.SHOP_ENTITY,
-                (world1, pos, shopState, blockEntity) -> blockEntity.serverTick((ServerWorld) world1, pos, (ShopBlock.ShopBlockState) shopState));
+                (world1, pos, shopState, blockEntity) -> blockEntity.serverTick((ServerWorld) world1, pos, (AngledShopBlock.ShopBlockState) shopState));
     }
 
     @Override
     public final void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
         BlockEntity be = world.getBlockEntity(pos);
-        if(be instanceof ShopEntity shop){
+        if(be instanceof AbstractShopEntity shop){
             if(!shop.canBreak(player)){
                 if(world.isClient()) {
                     player.sendMessage(shop.cantBreakMessage(), true);

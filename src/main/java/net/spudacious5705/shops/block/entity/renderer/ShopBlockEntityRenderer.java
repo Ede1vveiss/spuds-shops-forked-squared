@@ -28,7 +28,7 @@ public class ShopBlockEntityRenderer implements BlockEntityRenderer<AngledShopEn
     @Override
     public void render(AngledShopEntity shop, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
         ModelTransformationMode mode;
-        final RendererData data = shop.rendererData;
+        final RendererData data = shop.rendererData();
 
         matrices.push();
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(

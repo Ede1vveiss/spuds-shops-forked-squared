@@ -23,8 +23,7 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import net.minecraft.world.tick.TickPriority;
-import net.spudacious5705.shops.block.entity.ShopEntity;
+import net.spudacious5705.shops.block.entity.AngledShopEntity;
 import net.spudacious5705.shops.item.custom.ShopItem;
 import net.spudacious5705.shops.model.CushionResources;
 import net.spudacious5705.shops.properties.Colour;
@@ -37,7 +36,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 
-public class ShopBlock extends AbstractShopBlock {
+public class AngledShopBlock extends AbstractShopBlock {
 
     public static final EnumProperty<Colour> CUSHION_COLOUR = ModProperties.CUSHION_COLOUR;
 
@@ -72,11 +71,11 @@ public class ShopBlock extends AbstractShopBlock {
 
     protected final Item WOOD_TYPE;
 
-    public static final Map<Item, ShopBlock> WOOD_TYPE_TO_SHOP_TYPE = new HashMap<>();
+    public static final Map<Item, AngledShopBlock> WOOD_TYPE_TO_SHOP_TYPE = new HashMap<>();
 
 
 
-    public ShopBlock(Settings settings, Item woodType) {
+    public AngledShopBlock(Settings settings, Item woodType) {
         super(settings, ShopBlockState::new);
 
         WOOD_TYPE_TO_SHOP_TYPE.put(woodType,this);
@@ -122,7 +121,7 @@ public class ShopBlock extends AbstractShopBlock {
         if(placer != null) {
             if (placer instanceof PlayerEntity player) {
                 BlockEntity blockEntity = world.getBlockEntity(pos);
-                if (blockEntity instanceof ShopEntity shopEntity) {
+                if (blockEntity instanceof AngledShopEntity shopEntity) {
                     shopEntity.setOwner(player);
                 }
             }
@@ -134,12 +133,12 @@ public class ShopBlock extends AbstractShopBlock {
     @Nullable
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-        return new ShopEntity(pos, state);
+        return new AngledShopEntity(pos, state);
     }
 
     private static PermissionLevel userSignIn(World world, BlockPos pos, PlayerEntity player) {
         BlockEntity blockEntity = world.getBlockEntity(pos);
-        if (blockEntity instanceof ShopEntity shopEntity) {
+        if (blockEntity instanceof AngledShopEntity shopEntity) {
             return shopEntity.userSignIn(player);
         }
         return PermissionLevel.CUSTOMER;
@@ -157,26 +156,6 @@ public class ShopBlock extends AbstractShopBlock {
         }
 
         @Override
-        public void onBlockBreakStart(World world, BlockPos pos, PlayerEntity player) {
-            if(this.getBlock() instanceof AbstractShopBlock) {
-                ShopEntity shop = (ShopEntity) world.getBlockEntity(pos);
-                assert shop != null;
-                PermissionLevel perms = shop.userSignIn(player);
-                if (perms.canBreakBlock()) {
-                    world.setBlockState(pos, this.withIfExists(BREAKABLE, true));
-                    world.scheduleBlockTick(pos, this.owner, 140, TickPriority.EXTREMELY_HIGH);
-                } else {
-                    world.setBlockState(pos, this.withIfExists(BREAKABLE, false));
-                    if (world.isClient()) {
-                        player.sendMessage(shop.cantBreakMessage(), true);
-                    }
-                }
-            }
-
-            super.onBlockBreakStart(world, pos, player);
-        }
-
-        @Override
         public void onBlockAdded(World world, BlockPos pos, BlockState state, boolean notify) {
             super.onBlockAdded(world, pos, state, notify);
         }
@@ -190,15 +169,15 @@ public class ShopBlock extends AbstractShopBlock {
 
             BlockEntity be = world.getBlockEntity(pos);
 
-            if(!(be instanceof ShopEntity)) return ActionResult.FAIL;
+            if(!(be instanceof AngledShopEntity)) return ActionResult.FAIL;
 
             PermissionLevel perm = userSignIn(world, pos, player);
 
             if(!stack.isEmpty() && perm.canEditTrades()){
-                if(((ShopBlock)getBlock()).onUseWithItem(stack,this.asBlockState(),world,pos,player)) return ActionResult.SUCCESS;
+                if(((AngledShopBlock)getBlock()).onUseWithItem(stack,this.asBlockState(),world,pos,player)) return ActionResult.SUCCESS;
             }
 
-            NamedScreenHandlerFactory screenHandlerFactory = (ShopEntity)world.getBlockEntity(pos);
+            NamedScreenHandlerFactory screenHandlerFactory = (AngledShopEntity)world.getBlockEntity(pos);
             if (screenHandlerFactory != null) {
                 player.openHandledScreen(screenHandlerFactory);
             }
@@ -266,7 +245,7 @@ public class ShopBlock extends AbstractShopBlock {
                         return true;
                     }
                 } else if (WOOD_TYPE_TO_SHOP_TYPE.containsKey(item)){
-                    ShopBlock block = WOOD_TYPE_TO_SHOP_TYPE.get(item);
+                    AngledShopBlock block = WOOD_TYPE_TO_SHOP_TYPE.get(item);
                     if(WOOD_TYPE != item){
                     if(block.getDefaultState() instanceof ShopBlockState defaultShopState){
                         world.spawnEntity(new ItemEntity(world,pos.getX()+0.5f,pos.getY()+0.5f,pos.getZ()+0.5f,WOOD_TYPE.getDefaultStack(),0f,0.1f,0f));
