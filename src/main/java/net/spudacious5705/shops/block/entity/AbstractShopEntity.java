@@ -105,7 +105,7 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
 
         @Override
         public void markDirty() {
-            assert shop.world != null;
+            assert this.shop.world != null;
             shop.world.updateListeners(pos,getCachedState(),getCachedState(),3);
             shop.isShopFunctional();
             shop.markDirty();
@@ -122,6 +122,11 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
         }
     }
 
+    @Override
+    public void markDirty() {
+        super.markDirty();
+        forceUpdateRenderData();
+    }
 
     public Inventory getInventory() {
         return this.inventoryDelegate;

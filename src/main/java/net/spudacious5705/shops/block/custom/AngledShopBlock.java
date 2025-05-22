@@ -7,6 +7,7 @@ import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -27,6 +28,7 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import net.minecraft.world.event.GameEvent;
 import net.spudacious5705.shops.block.entity.AngledShopEntity;
 import net.spudacious5705.shops.block.entity.ModBlockEntities;
 import net.spudacious5705.shops.item.custom.ShopItem;
@@ -93,7 +95,7 @@ public class AngledShopBlock extends AbstractShopBlock implements BlockPickInter
                 if (blockEntity instanceof AngledShopEntity shopEntity) {
                     shopEntity.setOwner(player);
                     if (itemStack.getItem() instanceof ShopItem item) {
-                        shopEntity.cushionColour = item.colour;
+                        shopEntity.setCushionColour(item.colour);
                     }
                 }
             }
@@ -120,7 +122,7 @@ public class AngledShopBlock extends AbstractShopBlock implements BlockPickInter
     public ItemStack getPickedStack(BlockState state, BlockView view, BlockPos pos, PlayerEntity player, HitResult result) {
         Colour colour = Colour.RED;
         if(view.getBlockEntity(pos) instanceof AngledShopEntity shopEntity) {
-            colour = shopEntity.cushionColour;
+            colour = shopEntity.getCushionColour();
         }
         return getColouredShopItem(colour).getDefaultStack();
     }
@@ -197,24 +199,24 @@ public class AngledShopBlock extends AbstractShopBlock implements BlockPickInter
             if (world.getBlockEntity(pos) instanceof AngledShopEntity shopEntity) {
                 if (CushionResources.DYE_MAP.containsKey(item)) {
                     CushionResources.cushionColourGroup group = CushionResources.DYE_MAP.get(item);
-                    if (shopEntity.cushionColour != group.colour()) {
+                    if (shopEntity.getCushionColour() != group.colour()) {
                         stack.decrement(1);
-                        shopEntity.cushionColour = group.colour();
+                        shopEntity.setCushionColour(group.colour());
                         world.playSound(player, pos, SoundEvents.ITEM_DYE_USE, SoundCategory.BLOCKS);
-                        attemptRenderDataForceUpdate(world, pos);
+                        world.updateListeners(pos, state, state, Block.NOTIFY_LISTENERS);
                         return true;
                     }
                 } else if (CushionResources.WOOL_MAP.containsKey(item)) {
                     CushionResources.cushionColourGroup group = CushionResources.WOOL_MAP.get(item);
-                    Colour originalColour = shopEntity.cushionColour;
+                    Colour originalColour = shopEntity.getCushionColour();
                     if (originalColour != group.colour()) {
-                        shopEntity.cushionColour = group.colour();
+                        shopEntity.setCushionColour(group.colour());
                         stack.decrement(1);
                         group = CushionResources.COLOUR_MAP.get(originalColour);
                         ItemStack releaseStack = new ItemStack(group.wool(), 1);
                         world.spawnEntity(new ItemEntity(world, pos.getX() + 0.5f, pos.getY() + 0.5f, pos.getZ() + 0.5f, releaseStack, 0f, 0.1f, 0f));
                         world.playSound(player, pos, SoundEvents.ENTITY_SHEEP_SHEAR, SoundCategory.BLOCKS);
-                        attemptRenderDataForceUpdate(world, pos);
+                        world.updateListeners(pos, state, state, Block.NOTIFY_LISTENERS);
                         return true;
                     }
                 } else if (WOOD_TYPE_TO_SHOP_TYPE.containsKey(item)) {
