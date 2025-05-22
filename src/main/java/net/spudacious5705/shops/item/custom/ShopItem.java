@@ -15,10 +15,9 @@ public class ShopItem extends BlockItem {
         this.colour = colour;
     }
 
-    @Override
+    /*@Override
     protected boolean place(ItemPlacementContext context, BlockState state) {
-        state.with(AngledShopBlock.CUSHION_COLOUR, colour);
         return super.place(context, state);
-    }
+    }*/
 
 }

@@ -3,6 +3,7 @@ package net.spudacious5705.shops.block;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Blocks;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
@@ -16,9 +17,7 @@ import net.spudacious5705.shops.properties.Colour;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class       ModBlocks{
-
-    public static final ArrayList<ShopItem> SHOP_ITEM_LIST = new ArrayList<>(numbOfShopItems());
+public abstract class ModBlocks{
 
     public static final int SHOP_COUNT = 11;
 
@@ -29,25 +28,38 @@ public abstract class       ModBlocks{
             .hardness(-1f)
             .resistance(Float.MAX_VALUE);
 
-    private static final List<AngledShopBlock> ALL_SHOPS = new ArrayList<>(11);
+    private static final List<AngledShopBlock> ALL_SHOPS = new ArrayList<>(11);// FOR DEBUG COMMAND ONLY
 
-    public static final AngledShopBlock SHOP_BLOCK_ACACIA = registerShopBlock("shop_acacia", Items.ACACIA_PLANKS);
-    public static final AngledShopBlock SHOP_BLOCK_BAMBOO = registerShopBlock("shop_bamboo", Items.BAMBOO_PLANKS);
-    public static final AngledShopBlock SHOP_BLOCK_BIRCH = registerShopBlock("shop_birch", Items.BIRCH_PLANKS);
-    public static final AngledShopBlock SHOP_BLOCK_CHERRY = registerShopBlock("shop_cherry", Items.CHERRY_PLANKS);
-    public static final AngledShopBlock SHOP_BLOCK_CRIMSON = registerShopBlock("shop_crimson", Items.CRIMSON_PLANKS);
-    public static final AngledShopBlock SHOP_BLOCK_DARK_OAK = registerShopBlock("shop_dark_oak", Items.DARK_OAK_PLANKS);
-    public static final AngledShopBlock SHOP_BLOCK_MANGROVE = registerShopBlock("shop_mangrove", Items.MANGROVE_PLANKS);
-    public static final AngledShopBlock SHOP_BLOCK_OAK = registerShopBlock("shop_oak", Items.OAK_PLANKS);
-    public static final AngledShopBlock SHOP_BLOCK_SPRUCE = registerShopBlock("shop_spruce", Items.SPRUCE_PLANKS);
-    public static final AngledShopBlock SHOP_BLOCK_WARPED = registerShopBlock("shop_warped", Items.WARPED_PLANKS);
-    public static final AngledShopBlock SHOP_BLOCK_JUNGLE = registerShopBlock("shop_jungle", Items.JUNGLE_PLANKS);
+    public static final AngledShopBlock SHOP_BLOCK_ANGLED_ACACIA = registerAngledShopBlock("acacia", Items.ACACIA_PLANKS);
+    public static final AngledShopBlock SHOP_BLOCK_ANGLED_BAMBOO = registerAngledShopBlock("bamboo", Items.BAMBOO_PLANKS);
+    public static final AngledShopBlock SHOP_BLOCK_ANGLED_BIRCH = registerAngledShopBlock("birch", Items.BIRCH_PLANKS);
+    public static final AngledShopBlock SHOP_BLOCK_ANGLED_CHERRY = registerAngledShopBlock("cherry", Items.CHERRY_PLANKS);
+    public static final AngledShopBlock SHOP_BLOCK_ANGLED_CRIMSON = registerAngledShopBlock("crimson", Items.CRIMSON_PLANKS);
+    public static final AngledShopBlock SHOP_BLOCK_ANGLED_DARK_OAK = registerAngledShopBlock("dark_oak", Items.DARK_OAK_PLANKS);
+    public static final AngledShopBlock SHOP_BLOCK_ANGLED_MANGROVE = registerAngledShopBlock("mangrove", Items.MANGROVE_PLANKS);
+    public static final AngledShopBlock SHOP_BLOCK_ANGLED_OAK = registerAngledShopBlock("oak", Items.OAK_PLANKS);
+    public static final AngledShopBlock SHOP_BLOCK_ANGLED_SPRUCE = registerAngledShopBlock("spruce", Items.SPRUCE_PLANKS);
+    public static final AngledShopBlock SHOP_BLOCK_ANGLED_WARPED = registerAngledShopBlock("warped", Items.WARPED_PLANKS);
+    public static final AngledShopBlock SHOP_BLOCK_ANGLED_JUNGLE = registerAngledShopBlock("jungle", Items.JUNGLE_PLANKS);
+
+    public static final WindowSillShopBlock SHOP_BLOCK_WINDOW_CALCITE = registerWindowShopBlock("calcite", Items.CALCITE);
+    public static final WindowSillShopBlock SHOP_BLOCK_WINDOW_ANDESITE = registerWindowShopBlock("andesite", Items.ANDESITE);
+
+    private static WindowSillShopBlock registerWindowShopBlock(String name, Item stoneType) {
+        name = "shop_window_"+name;
+        WindowSillShopBlock block = new WindowSillShopBlock(settings, stoneType);
+
+        Registry.register(Registries.ITEM, Identifier.of(SpudaciousShops.MOD_ID, name), new BlockItem(block, new Item.Settings()));
+
+        return Registry.register(Registries.BLOCK, new Identifier(SpudaciousShops.MOD_ID, name), block);
+    }
 
     private static int numbOfShopItems(){
         return SHOP_COUNT*COLOUR_COUNT;
     }
 
-    private static AngledShopBlock registerShopBlock(String name, Item woodType) {
+    private static AngledShopBlock registerAngledShopBlock(String name, Item woodType) {
+        name = "shop_"+name;
         AngledShopBlock block = new AngledShopBlock(settings, woodType);
         for(Colour colour : Colour.values()) {
             block.addDropItem(registerShopBlockItem(name, block, colour), colour);

@@ -21,5 +21,9 @@
   "item.spudaciousshops.shop_warped": "Warped Shop",
   "block.spudaciousshops.shop_jungle": "Jungle Shop",
   "item.spudaciousshops.shop_jungle": "Jungle Shop",
-  "itemGroup.spudaciousshops.shop_item_group": "Spud's shops"
+  "itemGroup.spudaciousshops.shop_item_group": "Spud's shops",
+  "block.spudaciousshops.shop_window_andesite": "Andesite Windowsill Shop",
+  "item.spudaciousshops.shop_window_andesite": "Andesite Windowsill Shop",
+  "block.spudaciousshops.shop_window_calcite": "Calcite Windowsill Shop",
+  "item.spudaciousshops.shop_window_calcite": "Calcite Windowsill Shop"
 }

@@ -12,15 +12,15 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.RotationAxis;
 import net.spudacious5705.shops.block.entity.AngledShopEntity;
 import net.spudacious5705.shops.block.entity.AbstractShopEntity.RendererData;
-import net.spudacious5705.shops.model.CushionModel;
+import net.spudacious5705.shops.util.CushionModel;
 
-public class ShopBlockEntityRenderer implements BlockEntityRenderer<AngledShopEntity> {
+public class AngledShopBlockRenderer implements BlockEntityRenderer<AngledShopEntity> {
 
     private final BlockEntityRendererFactory.Context context;
 
     private final CushionModel model;
 
-    public ShopBlockEntityRenderer(BlockEntityRendererFactory.Context ctx) {
+    public AngledShopBlockRenderer(BlockEntityRendererFactory.Context ctx) {
         this.context = ctx;
         model = new CushionModel(ctx.getLayerModelPart(CushionModel.LAYER_LOCATION));
     }
@@ -55,7 +55,7 @@ public class ShopBlockEntityRenderer implements BlockEntityRenderer<AngledShopEn
             matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(data.rotation()));
             matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-67.5f));
 
-            if (data.displayType()) {
+            if (data.stockDisplayType()) {
                 matrices.scale(0.3f, 0.3f, 0.3f);
                 mode = ModelTransformationMode.NONE;
             } else {

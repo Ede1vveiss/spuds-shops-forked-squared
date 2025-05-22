@@ -89,7 +89,7 @@ public class DebugShopsStatesCommand {
     }
 
     private static int count(CommandContext<ServerCommandSource> context) {
-        final int count = ModBlocks.SHOP_BLOCK_ACACIA.getStateManager().getStates().size();
+        final int count = ModBlocks.SHOP_BLOCK_ANGLED_ACACIA.getStateManager().getStates().size();
         context.getSource().sendFeedback(() -> Text.literal("shop blockstate count is: "+ count), true);
         return count;
     }

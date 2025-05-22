@@ -10,7 +10,7 @@ import net.minecraft.item.Item;
 import net.minecraft.recipe.book.RecipeCategory;
 import net.spudacious5705.shops.block.ModBlocks;
 import net.spudacious5705.shops.block.custom.AngledShopBlock;
-import net.spudacious5705.shops.model.CushionResources;
+import net.spudacious5705.shops.util.CushionResources;
 import net.spudacious5705.shops.properties.Colour;
 
 import java.util.function.Consumer;
@@ -51,17 +51,17 @@ public class ModRecipieProvider extends FabricRecipeProvider {
     }
 
     public enum Wood {
-        ACACIA(ModBlocks.SHOP_BLOCK_ACACIA, Blocks.ACACIA_WOOD),
-        BAMBOO(ModBlocks.SHOP_BLOCK_BAMBOO, Blocks.BAMBOO_PLANKS),
-        BIRCH(ModBlocks.SHOP_BLOCK_BIRCH, Blocks.BIRCH_PLANKS),
-        CHERRY(ModBlocks.SHOP_BLOCK_CHERRY, Blocks.CHERRY_PLANKS),
-        CRIMSON(ModBlocks.SHOP_BLOCK_CRIMSON, Blocks.CRIMSON_PLANKS),
-        DARK_OAK(ModBlocks.SHOP_BLOCK_DARK_OAK, Blocks.DARK_OAK_PLANKS),
-        MANGROVE(ModBlocks.SHOP_BLOCK_MANGROVE, Blocks.MANGROVE_PLANKS),
-        OAK(ModBlocks.SHOP_BLOCK_OAK, Blocks.OAK_PLANKS),
-        SPRUCE(ModBlocks.SHOP_BLOCK_SPRUCE, Blocks.SPRUCE_PLANKS),
-        WARPED(ModBlocks.SHOP_BLOCK_WARPED, Blocks.WARPED_PLANKS),
-        JUNGLE(ModBlocks.SHOP_BLOCK_JUNGLE, Blocks.JUNGLE_PLANKS);
+        ACACIA(ModBlocks.SHOP_BLOCK_ANGLED_ACACIA, Blocks.ACACIA_WOOD),
+        BAMBOO(ModBlocks.SHOP_BLOCK_ANGLED_BAMBOO, Blocks.BAMBOO_PLANKS),
+        BIRCH(ModBlocks.SHOP_BLOCK_ANGLED_BIRCH, Blocks.BIRCH_PLANKS),
+        CHERRY(ModBlocks.SHOP_BLOCK_ANGLED_CHERRY, Blocks.CHERRY_PLANKS),
+        CRIMSON(ModBlocks.SHOP_BLOCK_ANGLED_CRIMSON, Blocks.CRIMSON_PLANKS),
+        DARK_OAK(ModBlocks.SHOP_BLOCK_ANGLED_DARK_OAK, Blocks.DARK_OAK_PLANKS),
+        MANGROVE(ModBlocks.SHOP_BLOCK_ANGLED_MANGROVE, Blocks.MANGROVE_PLANKS),
+        OAK(ModBlocks.SHOP_BLOCK_ANGLED_OAK, Blocks.OAK_PLANKS),
+        SPRUCE(ModBlocks.SHOP_BLOCK_ANGLED_SPRUCE, Blocks.SPRUCE_PLANKS),
+        WARPED(ModBlocks.SHOP_BLOCK_ANGLED_WARPED, Blocks.WARPED_PLANKS),
+        JUNGLE(ModBlocks.SHOP_BLOCK_ANGLED_JUNGLE, Blocks.JUNGLE_PLANKS);
 
         private final AngledShopBlock angledShopBlock;
         private final Block block;

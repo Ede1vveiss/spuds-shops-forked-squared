@@ -1,0 +1,7 @@
+{
+  "parent": "spudaciousshops:block/shop_window",
+  "textures": {
+    "2": "spudaciousshops:block/shop_window_calcite",
+    "particle": "spudaciousshops:block/shop_window_calcite"
+  }
+}

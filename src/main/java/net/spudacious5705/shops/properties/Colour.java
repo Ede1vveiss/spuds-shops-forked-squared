@@ -1,6 +1,9 @@
 package net.spudacious5705.shops.properties;
 
 import net.minecraft.util.StringIdentifiable;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
 
 public enum Colour implements StringIdentifiable {
     RED("red", 0),
@@ -39,5 +42,10 @@ public enum Colour implements StringIdentifiable {
     @Override
     public String asString() {
         return name;
+    }
+
+    @Nullable
+    public static Colour fromId(int checkID){
+        return Arrays.stream(values()).filter(colour -> colour.id == checkID).findFirst().orElse(null);
     }
 }

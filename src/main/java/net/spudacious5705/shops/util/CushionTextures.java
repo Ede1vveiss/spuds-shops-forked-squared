@@ -1,4 +1,4 @@
-package net.spudacious5705.shops.model;
+package net.spudacious5705.shops.util;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
