@@ -64,7 +64,7 @@ public abstract class ModBlocks{
         for(Colour colour : Colour.values()) {
             block.addDropItem(registerShopBlockItem(name, block, colour), colour);
         }
-        //registerBlockItem(name,block);
+
         return AddToAllShops(Registry.register(Registries.BLOCK, new Identifier(SpudaciousShops.MOD_ID, name), block));
     }
 
@@ -75,8 +75,8 @@ public abstract class ModBlocks{
 
     private static ShopItem registerShopBlockItem(String name, AngledShopBlock block, Colour colour) {
         name = name + "_" + colour.asString();
-
-        return Registry.register(Registries.ITEM, new Identifier(SpudaciousShops.MOD_ID, name),
+        Identifier id = Identifier.of(SpudaciousShops.MOD_ID, name);
+        return Registry.register(Registries.ITEM, id,
                 new ShopItem(block, new FabricItemSettings(), colour));
 
     }

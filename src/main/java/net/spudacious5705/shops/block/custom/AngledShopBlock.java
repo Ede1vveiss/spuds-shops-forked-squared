@@ -13,6 +13,11 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 
+import net.minecraft.loot.LootTable;
+import net.minecraft.loot.LootTables;
+import net.minecraft.loot.context.LootContextParameterSet;
+import net.minecraft.loot.context.LootContextParameters;
+import net.minecraft.loot.context.LootContextTypes;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -24,10 +29,12 @@ import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldAccess;
 import net.minecraft.world.event.GameEvent;
 import net.spudacious5705.shops.block.entity.AngledShopEntity;
 import net.spudacious5705.shops.block.entity.ModBlockEntities;
@@ -38,9 +45,7 @@ import net.spudacious5705.shops.properties.ModProperties;
 import net.spudacious5705.shops.properties.PermissionLevel;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 
 public class AngledShopBlock extends AbstractShopBlock implements BlockPickInteractionAware {
@@ -74,7 +79,7 @@ public class AngledShopBlock extends AbstractShopBlock implements BlockPickInter
             BASE_WEST
     );
 
-    protected final Item WOOD_TYPE;
+    public final Item WOOD_TYPE;
 
     public static final Map<Item, AngledShopBlock> WOOD_TYPE_TO_SHOP_TYPE = new HashMap<>();
 
@@ -102,7 +107,6 @@ public class AngledShopBlock extends AbstractShopBlock implements BlockPickInter
         }
         super.onPlaced(world, pos, state, placer, itemStack);
     }
-
 
     @Nullable
     @Override
@@ -190,7 +194,6 @@ public class AngledShopBlock extends AbstractShopBlock implements BlockPickInter
                 default -> CULLING_SHAPE;
             };
         }
-
     }//end of ShopBlockState
 
     protected boolean onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player) {
@@ -200,7 +203,7 @@ public class AngledShopBlock extends AbstractShopBlock implements BlockPickInter
                 if (CushionResources.DYE_MAP.containsKey(item)) {
                     CushionResources.cushionColourGroup group = CushionResources.DYE_MAP.get(item);
                     if (shopEntity.getCushionColour() != group.colour()) {
-                        stack.decrement(1);
+                        if(!player.isCreative())stack.decrement(1);
                         shopEntity.setCushionColour(group.colour());
                         world.playSound(player, pos, SoundEvents.ITEM_DYE_USE, SoundCategory.BLOCKS);
                         world.updateListeners(pos, state, state, Block.NOTIFY_LISTENERS);
@@ -211,10 +214,12 @@ public class AngledShopBlock extends AbstractShopBlock implements BlockPickInter
                     Colour originalColour = shopEntity.getCushionColour();
                     if (originalColour != group.colour()) {
                         shopEntity.setCushionColour(group.colour());
-                        stack.decrement(1);
-                        group = CushionResources.COLOUR_MAP.get(originalColour);
-                        ItemStack releaseStack = new ItemStack(group.wool(), 1);
-                        world.spawnEntity(new ItemEntity(world, pos.getX() + 0.5f, pos.getY() + 0.5f, pos.getZ() + 0.5f, releaseStack, 0f, 0.1f, 0f));
+                        if(!player.isCreative()) {
+                            stack.decrement(1);
+                            group = CushionResources.COLOUR_MAP.get(originalColour);
+                            ItemStack releaseStack = new ItemStack(group.wool(), 1);
+                            world.spawnEntity(new ItemEntity(world, pos.getX() + 0.5f, pos.getY() + 0.5f, pos.getZ() + 0.5f, releaseStack, 0f, 0.1f, 0f));
+                        }
                         world.playSound(player, pos, SoundEvents.ENTITY_SHEEP_SHEAR, SoundCategory.BLOCKS);
                         world.updateListeners(pos, state, state, Block.NOTIFY_LISTENERS);
                         return true;
@@ -223,7 +228,10 @@ public class AngledShopBlock extends AbstractShopBlock implements BlockPickInter
                     AngledShopBlock block = WOOD_TYPE_TO_SHOP_TYPE.get(item);
                     if (WOOD_TYPE != item) {
                         if (block.getDefaultState() instanceof AngledShopBlockState defaultShopState) {
-                            world.spawnEntity(new ItemEntity(world, pos.getX() + 0.5f, pos.getY() + 0.5f, pos.getZ() + 0.5f, WOOD_TYPE.getDefaultStack(), 0f, 0.1f, 0f));
+                            if(!player.isCreative()) {
+                                stack.decrement(1);
+                                world.spawnEntity(new ItemEntity(world, pos.getX() + 0.5f, pos.getY() + 0.5f, pos.getZ() + 0.5f, WOOD_TYPE.getDefaultStack(), 0f, 0.1f, 0f));
+                            }
                             BlockState newBlockState = importProperties(defaultShopState, state);
                             world.setBlockState(pos, newBlockState);
                             return true;

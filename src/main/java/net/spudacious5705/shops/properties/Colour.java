@@ -4,6 +4,7 @@ import net.minecraft.util.StringIdentifiable;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public enum Colour implements StringIdentifiable {
     RED("red", 0),
@@ -47,5 +48,9 @@ public enum Colour implements StringIdentifiable {
     @Nullable
     public static Colour fromId(int checkID){
         return Arrays.stream(values()).filter(colour -> colour.id == checkID).findFirst().orElse(null);
+    }
+
+    public boolean matchesString(String test) {
+        return Objects.equals(this.name, test);
     }
 }

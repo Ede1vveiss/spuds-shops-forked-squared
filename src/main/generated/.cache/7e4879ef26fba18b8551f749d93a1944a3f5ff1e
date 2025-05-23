@@ -1,1 +1,12 @@
-// 1.20.1	2025-04-25T13:24:16.3868058	spudsShops/Block Loot Tables
+// 1.20.1	2025-05-23T01:52:09.500532211	spudsShops/Block Loot Tables
+45c1abcc3fdbf2660e96bff5b50044059a0f1126 data/spudaciousshops/loot_tables/blocks/shop_crimson.json
+ffd765fd7a47fd9225270e0032d1d382c87dd058 data/spudaciousshops/loot_tables/blocks/shop_jungle.json
+4ffafdef04d23bd3c46b3cb38c95c14767552743 data/spudaciousshops/loot_tables/blocks/shop_cherry.json
+8c3ffbf026b79f36e35ba220feb939d386b4f870 data/spudaciousshops/loot_tables/blocks/shop_mangrove.json
+7a65f3724b8ae2167c17a4bb468f78d047e14359 data/spudaciousshops/loot_tables/blocks/shop_birch.json
+90ee8e40ed38947a7dd3f2d8f7811cf9c063959b data/spudaciousshops/loot_tables/blocks/shop_dark_oak.json
+2ad2d0034ee51c8997feac25f2f283eb6c197903 data/spudaciousshops/loot_tables/blocks/shop_acacia.json
+bce6acfb265f3431a4ea4ef025c6d5cf2c4ede8f data/spudaciousshops/loot_tables/blocks/shop_warped.json
+fc89a2caf58e63eedc90728da2bdbd85375e6616 data/spudaciousshops/loot_tables/blocks/shop_spruce.json
+59c669293f2f6fe41e873de2f2775cca3a8af903 data/spudaciousshops/loot_tables/blocks/shop_oak.json
+528015503ef6b725e484798e71db7e39d8806243 data/spudaciousshops/loot_tables/blocks/shop_bamboo.json

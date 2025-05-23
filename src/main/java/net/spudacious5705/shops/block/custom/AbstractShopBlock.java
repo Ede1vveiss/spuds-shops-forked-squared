@@ -246,7 +246,7 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
     public abstract<T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type);
 
     @Override
-    public final void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+    public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
         BlockEntity be = world.getBlockEntity(pos);
         if(be instanceof AbstractShopEntity shop){
             if(!shop.canBreak(player)){
