@@ -2,6 +2,19 @@ package net.spudacious5705.shops.datagen;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricBlockLootTableProvider;
+import net.minecraft.item.Item;
+import net.minecraft.loot.LootPool;
+import net.minecraft.loot.LootTable;
+import net.minecraft.loot.entry.ItemEntry;
+import net.minecraft.loot.provider.number.ConstantLootNumberProvider;
+import net.spudacious5705.shops.block.custom.AngledShopBlock;
+import net.spudacious5705.shops.lootcondition.MatchingCushionColourCondition;
+import net.spudacious5705.shops.properties.Colour;
+
+import java.util.List;
+
+import static net.spudacious5705.shops.block.ModBlocks.getAllShops;
+import static net.spudacious5705.shops.block.ModBlocks.registerModBlocks;
 
 
 public class ModLootTableProvider extends FabricBlockLootTableProvider {
@@ -13,12 +26,35 @@ public class ModLootTableProvider extends FabricBlockLootTableProvider {
 
     @Override
     public void generate() {
-        //addDrop(ModBlocks.SHOP_BLOCK_JUNGLE, block -> );
-        /*addDrop(ModBlocks.SHOP_BLOCK_OAK, LootTable.builder().pool(addSurvivesExplosionCondition(Items.OAK_LOG, LootPool.builder()
-                .rolls(new UniformLootNumberProvider(new ConstantLootNumberProvider(7), new ConstantLootNumberProvider(9)))
-                .with(ItemEntry.builder(Items.OAK_LOG))));*/
 
-        //BlockLootTableGenerator.drops()
+
+        registerModBlocks();
+
+        //filter and keep only the angled shop blocks (the ones with the cushions).
+        List<AngledShopBlock> allShops = getAllShops().stream()
+                .filter(AngledShopBlock.class::isInstance)
+                .map(AngledShopBlock.class::cast)
+                .toList();
+
+        for(AngledShopBlock shop : allShops){
+
+            LootTable.Builder lootTable = LootTable.builder()
+                    .pool(LootPool.builder().rolls(ConstantLootNumberProvider.create(1)));
+
+            for(Colour colour: Colour.values()){
+
+                Item itemDrop = shop.getColouredShopItem(colour);
+
+                lootTable.pool(
+                        LootPool.builder()
+                                .rolls(ConstantLootNumberProvider.create(1))
+                                .with(ItemEntry.builder(itemDrop))
+                                .conditionally(new MatchingCushionColourCondition(colour.asString()))
+                );
+            }
+
+            addDrop(shop,lootTable);
+        }
 
     }
 

@@ -2,13 +2,13 @@ package net.spudacious5705.shops.block.custom;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.MapCodec;
-import net.fabricmc.fabric.api.block.BlockPickInteractionAware;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.server.world.ServerWorld;
@@ -27,7 +27,6 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 import net.minecraft.world.tick.TickPriority;
-import net.spudacious5705.shops.block.entity.ModBlockEntities;
 import net.spudacious5705.shops.block.entity.AbstractShopEntity;
 import net.spudacious5705.shops.properties.ModProperties;
 import net.spudacious5705.shops.properties.PermissionLevel;
@@ -36,13 +35,15 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Function;
 
 
-public abstract class AbstractShopBlock extends BlockWithEntity implements BlockEntityProvider, BlockPickInteractionAware {
+public abstract class AbstractShopBlock extends BlockWithEntity implements BlockEntityProvider {
 
     public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
     public static final BooleanProperty BREAKABLE = ModProperties.BREAKABLE;
 
 
     protected final StateManager<Block, BlockState> shopStateManager;
+
+
 
     public AbstractShopBlock(Settings settings, StateManager.Factory<Block, BlockState> shopBlockStateFactory) {
         super(settings);
@@ -61,7 +62,13 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
         );
     }
 
-    protected abstract AbstractShopBlockState furtherDefaultStateProperties(AbstractShopBlockState state);
+    /**
+    * made to add additional block state properties
+    * use default (YourShopBlockState) state.with(PROPERTY, VALUE);
+    */
+    protected AbstractShopBlockState furtherDefaultStateProperties(AbstractShopBlockState state){
+        return state;
+    }
 
     @Override
     public final StateManager<Block, BlockState> getStateManager() {
@@ -91,6 +98,17 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
         super.onPlaced(world, pos, state, placer, itemStack);
     }
 
+    @Override
+    public final BlockState getPlacementState(ItemPlacementContext ctx) {
+        return getPlacementState(ctx, this.getDefaultState()
+                .with(FACING, ctx.getHorizontalPlayerFacing().getOpposite())
+                .with(BREAKABLE, false));
+    }
+
+
+    protected BlockState getPlacementState(ItemPlacementContext ctx, BlockState state){
+        return state;
+    }
 
     @Nullable
     @Override
@@ -126,11 +144,6 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
                     }
                 }
             }
-        }
-
-        @Override
-        public void onBlockAdded(World world, BlockPos pos, BlockState state, boolean notify) {
-            super.onBlockAdded(world, pos, state, notify);
         }
 
         @Override
@@ -191,7 +204,7 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
         @Override
         public final void onStateReplaced(World world, BlockPos pos, BlockState newState, boolean moved) {
             if (newState instanceof AbstractShopBlockState newShopState) {
-                if(onStateReplacedValid(newShopState)){
+                if(isStateReplacedValid(newShopState)){
                     return;
                 }
             }
@@ -205,7 +218,7 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
             world.removeBlockEntity(pos);
         }
 
-        protected abstract boolean onStateReplacedValid(AbstractShopBlockState newShopState);
+        protected abstract boolean isStateReplacedValid(AbstractShopBlockState newShopState);
 
         public final boolean unbreakable() {
             return !this.get(BREAKABLE);
@@ -222,28 +235,11 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
 
     protected abstract boolean onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player);
 
-    static void attemptRenderDataForceUpdate(World world, BlockPos pos){
-        if(world.isClient()){
-        if(world.getBlockEntity(pos) instanceof AbstractShopEntity shop) {
-            if(world.isClient())shop.forceUpdateRenderData();
-        }}
-    }
+    @Override
+    public abstract<T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type);
 
     @Override
-    public final <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type){
-        if(type != ModBlockEntities.SHOP_ENTITY){
-            return null;
-        }
-        if(world.isClient()) {
-            return checkType(type, ModBlockEntities.SHOP_ENTITY,
-                    (world1, pos, state1, blockEntity) -> blockEntity.renderTick());
-        }
-        return checkType(type, ModBlockEntities.SHOP_ENTITY,
-                (world1, pos, shopState, blockEntity) -> blockEntity.serverTick((ServerWorld) world1, pos, (AngledShopBlock.ShopBlockState) shopState));
-    }
-
-    @Override
-    public final void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+    public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
         BlockEntity be = world.getBlockEntity(pos);
         if(be instanceof AbstractShopEntity shop){
             if(!shop.canBreak(player)){

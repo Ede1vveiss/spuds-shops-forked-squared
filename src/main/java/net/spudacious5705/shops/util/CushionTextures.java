@@ -1,8 +1,9 @@
-package net.spudacious5705.shops.model;
+package net.spudacious5705.shops.util;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.StringIdentifiable;
 import net.spudacious5705.shops.SpudaciousShops;
 import net.spudacious5705.shops.properties.Colour;
 

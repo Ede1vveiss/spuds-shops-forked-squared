@@ -1,11 +1,7 @@
-package net.spudacious5705.shops.model;
+package net.spudacious5705.shops.util;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.item.DyeItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
-import net.minecraft.util.Identifier;
 import net.spudacious5705.shops.properties.Colour;
 
 import java.util.HashMap;

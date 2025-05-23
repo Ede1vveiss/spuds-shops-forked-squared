@@ -8,10 +8,13 @@ import net.spudacious5705.shops.block.ModBlocks;
 import net.spudacious5705.shops.block.entity.ModBlockEntities;
 import net.spudacious5705.shops.item.ModItemGroups;
 import net.spudacious5705.shops.item.ModItems;
+import net.spudacious5705.shops.lootcondition.ModLootConditions;
 import net.spudacious5705.shops.properties.ModProperties;
 import net.spudacious5705.shops.screen.ModScreenHandlers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+//import net.spudacious5705.shops.command.DebugShopsStatesCommand;
 
 
 public class SpudaciousShops implements ModInitializer {
@@ -32,7 +35,9 @@ public class SpudaciousShops implements ModInitializer {
 
 		ModItemGroups.initialise();
 
-		//DebugShopsStatesCommand.register();
+		//DebugShopsStatesCommand.register(); //for DEBUG purposes only
+
+		ModLootConditions.registerLootConditions();
 	}
 
 	public static Identifier id(String path) {

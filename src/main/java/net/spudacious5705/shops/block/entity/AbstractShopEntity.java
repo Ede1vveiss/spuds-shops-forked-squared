@@ -18,6 +18,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -29,7 +30,7 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
-import net.spudacious5705.shops.block.custom.AngledShopBlock;
+import net.spudacious5705.shops.block.custom.AbstractShopBlock;
 import net.spudacious5705.shops.properties.PermissionLevel;
 import net.spudacious5705.shops.screen.ShopScreenHandlerCustomer;
 import net.spudacious5705.shops.screen.ShopScreenHandlerOwner;
@@ -58,6 +59,12 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
     protected final void clearAllPermissions(){
         this.ownerName = null;
         this.ownerID = null;
+    }
+
+    public Direction getCachedFacingDirection(){
+        Direction direction = this.getCachedState().get(Properties.HORIZONTAL_FACING);
+        if(direction == null) return Direction.NORTH;
+        return direction;
     }
 
     protected final class inventoryDelegate implements Inventory{
@@ -99,7 +106,7 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
 
         @Override
         public void markDirty() {
-            assert shop.world != null;
+            assert this.shop.world != null;
             shop.world.updateListeners(pos,getCachedState(),getCachedState(),3);
             shop.isShopFunctional();
             shop.markDirty();
@@ -116,6 +123,11 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
         }
     }
 
+    @Override
+    public void markDirty() {
+        super.markDirty();
+        forceUpdateRenderData();
+    }
 
     public Inventory getInventory() {
         return this.inventoryDelegate;
@@ -227,28 +239,13 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
 
     protected final boolean functionalCheck(){
         if(null == ownerID){return false;}
-        if(this.itemStacks.get(PAYMENT_SLOT).isEmpty()){return false;}
-        if(this.itemStacks.get(VENDING_SLOT).isEmpty()){return false;}
+        if(isShopTradeless())return false;
         return this.getWorld() != null;
     }
 
-    protected int decayTimer = -1;
-
-    protected static final int hourInTicks = 72000;
-
-    public boolean isShopFunctional(){
-        if(functionalCheck()){
-            decayTimer = -1;
-            return true;
-        }
-        if(decayTimer < 0){
-            decayTimer = 0;//starts decay timer.
-        }
-        return false;
-    }
 
     @Override
-    public final void readNbt(NbtCompound nbt) {
+    public void readNbt(NbtCompound nbt) {
         super.readNbt(nbt);
         Inventories.readNbt(nbt, itemStacks);
         if(nbt.containsUuid("owner_id")) {
@@ -260,7 +257,7 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
     }
 
     @Override
-    protected final void writeNbt(NbtCompound nbt) {
+    protected void writeNbt(NbtCompound nbt) {
         Inventories.writeNbt(nbt, itemStacks);
         if(this.ownerID != null) {
             nbt.putUuid("owner_id", this.ownerID);
@@ -284,7 +281,7 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
         assert this.world != null;
         if(!this.world.isClient()) {return Direction.NORTH;}
         BlockState state = this.world.getBlockState(this.pos);
-        if(!(state.getBlock() instanceof AngledShopBlock)) {return Direction.NORTH;}
+        if(!(state instanceof AbstractShopBlock.AbstractShopBlockState)) {return Direction.NORTH;}
         Direction dir = state.get(Properties.HORIZONTAL_FACING);
         if(dir == null){return Direction.NORTH;}
         return dir;
@@ -346,13 +343,35 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
         return Text.of("Cannot break - Owned by " + ownerName);
     }
 
-    public void serverTick(ServerWorld world, BlockPos pos, AngledShopBlock.ShopBlockState shopState) {
-        if(decayTimer > -1){
-            if(decayTimer>hourInTicks){
-                if(!isShopFunctional()){
-                    if(ownerID!=null){
+    protected int decayTimer = -1;
+
+    protected static final int hourInTicks = 72000;
+
+    public boolean isShopFunctional(){
+        if(functionalCheck()){
+            decayTimer = -1;
+            return true;
+        }
+        if(decayTimer < 0){
+            decayTimer = 0;//starts decay timer.
+        }
+        return false;
+    }
+
+    protected int checkIntervalTimer = 200;//short initial check interval for server restarts
+
+    public void serverTick(ServerWorld world, BlockPos pos, AbstractShopBlock.AbstractShopBlockState shopState) {
+        if(decayTimer > -1) {
+            if (decayTimer > hourInTicks) {
+                if (isShopTradeless()) {
+                    if (ownerID != null) {
                         clearAllPermissions();
                         shopState.makeBreakable(world, pos);
+                    }
+                    if (world.random.nextFloat() < 0.05f) {
+                        for (int i = 0; i < 5; i++) {
+                            world.spawnParticles(ParticleTypes.ANGRY_VILLAGER, pos.getX() + .2 + world.random.nextFloat(), pos.getY() + world.random.nextFloat(), pos.getZ() + world.random.nextFloat(), 1, 0, 0, 0, 0);
+                        }
                     }
                     breakableTicks = 140;
                 } else {
@@ -360,6 +379,17 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
                 }
             } else {
                 decayTimer++;
+            }
+        }
+        checkIntervalTimer--;
+        if(checkIntervalTimer<0){
+            checkIntervalTimer=6000;
+            //intervaled functionality check in case of bug and for startup.
+            if (isShopTradeless()) {
+                if(decayTimer<0){
+                    decayTimer=0;
+                    //start decay timer if not already started
+                }
             }
         }
         if(shopState.unbreakable())return;
@@ -378,6 +408,11 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
         }
     }
 
+    private boolean isShopTradeless() {
+        if(this.itemStacks.get(PAYMENT_SLOT).isEmpty()){return true;}
+        return this.itemStacks.get(VENDING_SLOT).isEmpty();
+    }
+
     protected int breakableTicks = -1;
 
     @Environment(EnvType.CLIENT)
@@ -394,11 +429,11 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
         protected int rotation;
         protected float width;
         protected boolean shopFunctional = false;
-        protected ItemStack paymentType;
+        protected ItemStack paymentItem;
         protected ItemStack displayItem;
         protected String text;
         protected float tickAccumulation = 0;
-        protected boolean displayType = false;
+        protected boolean stockDisplayType = false;
         protected boolean tickPassed = true;
         public boolean stockWarning = false;
         public boolean paymentWarning = false;
@@ -415,7 +450,7 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
             this.shopFunctional = shop.isShopFunctional();
 
             if(this.shopFunctional) {
-                this.paymentType = new ItemStack(shop.getPaymentType());
+                this.paymentItem = new ItemStack(shop.getPaymentType());
 
                 this.stockQuantity = Integer.toString(shop.getVendingQuantity());
 
@@ -446,10 +481,10 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
                 }
 
 
-                displayType = displayItem.getItem() instanceof BlockItem;
+                stockDisplayType = displayItem.getItem() instanceof BlockItem;
             } else {
                 this.displayItem = ItemStack.EMPTY;
-                this.paymentType = ItemStack.EMPTY;
+                this.paymentItem = ItemStack.EMPTY;
             }
         }
 
@@ -470,11 +505,13 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
 
         }
 
-        /*private int getLightLevel(World world, BlockPos pos) {
-            int bLight = world.getLightLevel(LightType.BLOCK, pos);
-            int sLight = world.getLightLevel(LightType.SKY, pos);
-            return LightmapTextureManager.pack(bLight, sLight);
-        }*/
+        /** MAY BE REQUIRED FOR HIGHER/LOWER VERSIONS
+         * private int getLightLevel(World view, BlockPos pos) {
+         *    int bLight = view.getLightLevel(LightType.BLOCK, pos);
+         *    int sLight = view.getLightLevel(LightType.SKY, pos);
+         * return LightmapTextureManager.pack(bLight, sLight);
+         * }
+         * * */
 
 
         private void getRotation(){
@@ -490,8 +527,8 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
             return this.shopFunctional;
         }
 
-        public boolean displayType() {
-            return this.displayType;
+        public boolean stockDisplayType() {
+            return this.stockDisplayType;
         }
 
         public ItemStack displayItem() {
@@ -519,7 +556,7 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
         }
 
         public ItemStack paymentType() {
-            return this.paymentType;
+            return this.paymentItem;
         }
 
         public int rotation() {

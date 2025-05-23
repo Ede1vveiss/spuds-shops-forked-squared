@@ -2,14 +2,13 @@
 // Exported for Minecraft version 1.17+ for Yarn
 // Paste this class into your mod and generate all required imports
 
-package net.spudacious5705.shops.model;
+package net.spudacious5705.shops.util;
 
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
 import net.spudacious5705.shops.SpudaciousShops;
 
 public class CushionModel extends Model {
@@ -26,8 +25,8 @@ public class CushionModel extends Model {
 		ModelData modelData = new ModelData();
 		ModelPartData modelPartData = modelData.getRoot();
 		ModelPartData main = modelPartData.addChild("main", ModelPartBuilder.create(), ModelTransform.of(8.0F, -5.0F, 12.0F, 0.0F, 3.1416F, 0.0F));
+		main.addChild("cussion_r1", ModelPartBuilder.create().uv(0, 0).cuboid(-13.0F, 4.0F, -10.0F, 10.0F, 1.0F, 7.0F, new Dilation(0.0F)), ModelTransform.of(8.0F, 7.0F, 8.0F, 0.3927F, 0.0F, 0.0F));
 
-		ModelPartData cussion_r1 = main.addChild("cussion_r1", ModelPartBuilder.create().uv(0, 0).cuboid(-13.0F, 4.0F, -10.0F, 10.0F, 1.0F, 7.0F, new Dilation(0.0F)), ModelTransform.of(8.0F, 7.0F, 8.0F, 0.3927F, 0.0F, 0.0F));
 		return TexturedModelData.of(modelData, 32, 32);
 	}
 

@@ -1,6 +1,10 @@
 package net.spudacious5705.shops.properties;
 
 import net.minecraft.util.StringIdentifiable;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
+import java.util.Objects;
 
 public enum Colour implements StringIdentifiable {
     RED("red", 0),
@@ -22,10 +26,6 @@ public enum Colour implements StringIdentifiable {
 
     private final String name;
     private final int id;
-    Colour(String colour) {
-        name = colour;
-        this.id = -1; // Default ID for colors without an explicit ID
-    }
 
     Colour(String colour, int i) {
         name = colour;
@@ -39,5 +39,14 @@ public enum Colour implements StringIdentifiable {
     @Override
     public String asString() {
         return name;
+    }
+
+    @Nullable
+    public static Colour fromId(int checkID){
+        return Arrays.stream(values()).filter(colour -> colour.id == checkID).findFirst().orElse(null);
+    }
+
+    public boolean matchesString(String test) {
+        return Objects.equals(this.name, test);
     }
 }
