@@ -7,12 +7,9 @@ import net.minecraft.loot.LootPool;
 import net.minecraft.loot.LootTable;
 import net.minecraft.loot.entry.ItemEntry;
 import net.minecraft.loot.provider.number.ConstantLootNumberProvider;
-import net.minecraft.util.Identifier;
-import net.spudacious5705.shops.block.ModBlocks;
 import net.spudacious5705.shops.block.custom.AngledShopBlock;
 import net.spudacious5705.shops.lootcondition.MatchingCushionColourCondition;
 import net.spudacious5705.shops.properties.Colour;
-import net.spudacious5705.shops.util.CushionResources;
 
 import java.util.List;
 
@@ -33,8 +30,12 @@ public class ModLootTableProvider extends FabricBlockLootTableProvider {
 
         registerModBlocks();
 
+        //filter and keep only the angled shop blocks (the ones with the cushions).
+        List<AngledShopBlock> allShops = getAllShops().stream()
+                .filter(AngledShopBlock.class::isInstance)
+                .map(AngledShopBlock.class::cast)
+                .toList();
 
-        List<AngledShopBlock> allShops = getAllShops();
         for(AngledShopBlock shop : allShops){
 
             LootTable.Builder lootTable = LootTable.builder()

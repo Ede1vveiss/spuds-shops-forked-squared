@@ -3,8 +3,6 @@ package net.spudacious5705.shops;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.spudacious5705.shops.datagen.*;
-import java.io.FileWriter;
-import java.io.IOException;
 
 public class SpudaciousShopsDataGenerator implements DataGeneratorEntrypoint {
 	@Override
@@ -13,6 +11,6 @@ public class SpudaciousShopsDataGenerator implements DataGeneratorEntrypoint {
 
 		pack.addProvider(ModBlockTagProvider::new);//runs the datagen classes
 		pack.addProvider(ModLootTableProvider::new);
-		pack.addProvider(ModRecipieProvider::new);//all the crafting and smelting ect recipies
+		pack.addProvider(ModRecipeProvider::new);//all the crafting and smelting ect recipies
 	}
 }

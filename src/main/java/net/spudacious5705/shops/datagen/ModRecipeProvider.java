@@ -15,8 +15,8 @@ import net.spudacious5705.shops.properties.Colour;
 
 import java.util.function.Consumer;
 
-public class ModRecipieProvider extends FabricRecipeProvider {
-    public ModRecipieProvider(FabricDataOutput output) {
+public class ModRecipeProvider extends FabricRecipeProvider {
+    public ModRecipeProvider(FabricDataOutput output) {
         super(output);
     }
 
@@ -27,13 +27,13 @@ public class ModRecipieProvider extends FabricRecipeProvider {
         for(Colour colour: Colour.values()) {
 
             for(Wood wood: Wood.values()){
-                makeShopRecipie(consumer, wood.angledShopBlock.getColouredShopItem(colour),wood.block,CushionResources.COLOUR_MAP.get(colour).wool());
+                makeShopRecipe(consumer, wood.angledShopBlock.getColouredShopItem(colour),wood.block,CushionResources.COLOUR_MAP.get(colour).wool());
             }
 
         }
     }
 
-    private void makeShopRecipie(Consumer<RecipeJsonProvider> consumer, Item shopItem, Block wood, Item wool){
+    private void makeShopRecipe(Consumer<RecipeJsonProvider> consumer, Item shopItem, Block wood, Item wool){
         ShapedRecipeJsonBuilder.create(RecipeCategory.BUILDING_BLOCKS, shopItem)
                 .pattern(" g ").pattern("pwp").pattern("ccc")
                 .input('g', Blocks.GLASS)
@@ -72,10 +72,6 @@ public class ModRecipieProvider extends FabricRecipeProvider {
             this.block = block;
         }
 
-        // Getters for the properties
-        public AngledShopBlock getShopBlock() {
-            return angledShopBlock;
-        }
 
         public Block getBlock() {
             return block;

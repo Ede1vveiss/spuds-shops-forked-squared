@@ -18,6 +18,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -238,24 +239,8 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
 
     protected final boolean functionalCheck(){
         if(null == ownerID){return false;}
-        if(this.itemStacks.get(PAYMENT_SLOT).isEmpty()){return false;}
-        if(this.itemStacks.get(VENDING_SLOT).isEmpty()){return false;}
+        if(isShopTradeless())return false;
         return this.getWorld() != null;
-    }
-
-    protected int decayTimer = -1;
-
-    protected static final int hourInTicks = 72000;
-
-    public boolean isShopFunctional(){
-        if(functionalCheck()){
-            decayTimer = -1;
-            return true;
-        }
-        if(decayTimer < 0){
-            decayTimer = 0;//starts decay timer.
-        }
-        return false;
     }
 
 
@@ -358,13 +343,35 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
         return Text.of("Cannot break - Owned by " + ownerName);
     }
 
+    protected int decayTimer = -1;
+
+    protected static final int hourInTicks = 72000;
+
+    public boolean isShopFunctional(){
+        if(functionalCheck()){
+            decayTimer = -1;
+            return true;
+        }
+        if(decayTimer < 0){
+            decayTimer = 0;//starts decay timer.
+        }
+        return false;
+    }
+
+    protected int checkIntervalTimer = 200;//short initial check interval for server restarts
+
     public void serverTick(ServerWorld world, BlockPos pos, AbstractShopBlock.AbstractShopBlockState shopState) {
-        if(decayTimer > -1){
-            if(decayTimer>hourInTicks){
-                if(!isShopFunctional()){
-                    if(ownerID!=null){
+        if(decayTimer > -1) {
+            if (decayTimer > hourInTicks) {
+                if (isShopTradeless()) {
+                    if (ownerID != null) {
                         clearAllPermissions();
                         shopState.makeBreakable(world, pos);
+                    }
+                    if (world.random.nextFloat() < 0.05f) {
+                        for (int i = 0; i < 5; i++) {
+                            world.spawnParticles(ParticleTypes.ANGRY_VILLAGER, pos.getX() + .2 + world.random.nextFloat(), pos.getY() + world.random.nextFloat(), pos.getZ() + world.random.nextFloat(), 1, 0, 0, 0, 0);
+                        }
                     }
                     breakableTicks = 140;
                 } else {
@@ -372,6 +379,17 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
                 }
             } else {
                 decayTimer++;
+            }
+        }
+        checkIntervalTimer--;
+        if(checkIntervalTimer<0){
+            checkIntervalTimer=6000;
+            //intervaled functionality check in case of bug and for startup.
+            if (isShopTradeless()) {
+                if(decayTimer<0){
+                    decayTimer=0;
+                    //start decay timer if not already started
+                }
             }
         }
         if(shopState.unbreakable())return;
@@ -388,6 +406,11 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
             shopState.makeUnbreakable(world, pos);
             breakableTicks = -1; // Reset
         }
+    }
+
+    private boolean isShopTradeless() {
+        if(this.itemStacks.get(PAYMENT_SLOT).isEmpty()){return true;}
+        return this.itemStacks.get(VENDING_SLOT).isEmpty();
     }
 
     protected int breakableTicks = -1;
@@ -411,7 +434,6 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
         protected String text;
         protected float tickAccumulation = 0;
         protected boolean stockDisplayType = false;
-        protected boolean paymentDisplayType = false;
         protected boolean tickPassed = true;
         public boolean stockWarning = false;
         public boolean paymentWarning = false;
@@ -460,7 +482,6 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
 
 
                 stockDisplayType = displayItem.getItem() instanceof BlockItem;
-                paymentDisplayType = paymentItem.getItem() instanceof BlockItem;
             } else {
                 this.displayItem = ItemStack.EMPTY;
                 this.paymentItem = ItemStack.EMPTY;
@@ -484,11 +505,13 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
 
         }
 
-        /*private int getLightLevel(World world, BlockPos pos) {
-            int bLight = world.getLightLevel(LightType.BLOCK, pos);
-            int sLight = world.getLightLevel(LightType.SKY, pos);
-            return LightmapTextureManager.pack(bLight, sLight);
-        }*/
+        /** MAY BE REQUIRED FOR HIGHER/LOWER VERSIONS
+         * private int getLightLevel(World view, BlockPos pos) {
+         *    int bLight = view.getLightLevel(LightType.BLOCK, pos);
+         *    int sLight = view.getLightLevel(LightType.SKY, pos);
+         * return LightmapTextureManager.pack(bLight, sLight);
+         * }
+         * * */
 
 
         private void getRotation(){
@@ -506,10 +529,6 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
 
         public boolean stockDisplayType() {
             return this.stockDisplayType;
-        }
-
-        public boolean currencyDisplayType() {
-            return this.paymentDisplayType;
         }
 
         public ItemStack displayItem() {

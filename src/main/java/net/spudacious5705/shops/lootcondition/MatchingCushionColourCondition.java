@@ -36,14 +36,9 @@ public class MatchingCushionColourCondition implements LootCondition {
     public boolean test(LootContext lootContext) {
         BlockEntity blockEntity = lootContext.get(LootContextParameters.BLOCK_ENTITY);
         if (blockEntity instanceof AngledShopEntity shop) {
-            boolean v = shop.getCushionColour().matchesString(expectedColourName);
-            return v;
+            return shop.getCushionColour().matchesString(expectedColourName);
         }
         return false;
-    }
-
-    public static LootCondition.Builder builder(String colourName) {
-        return () -> new MatchingCushionColourCondition(colourName);
     }
 
     public static class Serializer implements JsonSerializer<MatchingCushionColourCondition> {

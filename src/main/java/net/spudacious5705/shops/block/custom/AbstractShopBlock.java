@@ -235,13 +235,6 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
 
     protected abstract boolean onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player);
 
-    static void attemptRenderDataForceUpdate(World world, BlockPos pos){
-        if(world.isClient()){
-        if(world.getBlockEntity(pos) instanceof AbstractShopEntity shop) {
-            if(world.isClient())shop.forceUpdateRenderData();
-        }}
-    }
-
     @Override
     public abstract<T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type);
 

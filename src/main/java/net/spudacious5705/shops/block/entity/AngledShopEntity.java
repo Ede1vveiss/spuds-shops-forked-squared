@@ -1,21 +1,16 @@
 package net.spudacious5705.shops.block.entity;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.spudacious5705.shops.SpudaciousShops;
 import net.spudacious5705.shops.util.CushionTextures;
 import net.spudacious5705.shops.properties.Colour;
-import net.spudacious5705.shops.properties.ModProperties;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
 
 public class AngledShopEntity extends AbstractShopEntity{
 

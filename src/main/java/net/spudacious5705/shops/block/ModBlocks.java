@@ -19,16 +19,13 @@ import java.util.List;
 
 public abstract class ModBlocks{
 
-    public static final int SHOP_COUNT = 11;
-
-    public static final int COLOUR_COUNT = 16;
 
     private static final AbstractBlock.Settings settings = AbstractBlock.Settings.copy(Blocks.OAK_PLANKS)
             .nonOpaque()
             .hardness(-1f)
             .resistance(Float.MAX_VALUE);
 
-    private static final List<AngledShopBlock> ALL_SHOPS = new ArrayList<>(11);// FOR DEBUG COMMAND ONLY
+    private static final List<AbstractShopBlock> ALL_SHOPS = new ArrayList<>(11);// FOR DEBUG COMMAND ONLY
 
     public static final AngledShopBlock SHOP_BLOCK_ANGLED_ACACIA = registerAngledShopBlock("acacia", Items.ACACIA_PLANKS);
     public static final AngledShopBlock SHOP_BLOCK_ANGLED_BAMBOO = registerAngledShopBlock("bamboo", Items.BAMBOO_PLANKS);
@@ -51,11 +48,13 @@ public abstract class ModBlocks{
 
         Registry.register(Registries.ITEM, Identifier.of(SpudaciousShops.MOD_ID, name), new BlockItem(block, new Item.Settings()));
 
-        return Registry.register(Registries.BLOCK, new Identifier(SpudaciousShops.MOD_ID, name), block);
-    }
-
-    private static int numbOfShopItems(){
-        return SHOP_COUNT*COLOUR_COUNT;
+        return addToAllShops(
+                Registry.register(
+                        Registries.BLOCK,
+                        new Identifier(SpudaciousShops.MOD_ID, name),
+                        block
+                )
+        );
     }
 
     private static AngledShopBlock registerAngledShopBlock(String name, Item woodType) {
@@ -65,10 +64,16 @@ public abstract class ModBlocks{
             block.addDropItem(registerShopBlockItem(name, block, colour), colour);
         }
 
-        return AddToAllShops(Registry.register(Registries.BLOCK, new Identifier(SpudaciousShops.MOD_ID, name), block));
+        return addToAllShops(
+                Registry.register(
+                        Registries.BLOCK,
+                        new Identifier(SpudaciousShops.MOD_ID, name),
+                        block
+                )
+        );
     }
 
-    private static AngledShopBlock AddToAllShops(AngledShopBlock register) {
+    private static <S extends AbstractShopBlock> S addToAllShops(S register) {
         ALL_SHOPS.add(register);
         return register;
     }
@@ -81,16 +86,11 @@ public abstract class ModBlocks{
 
     }
 
-    /*private static Item registerBlockItem(String name, Block block) {
-        return Registry.register(Registries.ITEM, new Identifier(SpudaciousShops.MOD_ID, name),
-                new BlockItem(block, new FabricItemSettings()));
-    }*/
-
     public static void registerModBlocks() {
         SpudaciousShops.LOGGER.info("Registering mod blocks for " + SpudaciousShops.MOD_ID);
     }
 
-    public static List<AngledShopBlock> getAllShops(){
+    public static List<AbstractShopBlock> getAllShops(){
         return ALL_SHOPS;
     }
 }

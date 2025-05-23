@@ -21,8 +21,8 @@ public class ModBlockTagProvider extends FabricTagProvider.BlockTagProvider {
         addShops(getOrCreateTagBuilder(ModBlockTags.SPUDS_SHOPS));
     }
 
-    private FabricTagBuilder addShops(FabricTagBuilder builder) {
-        return builder
+    private void addShops(FabricTagBuilder builder) {
+        builder
                 .add(ModBlocks.SHOP_BLOCK_ANGLED_ACACIA)
                 .add(ModBlocks.SHOP_BLOCK_ANGLED_BAMBOO)
                 .add(ModBlocks.SHOP_BLOCK_ANGLED_BIRCH)

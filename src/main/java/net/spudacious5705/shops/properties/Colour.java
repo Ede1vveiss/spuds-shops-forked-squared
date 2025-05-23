@@ -26,10 +26,6 @@ public enum Colour implements StringIdentifiable {
 
     private final String name;
     private final int id;
-    Colour(String colour) {
-        name = colour;
-        this.id = -1; // Default ID for colors without an explicit ID
-    }
 
     Colour(String colour, int i) {
         name = colour;

@@ -3,7 +3,6 @@ package net.spudacious5705.shops.block.entity;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.registry.Registries;
-import net.spudacious5705.shops.block.entity.WindowSillShopEntity;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 import net.spudacious5705.shops.SpudaciousShops;
