@@ -30,6 +30,12 @@ public class AngledShopEntity extends AbstractShopEntity{
     }
 
     private static final String COLOUR_NBT_TAG = "cushion_colour";
+
+    @Override
+    public int getTextureId() {
+        return 0;
+    }
+
     @Override
     public void readNbt(NbtCompound nbt) {
         if(nbt.contains(COLOUR_NBT_TAG)) {

@@ -42,4 +42,9 @@ public class RugShopEntity extends AbstractShopEntity{
         }
         super.serverTick(world, pos, shopState);
     }
+
+    @Override
+    public int getTextureId() {
+        return 0;
+    }
 }

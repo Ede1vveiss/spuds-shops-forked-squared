@@ -10,12 +10,19 @@ import net.minecraft.util.Identifier;
 import net.spudacious5705.shops.SpudaciousShops;
 
 public class ShopScreenCustomer extends HandledScreen<ShopScreenHandlerCustomer> {
-    private static final Identifier TEXTURE = new Identifier(SpudaciousShops.MOD_ID, "textures/gui/shop_customer.png");
+
+    private static final String[] TEXTURE_BANK = {
+            "textures/gui/shop_customer.png",
+    };
+
+    private final Identifier TEXTURE;
+
     protected int backgroundWidth = 176;
     protected int backgroundHeight = 165;
 
-    public ShopScreenCustomer(ShopScreenHandlerCustomer handler1, PlayerInventory inventory, Text title) {
-        super(handler1, inventory, title);
+    public ShopScreenCustomer(ShopScreenHandlerCustomer handler, PlayerInventory inventory, Text title) {
+        super(handler, inventory, title);
+        TEXTURE = SpudaciousShops.id(TEXTURE_BANK[handler.SCREEN_TEXTURE_ID]);
     }
 
     @Override

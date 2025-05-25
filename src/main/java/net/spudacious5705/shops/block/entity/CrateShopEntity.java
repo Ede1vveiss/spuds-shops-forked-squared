@@ -14,6 +14,11 @@ public class CrateShopEntity extends AbstractShopEntity{
     }
 
     @Override
+    public int getTextureId() {
+        return 0;
+    }
+
+    @Override
     public @Nullable Packet<ClientPlayPacketListener> toUpdatePacket() {
         return BlockEntityUpdateS2CPacket.create(this);
     }

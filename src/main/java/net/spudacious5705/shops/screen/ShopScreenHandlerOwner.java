@@ -17,6 +17,8 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
     //private final PropertyDelegate propertyDelegate;
     public final AbstractShopEntity shop;
 
+    final int SCREEN_TEXTURE_ID;
+
     public ShopScreenHandlerOwner(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {
         this(syncId, playerInventory, (AbstractShopEntity) playerInventory.player.getWorld().getBlockEntity(buf.readBlockPos()),
                 new ArrayPropertyDelegate(1));
@@ -40,6 +42,7 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
         playerInventory.onOpen(playerInventory.player);
         //this.propertyDelegate = arrayPropertyDelegate;
         this.shop = shop;
+        this.SCREEN_TEXTURE_ID = shop.getTextureId();
 
 
         addPlayerInventory(playerInventory);
@@ -137,6 +140,10 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
     @Override
     public boolean canUse(PlayerEntity player) {
         return this.shopInventory.canPlayerUse(player);
+    }
+
+    public int textureId() {
+        return this.SCREEN_TEXTURE_ID;
     }
 
     static class player_slot extends Slot {

@@ -68,6 +68,8 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
         return direction;
     }
 
+    public abstract int getTextureId();
+
     protected final class inventoryDelegate implements Inventory{
 
         private final AbstractShopEntity shop;

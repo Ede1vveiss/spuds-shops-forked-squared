@@ -28,6 +28,7 @@ public class ShopScreenHandlerCustomer extends ScreenHandler {
                 new ArrayPropertyDelegate(1));
     }
 
+    final int SCREEN_TEXTURE_ID;
 
 
     private  static final int PAYMENT_SLOT = 76;
@@ -45,6 +46,8 @@ public class ShopScreenHandlerCustomer extends ScreenHandler {
         playerInventory.onOpen(playerInventory.player);
         //this.propertyDelegate = arrayPropertyDelegate;
 
+        this.SCREEN_TEXTURE_ID = blockEntity.getTextureId();
+
         addPlayerInventory(playerInventory);
         addCustomerInventory();
 
@@ -52,6 +55,10 @@ public class ShopScreenHandlerCustomer extends ScreenHandler {
 
 
 
+    }
+
+    public int textureId() {
+        return this.SCREEN_TEXTURE_ID;
     }
 
     public boolean hasEnoughStock(){
