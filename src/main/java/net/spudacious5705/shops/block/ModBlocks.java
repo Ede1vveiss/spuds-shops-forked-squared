@@ -15,15 +15,22 @@ import net.spudacious5705.shops.item.custom.ShopItem;
 import net.spudacious5705.shops.properties.Colour;
 
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.List;
 
 public abstract class ModBlocks{
 
 
-    private static final AbstractBlock.Settings settings = AbstractBlock.Settings.copy(Blocks.OAK_PLANKS)
-            .nonOpaque()
-            .hardness(-1f)
-            .resistance(Float.MAX_VALUE);
+    private static final AbstractBlock.Settings settingsWood = shopSettings(AbstractShopBlock.Settings.copy(Blocks.OAK_PLANKS));
+
+    private static final AbstractBlock.Settings settingsStone = shopSettings(AbstractBlock.Settings.copy(Blocks.STONE));
+
+    private static AbstractBlock.Settings shopSettings(AbstractBlock.Settings settingsExample){
+        return settingsExample
+                .nonOpaque()
+                .hardness(-1f)
+                .resistance(Float.MAX_VALUE);
+    }
 
     private static final List<AbstractShopBlock> ALL_SHOPS = new ArrayList<>(11);// FOR DEBUG COMMAND ONLY
 
@@ -42,16 +49,37 @@ public abstract class ModBlocks{
     public static final WindowSillShopBlock SHOP_BLOCK_WINDOW_CALCITE = registerWindowShopBlock("calcite", Items.CALCITE);
     public static final WindowSillShopBlock SHOP_BLOCK_WINDOW_ANDESITE = registerWindowShopBlock("andesite", Items.ANDESITE);
 
-    private static WindowSillShopBlock registerWindowShopBlock(String name, Item stoneType) {
-        name = "shop_window_"+name;
-        WindowSillShopBlock block = new WindowSillShopBlock(settings, stoneType);
+    public static final HookShopBlock SHOP_BLOCK_HOOK = registerBasic("hook_shop",new HookShopBlock(shopSettings(AbstractBlock.Settings.copy(Blocks.CHAIN))));
 
-        Registry.register(Registries.ITEM, Identifier.of(SpudaciousShops.MOD_ID, name), new BlockItem(block, new Item.Settings()));
+    public static final RugShopBlock SHOP_BLOCK_RUG = registerBasic("rug_shop",new RugShopBlock(shopSettings(AbstractBlock.Settings.copy(Blocks.RED_CARPET))));
+
+    private static <S extends AbstractShopBlock> S registerBasic(String name, S shop){
+        Identifier id = SpudaciousShops.id(name);
+        Registry.register(
+                Registries.ITEM,
+                id,
+                new BlockItem(shop, new FabricItemSettings())
+        );
 
         return addToAllShops(
                 Registry.register(
                         Registries.BLOCK,
-                        new Identifier(SpudaciousShops.MOD_ID, name),
+                        id,
+                        shop
+                )
+        );
+    }
+
+    private static WindowSillShopBlock registerWindowShopBlock(String name, Item stoneType) {
+        Identifier id = SpudaciousShops.id("shop_window_"+name);
+        WindowSillShopBlock block = new WindowSillShopBlock(settingsStone, stoneType);
+
+        Registry.register(Registries.ITEM, id, new BlockItem(block, new FabricItemSettings()));
+
+        return addToAllShops(
+                Registry.register(
+                        Registries.BLOCK,
+                        id,
                         block
                 )
         );
@@ -59,7 +87,9 @@ public abstract class ModBlocks{
 
     private static AngledShopBlock registerAngledShopBlock(String name, Item woodType) {
         name = "shop_"+name;
-        AngledShopBlock block = new AngledShopBlock(settings, woodType);
+        Identifier id = SpudaciousShops.id(name);
+
+        AngledShopBlock block = new AngledShopBlock(settingsWood, woodType);
         for(Colour colour : Colour.values()) {
             block.addDropItem(registerShopBlockItem(name, block, colour), colour);
         }
@@ -67,7 +97,7 @@ public abstract class ModBlocks{
         return addToAllShops(
                 Registry.register(
                         Registries.BLOCK,
-                        new Identifier(SpudaciousShops.MOD_ID, name),
+                        id,
                         block
                 )
         );
@@ -79,8 +109,7 @@ public abstract class ModBlocks{
     }
 
     private static ShopItem registerShopBlockItem(String name, AngledShopBlock block, Colour colour) {
-        name = name + "_" + colour.asString();
-        Identifier id = Identifier.of(SpudaciousShops.MOD_ID, name);
+        Identifier id = SpudaciousShops.id(name + "_" + colour.asString());
         return Registry.register(Registries.ITEM, id,
                 new ShopItem(block, new FabricItemSettings(), colour));
 

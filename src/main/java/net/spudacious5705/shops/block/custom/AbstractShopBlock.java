@@ -48,26 +48,31 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
     public AbstractShopBlock(Settings settings, StateManager.Factory<Block, BlockState> shopBlockStateFactory) {
         super(settings);
         StateManager.Builder<Block, BlockState> builder = new StateManager.Builder<>(this);
-        builder.add(FACING).add(BREAKABLE);
+        builder.add(BREAKABLE);
         this.appendProperties(builder);
 
         this.shopStateManager = builder.build(Block::getDefaultState, shopBlockStateFactory);
 
         this.setDefaultState(
-                furtherDefaultStateProperties(
+                defaultStateProperties(
                         (AbstractShopBlockState) this.shopStateManager.getDefaultState()
-                        .with(FACING, Direction.NORTH)
                         .with(BREAKABLE, false)
                 )
         );
     }
 
+    @Override
+    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+        builder.add(FACING);
+    }
+
     /**
-    * made to add additional block state properties
-    * use default (YourShopBlockState) state.with(PROPERTY, VALUE);
+     * made to add additional block state properties
+     * use default (YourShopBlockState) state.with(PROPERTY, VALUE);
+     * dont forget to include facing.(or call super)
     */
-    protected AbstractShopBlockState furtherDefaultStateProperties(AbstractShopBlockState state){
-        return state;
+    protected AbstractShopBlockState defaultStateProperties(AbstractShopBlockState state){
+        return (AbstractShopBlockState) state.with(FACING, Direction.NORTH);
     }
 
     @Override
@@ -99,7 +104,7 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
     }
 
     @Override
-    public final BlockState getPlacementState(ItemPlacementContext ctx) {
+    public BlockState getPlacementState(ItemPlacementContext ctx) {
         return getPlacementState(ctx, this.getDefaultState()
                 .with(FACING, ctx.getHorizontalPlayerFacing().getOpposite())
                 .with(BREAKABLE, false));
@@ -192,21 +197,19 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
         public abstract VoxelShape getCollisionShape(BlockView world, BlockPos pos);
 
         @Override
-        public final BlockState rotate(BlockRotation rotation) {
+        public BlockState rotate(BlockRotation rotation) {
             return this.with(FACING, rotation.rotate(this.get(FACING)));
         }
 
         @Override
-        public final BlockState mirror(BlockMirror mirror) {
+        public BlockState mirror(BlockMirror mirror) {
             return this.rotate(mirror.getRotation(this.get(FACING)));
         }
 
         @Override
         public final void onStateReplaced(World world, BlockPos pos, BlockState newState, boolean moved) {
-            if (newState instanceof AbstractShopBlockState newShopState) {
-                if(isStateReplacedValid(newShopState)){
-                    return;
-                }
+            if(isStateReplacedValid(newState)){
+                return;
             }
             BlockEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity != null) {
@@ -218,7 +221,7 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
             world.removeBlockEntity(pos);
         }
 
-        protected abstract boolean isStateReplacedValid(AbstractShopBlockState newShopState);
+        protected abstract boolean isStateReplacedValid(BlockState newState);
 
         public final boolean unbreakable() {
             return !this.get(BREAKABLE);

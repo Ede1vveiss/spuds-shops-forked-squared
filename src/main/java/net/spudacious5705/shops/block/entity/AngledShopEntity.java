@@ -21,7 +21,7 @@ public class AngledShopEntity extends AbstractShopEntity{
     private Colour cushionColour;
 
     public AngledShopEntity(BlockPos pos, BlockState state) {
-        super(ModBlockEntities.ANGLED_SHOP_ENTITY, pos, state);
+        super(ModBlockEntities.ANGLED_SHOP_ENTITY, pos, state, 0.375f);
     }
 
     @Override

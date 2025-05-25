@@ -44,6 +44,7 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
 
     protected final PropertyDelegate propertyDelegate;
 
+    protected final float particleOffset;
 
     final inventoryDelegate inventoryDelegate;
 
@@ -144,8 +145,9 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
     protected String ownerName;
 
 
-    public <S extends AbstractShopEntity>AbstractShopEntity(BlockEntityType<S> type, BlockPos pos, BlockState state) {
+    public <S extends AbstractShopEntity>AbstractShopEntity(BlockEntityType<S> type, BlockPos pos, BlockState state, float particleOffset) {
         super(type, pos, state);
+        this.particleOffset = particleOffset;
         this.inventoryDelegate = new inventoryDelegate(this);
 
         this.propertyDelegate = new PropertyDelegate() {
@@ -254,6 +256,9 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
         if(nbt.contains("owner_name")) {
             this.ownerName = nbt.getString("owner_name");
         }
+        if(nbt.contains("decay_timer")) {
+            this.decayTimer = nbt.getInt("decay_timer");
+        }
     }
 
     @Override
@@ -265,6 +270,7 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
                 nbt.putString("owner_name", this.ownerName);
             }
         }
+        nbt.putInt("decay_timer",this.decayTimer);
         super.writeNbt(nbt);
     }
 
@@ -370,7 +376,7 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
                     }
                     if (world.random.nextFloat() < 0.05f) {
                         for (int i = 0; i < 5; i++) {
-                            world.spawnParticles(ParticleTypes.ANGRY_VILLAGER, pos.getX() + .2 + world.random.nextFloat(), pos.getY() + world.random.nextFloat(), pos.getZ() + world.random.nextFloat(), 1, 0, 0, 0, 0);
+                            world.spawnParticles(ParticleTypes.ANGRY_VILLAGER, pos.getX() + .2 + world.random.nextFloat(), pos.getY() + world.random.nextFloat() + particleOffset, pos.getZ() + world.random.nextFloat(), 1, 0, 0, 0, 0);
                         }
                     }
                     breakableTicks = 140;
@@ -434,6 +440,7 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
         protected String text;
         protected float tickAccumulation = 0;
         protected boolean stockDisplayType = false;
+        protected boolean currencyDisplayType = true;
         protected boolean tickPassed = true;
         public boolean stockWarning = false;
         public boolean paymentWarning = false;
@@ -482,6 +489,7 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
 
 
                 stockDisplayType = displayItem.getItem() instanceof BlockItem;
+                currencyDisplayType = paymentItem.getItem() instanceof BlockItem;
             } else {
                 this.displayItem = ItemStack.EMPTY;
                 this.paymentItem = ItemStack.EMPTY;
@@ -529,6 +537,10 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
 
         public boolean stockDisplayType() {
             return this.stockDisplayType;
+        }
+
+        public boolean currencyDisplayType() {
+            return this.currencyDisplayType;
         }
 
         public ItemStack displayItem() {

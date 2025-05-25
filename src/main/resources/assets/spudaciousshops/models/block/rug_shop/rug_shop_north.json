@@ -1,0 +1,31 @@
+{
+	"credit": "Made with Blockbench, by Spudacious5705",
+	"texture_size": [32, 32],
+	"textures": {
+		"1": "spudaciousshops:block/rug_shop"
+	},
+	"elements": [
+		{
+			"name": "joinNorth",
+			"from": [1, 0.1, 0],
+			"to": [15, 0.1, 5],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 0, 1]},
+			"faces": {
+				"north": {"uv": [0, 0, 7, 0], "texture": "#1"},
+				"east": {"uv": [0, 0, 2.5, 0], "texture": "#1"},
+				"south": {"uv": [0, 0, 7, 0], "texture": "#1"},
+				"west": {"uv": [0, 0, 2.5, 0], "texture": "#1"},
+				"up": {"uv": [7.5, 16, 0.5, 13.5], "texture": "#1"},
+				"down": {"uv": [7.5, 13.5, 0.5, 16], "texture": "#1"}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "main",
+			"origin": [0, 0, 1],
+			"color": 0,
+			"children": [0]
+		}
+	]
+}

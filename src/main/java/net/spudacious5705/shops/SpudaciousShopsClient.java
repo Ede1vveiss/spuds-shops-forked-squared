@@ -10,6 +10,8 @@ import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import net.spudacious5705.shops.block.ModBlocks;
 import net.spudacious5705.shops.block.entity.ModBlockEntities;
 import net.spudacious5705.shops.block.entity.renderer.AngledShopBlockRenderer;
+import net.spudacious5705.shops.block.entity.renderer.HookShopEntityRenderer;
+import net.spudacious5705.shops.block.entity.renderer.RugShopEntityRenderer;
 import net.spudacious5705.shops.block.entity.renderer.WindowSillShopEntityRenderer;
 import net.spudacious5705.shops.util.CushionModel;
 import net.spudacious5705.shops.util.CushionResources;
@@ -47,6 +49,8 @@ public class SpudaciousShopsClient implements ClientModInitializer {
 
         BlockEntityRendererFactories.register(ModBlockEntities.ANGLED_SHOP_ENTITY, AngledShopBlockRenderer::new);
         BlockEntityRendererFactories.register(ModBlockEntities.WINDOW_SHOP_ENTITY, WindowSillShopEntityRenderer::new);
+        BlockEntityRendererFactories.register(ModBlockEntities.HOOK_SHOP_ENTITY, HookShopEntityRenderer::new);
+        BlockEntityRendererFactories.register(ModBlockEntities.RUG_SHOP_ENTITY, RugShopEntityRenderer::new);
 
     }
 }

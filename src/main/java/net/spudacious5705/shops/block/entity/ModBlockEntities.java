@@ -34,6 +34,18 @@ public class ModBlockEntities {
                             ModBlocks.SHOP_BLOCK_WINDOW_ANDESITE
                     ).build());
 
+    public static final BlockEntityType<HookShopEntity> HOOK_SHOP_ENTITY =
+            Registry.register(Registries.BLOCK_ENTITY_TYPE, new Identifier(SpudaciousShops.MOD_ID, "shop_b_e_hook"),
+                    FabricBlockEntityTypeBuilder.create(HookShopEntity::new,
+                            ModBlocks.SHOP_BLOCK_HOOK
+                    ).build());
+
+    public static final BlockEntityType<RugShopEntity> RUG_SHOP_ENTITY =
+            Registry.register(Registries.BLOCK_ENTITY_TYPE, new Identifier(SpudaciousShops.MOD_ID, "shop_b_e_rug"),
+                    FabricBlockEntityTypeBuilder.create(RugShopEntity::new,
+                            ModBlocks.SHOP_BLOCK_RUG
+                    ).build());
+
 
     public static void registerBlockEntities() {
         SpudaciousShops.LOGGER.info("Registering block entities for" + SpudaciousShops.MOD_ID);

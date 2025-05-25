@@ -17,7 +17,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_birch_red"
+          "name": "spudaciousshops:birch_red"
         }
       ],
       "rolls": 1.0
@@ -33,7 +33,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_birch_white"
+          "name": "spudaciousshops:birch_white"
         }
       ],
       "rolls": 1.0
@@ -49,7 +49,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_birch_blue"
+          "name": "spudaciousshops:birch_blue"
         }
       ],
       "rolls": 1.0
@@ -65,7 +65,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_birch_purple"
+          "name": "spudaciousshops:birch_purple"
         }
       ],
       "rolls": 1.0
@@ -81,7 +81,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_birch_green"
+          "name": "spudaciousshops:birch_green"
         }
       ],
       "rolls": 1.0
@@ -97,7 +97,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_birch_lime"
+          "name": "spudaciousshops:birch_lime"
         }
       ],
       "rolls": 1.0
@@ -113,7 +113,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_birch_orange"
+          "name": "spudaciousshops:birch_orange"
         }
       ],
       "rolls": 1.0
@@ -129,7 +129,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_birch_gray"
+          "name": "spudaciousshops:birch_gray"
         }
       ],
       "rolls": 1.0
@@ -145,7 +145,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_birch_black"
+          "name": "spudaciousshops:birch_black"
         }
       ],
       "rolls": 1.0
@@ -161,7 +161,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_birch_light_gray"
+          "name": "spudaciousshops:birch_light_gray"
         }
       ],
       "rolls": 1.0
@@ -177,7 +177,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_birch_brown"
+          "name": "spudaciousshops:birch_brown"
         }
       ],
       "rolls": 1.0
@@ -193,7 +193,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_birch_yellow"
+          "name": "spudaciousshops:birch_yellow"
         }
       ],
       "rolls": 1.0
@@ -209,7 +209,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_birch_light_blue"
+          "name": "spudaciousshops:birch_light_blue"
         }
       ],
       "rolls": 1.0
@@ -225,7 +225,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_birch_cyan"
+          "name": "spudaciousshops:birch_cyan"
         }
       ],
       "rolls": 1.0
@@ -241,7 +241,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_birch_magenta"
+          "name": "spudaciousshops:birch_magenta"
         }
       ],
       "rolls": 1.0
@@ -257,7 +257,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_birch_pink"
+          "name": "spudaciousshops:birch_pink"
         }
       ],
       "rolls": 1.0

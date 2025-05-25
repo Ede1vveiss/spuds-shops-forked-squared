@@ -7,7 +7,7 @@ import net.minecraft.util.Identifier;
 import net.spudacious5705.shops.SpudaciousShops;
 
 public class ModBlockTags {
-    public static final TagKey<Block> SPUDS_SHOPS = TagKey.of(RegistryKeys.BLOCK, new Identifier(SpudaciousShops.MOD_ID, "spuds_shops"));
+    public static final TagKey<Block> SPUDS_SHOPS = TagKey.of(RegistryKeys.BLOCK, SpudaciousShops.id("spuds_shops"));
 
     public static void initialise() {}
 }

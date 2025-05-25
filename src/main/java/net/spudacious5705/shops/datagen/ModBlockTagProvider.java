@@ -22,16 +22,7 @@ public class ModBlockTagProvider extends FabricTagProvider.BlockTagProvider {
     }
 
     private void addShops(FabricTagBuilder builder) {
-        builder
-                .add(ModBlocks.SHOP_BLOCK_ANGLED_ACACIA)
-                .add(ModBlocks.SHOP_BLOCK_ANGLED_BAMBOO)
-                .add(ModBlocks.SHOP_BLOCK_ANGLED_BIRCH)
-                .add(ModBlocks.SHOP_BLOCK_ANGLED_CHERRY)
-                .add(ModBlocks.SHOP_BLOCK_ANGLED_CRIMSON)
-                .add(ModBlocks.SHOP_BLOCK_ANGLED_DARK_OAK)
-                .add(ModBlocks.SHOP_BLOCK_ANGLED_MANGROVE)
-                .add(ModBlocks.SHOP_BLOCK_ANGLED_OAK)
-                .add(ModBlocks.SHOP_BLOCK_ANGLED_SPRUCE)
-                .add(ModBlocks.SHOP_BLOCK_ANGLED_WARPED);
+        ModBlocks.registerModBlocks();
+        ModBlocks.getAllShops().forEach(builder::add);
     }
 }

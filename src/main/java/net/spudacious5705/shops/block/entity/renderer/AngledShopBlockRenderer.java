@@ -39,6 +39,7 @@ public class AngledShopBlockRenderer implements BlockEntityRenderer<AngledShopEn
                             default -> 0f;
                         }),
                 0.5f,0f,0.5f);
+
         this.model.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntitySolid(shop.getCushionTextureID())), light, overlay);
         matrices.pop();
 
@@ -50,7 +51,7 @@ public class AngledShopBlockRenderer implements BlockEntityRenderer<AngledShopEn
 
             //render item being sold
             matrices.push();
-            matrices.translate(0.5f, 0.58f, 0.5f);
+            matrices.translate(0.5f, 0.955f, 0.5f);
 
             matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(data.rotation()));
             matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-67.5f));
@@ -72,26 +73,26 @@ public class AngledShopBlockRenderer implements BlockEntityRenderer<AngledShopEn
 
 
             if(data.direction() == Direction.NORTH){
-                matrices.translate(0.57f, 0.139375f, 0.0525f);
+                matrices.translate(0.57f, 0.514375f, 0.0525f);
                 matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(180.0f));
                 matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-22.5f));
                 matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(0.0f));
             }
             if(data.direction() == Direction.EAST){
-                matrices.translate(0.9475f, 0.139375f, 0.57f);
+                matrices.translate(0.9475f, 0.514375f, 0.57f);
                 matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(180.0f));
                 matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(90.0f));
                 matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-22.5f));
 
             }
             if(data.direction() == Direction.SOUTH){
-                matrices.translate(0.43f, 0.139375f, 0.9475f);
+                matrices.translate(0.43f, 0.514375f, 0.9475f);
                 matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(180.0f));
                 matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180.0f));
                 matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-22.5f));
             }
             if(data.direction() == Direction.WEST){
-                matrices.translate(0.0525f, 0.139375f, .43f);
+                matrices.translate(0.0525f, 0.514375f, .43f);
                 matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(180.0f));
                 matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(270.0f));
                 matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-22.5f));
@@ -119,7 +120,7 @@ public class AngledShopBlockRenderer implements BlockEntityRenderer<AngledShopEn
             matrices.push();
 
 
-            matrices.translate(0.3f, 0.675f, .25f);
+            matrices.translate(0.3f, 1.05f, .25f);
 
             matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(
                             switch (data.direction()) {
@@ -154,22 +155,22 @@ public class AngledShopBlockRenderer implements BlockEntityRenderer<AngledShopEn
             //render currency type
             matrices.push();
             if(data.direction() == Direction.NORTH){
-                matrices.translate(0.385f, 0.16f, 0.0525f);
+                matrices.translate(0.385f, 0.535f, 0.0525f);
                 matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180.0f));
                 matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-22.5f));
             }
             if(data.direction() == Direction.EAST){
-                matrices.translate(0.9475f, 0.16f,0.385f );
+                matrices.translate(0.9475f, 0.535f,0.385f );
                 matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(90.0f));
                 matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-22.5f));
 
             }
             if(data.direction() == Direction.SOUTH){
-                matrices.translate(0.615f, 0.16f, 0.9475);
+                matrices.translate(0.615f, 0.535f, 0.9475);
                 matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-22.5f));
             }
             if(data.direction() == Direction.WEST){
-                matrices.translate(0.0525f, 0.16f,0.615f );
+                matrices.translate(0.0525f, 0.535f,0.615f );
                 matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(270.0f));
                 matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-22.5f));
             }
@@ -177,7 +178,7 @@ public class AngledShopBlockRenderer implements BlockEntityRenderer<AngledShopEn
             this.context.getItemRenderer().renderItem(data.paymentType(), ModelTransformationMode.GUI, light, overlay, matrices, vertexConsumers, data.world(), 1);
             matrices.pop();
 
-            ShopRenderUtils.renderShopWarns(tickDelta,matrices,vertexConsumers,light,overlay,data,context,0);
+            ShopRenderUtils.renderShopWarns(tickDelta,matrices,vertexConsumers,light,overlay,data,context,0.375f);
 
 
         }

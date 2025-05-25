@@ -39,32 +39,44 @@ import java.util.*;
 
 public class AngledShopBlock extends AbstractShopBlock implements BlockPickInteractionAware {
 
-    public static final VoxelShape CULLING_SHAPE = Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 8.0, 16.0);
+    public static final VoxelShape CULLING_SHAPE = Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 8.0, 17.5);
 
-
-    public static final VoxelShape BASE_NORTH = Block.createCuboidShape(0.0, 0.0, 2.0, 16.0, 6.0, 16.0);
-    public static final VoxelShape BASE_EAST = Block.createCuboidShape(0.0, 0.0, 0.0, 14.0, 6.0, 16.0);
-    public static final VoxelShape BASE_SOUTH = Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 6.0, 14.0);
-    public static final VoxelShape BASE_WEST = Block.createCuboidShape(2.0, 0.0, 0.0, 16.0, 6.0, 16.0);
+    public static final VoxelShape BASE = Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 6.0, 16.0);
+    public static final VoxelShape BASE_NORTH = VoxelShapes.union(
+            Block.createCuboidShape(0.0, 6.0, 2.0, 16.0, 12.0, 16.0),
+            BASE
+    );
+    public static final VoxelShape BASE_EAST = VoxelShapes.union(
+            Block.createCuboidShape(0.0, 6.0, 0.0, 14.0, 12.0, 16.0),
+            BASE
+    );
+    public static final VoxelShape BASE_SOUTH = VoxelShapes.union(
+            Block.createCuboidShape(0.0, 6.0, 0.0, 16.0, 12.0, 14.0),
+            BASE
+    );
+    public static final VoxelShape BASE_WEST = VoxelShapes.union(
+            Block.createCuboidShape(2.0, 6.0, 0.0, 16.0, 12.0, 16.0),
+            BASE
+    );
 
     public static final VoxelShape NORTH_SHAPE = VoxelShapes.union(
-            Block.createCuboidShape(1.0, 6.0, 3.0, 15.0, 9.0, 12.0),
-            Block.createCuboidShape(1.0, 9.0, 8.0, 15.0, 11.5, 15.0),
+            Block.createCuboidShape(1.0, 12, 3.0, 15.0, 15.0, 12.0),
+            Block.createCuboidShape(1.0, 15.0, 8.0, 15.0, 17.5, 15.0),
             BASE_NORTH
     );
     public static final VoxelShape EAST_SHAPE = VoxelShapes.union(
-            Block.createCuboidShape(4.0, 6.0, 1.0, 13.0, 9.0, 15.0),
-            Block.createCuboidShape(1.0, 9, 1.0, 8.0, 11.5, 15.0),
+            Block.createCuboidShape(4.0, 12, 1.0, 13.0, 15.0, 15.0),
+            Block.createCuboidShape(1.0, 15.0, 1.0, 8.0, 17.5, 15.0),
             BASE_EAST
     );
     public static final VoxelShape SOUTH_SHAPE = VoxelShapes.union(
-            Block.createCuboidShape(1.0, 6.0, 4.0, 15.0, 9.0, 13.0),
-            Block.createCuboidShape(1.0, 9, 1.0, 15.0, 11.5, 8.0),
+            Block.createCuboidShape(1.0, 12, 4.0, 15.0, 15.0, 13.0),
+            Block.createCuboidShape(1.0, 15.0, 1.0, 15.0, 17.5, 8.0),
             BASE_SOUTH
     );
     public static final VoxelShape WEST_SHAPE = VoxelShapes.union(
-            Block.createCuboidShape(3.0, 6.0, 1.0, 12.0, 9.0, 15),
-            Block.createCuboidShape(8.0, 9.0, 1.0, 15, 11.5, 15),
+            Block.createCuboidShape(3.0, 12, 1.0, 12.0, 15.0, 15),
+            Block.createCuboidShape(8.0, 15.0, 1.0, 15, 17.5, 15),
             BASE_WEST
     );
 
@@ -169,7 +181,7 @@ public class AngledShopBlock extends AbstractShopBlock implements BlockPickInter
         }
 
         @Override
-        protected boolean isStateReplacedValid(AbstractShopBlockState newShopState) {
+        protected boolean isStateReplacedValid(BlockState newShopState) {
             return newShopState instanceof AngledShopBlockState;
         }
 

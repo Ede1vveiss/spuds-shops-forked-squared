@@ -109,7 +109,7 @@ public class WindowSillShopBlock extends AbstractShopBlock{
         }
 
         @Override
-        protected boolean isStateReplacedValid(AbstractShopBlockState newShopState) {
+        protected boolean isStateReplacedValid(BlockState newShopState) {
             return newShopState instanceof WindowShopBlockState;
         }
     }

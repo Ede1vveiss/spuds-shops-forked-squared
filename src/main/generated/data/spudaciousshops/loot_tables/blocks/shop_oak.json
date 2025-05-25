@@ -17,7 +17,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_oak_red"
+          "name": "spudaciousshops:oak_red"
         }
       ],
       "rolls": 1.0
@@ -33,7 +33,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_oak_white"
+          "name": "spudaciousshops:oak_white"
         }
       ],
       "rolls": 1.0
@@ -49,7 +49,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_oak_blue"
+          "name": "spudaciousshops:oak_blue"
         }
       ],
       "rolls": 1.0
@@ -65,7 +65,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_oak_purple"
+          "name": "spudaciousshops:oak_purple"
         }
       ],
       "rolls": 1.0
@@ -81,7 +81,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_oak_green"
+          "name": "spudaciousshops:oak_green"
         }
       ],
       "rolls": 1.0
@@ -97,7 +97,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_oak_lime"
+          "name": "spudaciousshops:oak_lime"
         }
       ],
       "rolls": 1.0
@@ -113,7 +113,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_oak_orange"
+          "name": "spudaciousshops:oak_orange"
         }
       ],
       "rolls": 1.0
@@ -129,7 +129,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_oak_gray"
+          "name": "spudaciousshops:oak_gray"
         }
       ],
       "rolls": 1.0
@@ -145,7 +145,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_oak_black"
+          "name": "spudaciousshops:oak_black"
         }
       ],
       "rolls": 1.0
@@ -161,7 +161,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_oak_light_gray"
+          "name": "spudaciousshops:oak_light_gray"
         }
       ],
       "rolls": 1.0
@@ -177,7 +177,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_oak_brown"
+          "name": "spudaciousshops:oak_brown"
         }
       ],
       "rolls": 1.0
@@ -193,7 +193,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_oak_yellow"
+          "name": "spudaciousshops:oak_yellow"
         }
       ],
       "rolls": 1.0
@@ -209,7 +209,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_oak_light_blue"
+          "name": "spudaciousshops:oak_light_blue"
         }
       ],
       "rolls": 1.0
@@ -225,7 +225,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_oak_cyan"
+          "name": "spudaciousshops:oak_cyan"
         }
       ],
       "rolls": 1.0
@@ -241,7 +241,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_oak_magenta"
+          "name": "spudaciousshops:oak_magenta"
         }
       ],
       "rolls": 1.0
@@ -257,7 +257,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_oak_pink"
+          "name": "spudaciousshops:oak_pink"
         }
       ],
       "rolls": 1.0

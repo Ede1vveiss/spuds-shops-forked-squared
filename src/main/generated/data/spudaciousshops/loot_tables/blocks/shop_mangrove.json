@@ -17,7 +17,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_mangrove_red"
+          "name": "spudaciousshops:mangrove_red"
         }
       ],
       "rolls": 1.0
@@ -33,7 +33,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_mangrove_white"
+          "name": "spudaciousshops:mangrove_white"
         }
       ],
       "rolls": 1.0
@@ -49,7 +49,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_mangrove_blue"
+          "name": "spudaciousshops:mangrove_blue"
         }
       ],
       "rolls": 1.0
@@ -65,7 +65,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_mangrove_purple"
+          "name": "spudaciousshops:mangrove_purple"
         }
       ],
       "rolls": 1.0
@@ -81,7 +81,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_mangrove_green"
+          "name": "spudaciousshops:mangrove_green"
         }
       ],
       "rolls": 1.0
@@ -97,7 +97,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_mangrove_lime"
+          "name": "spudaciousshops:mangrove_lime"
         }
       ],
       "rolls": 1.0
@@ -113,7 +113,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_mangrove_orange"
+          "name": "spudaciousshops:mangrove_orange"
         }
       ],
       "rolls": 1.0
@@ -129,7 +129,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_mangrove_gray"
+          "name": "spudaciousshops:mangrove_gray"
         }
       ],
       "rolls": 1.0
@@ -145,7 +145,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_mangrove_black"
+          "name": "spudaciousshops:mangrove_black"
         }
       ],
       "rolls": 1.0
@@ -161,7 +161,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_mangrove_light_gray"
+          "name": "spudaciousshops:mangrove_light_gray"
         }
       ],
       "rolls": 1.0
@@ -177,7 +177,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_mangrove_brown"
+          "name": "spudaciousshops:mangrove_brown"
         }
       ],
       "rolls": 1.0
@@ -193,7 +193,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_mangrove_yellow"
+          "name": "spudaciousshops:mangrove_yellow"
         }
       ],
       "rolls": 1.0
@@ -209,7 +209,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_mangrove_light_blue"
+          "name": "spudaciousshops:mangrove_light_blue"
         }
       ],
       "rolls": 1.0
@@ -225,7 +225,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_mangrove_cyan"
+          "name": "spudaciousshops:mangrove_cyan"
         }
       ],
       "rolls": 1.0
@@ -241,7 +241,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_mangrove_magenta"
+          "name": "spudaciousshops:mangrove_magenta"
         }
       ],
       "rolls": 1.0
@@ -257,7 +257,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:shop_mangrove_pink"
+          "name": "spudaciousshops:mangrove_pink"
         }
       ],
       "rolls": 1.0
