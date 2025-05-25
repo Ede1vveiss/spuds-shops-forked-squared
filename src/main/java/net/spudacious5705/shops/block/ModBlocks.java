@@ -32,7 +32,7 @@ public abstract class ModBlocks{
                 .resistance(Float.MAX_VALUE);
     }
 
-    private static final List<AbstractShopBlock> ALL_SHOPS = new ArrayList<>(11);// FOR DEBUG COMMAND ONLY
+    private static final List<AbstractShopBlock> ALL_SHOPS = new ArrayList<>(20);
 
     public static final AngledShopBlock SHOP_BLOCK_ANGLED_ACACIA = registerAngledShopBlock("acacia", Items.ACACIA_PLANKS);
     public static final AngledShopBlock SHOP_BLOCK_ANGLED_BAMBOO = registerAngledShopBlock("bamboo", Items.BAMBOO_PLANKS);
@@ -52,6 +52,8 @@ public abstract class ModBlocks{
     public static final HookShopBlock SHOP_BLOCK_HOOK = registerBasic("hook_shop",new HookShopBlock(shopSettings(AbstractBlock.Settings.copy(Blocks.CHAIN))));
 
     public static final RugShopBlock SHOP_BLOCK_RUG = registerBasic("rug_shop",new RugShopBlock(shopSettings(AbstractBlock.Settings.copy(Blocks.RED_CARPET))));
+
+    public static final CrateShopBlock SHOP_BLOCK_CRATE = registerBasic("crate_shop",new CrateShopBlock(settingsWood));
 
     private static <S extends AbstractShopBlock> S registerBasic(String name, S shop){
         Identifier id = SpudaciousShops.id(name);

@@ -375,7 +375,7 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
                         shopState.makeBreakable(world, pos);
                     }
                     if (world.random.nextFloat() < 0.05f) {
-                        for (int i = 0; i < 5; i++) {
+                        for (int i = 0; i < 3; i++) {
                             world.spawnParticles(ParticleTypes.ANGRY_VILLAGER, pos.getX() + .2 + world.random.nextFloat(), pos.getY() + world.random.nextFloat() + particleOffset, pos.getZ() + world.random.nextFloat(), 1, 0, 0, 0, 0);
                         }
                     }

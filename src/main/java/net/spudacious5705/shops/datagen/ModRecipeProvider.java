@@ -4,12 +4,13 @@ import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
-import net.minecraft.data.server.recipe.RecipeJsonProvider;
-import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.*;
 import net.minecraft.item.Item;
+import net.minecraft.item.Items;
 import net.minecraft.recipe.book.RecipeCategory;
 import net.spudacious5705.shops.block.ModBlocks;
 import net.spudacious5705.shops.block.custom.AngledShopBlock;
+import net.spudacious5705.shops.item.ModItems;
 import net.spudacious5705.shops.util.CushionResources;
 import net.spudacious5705.shops.properties.Colour;
 
@@ -31,6 +32,67 @@ public class ModRecipeProvider extends FabricRecipeProvider {
             }
 
         }
+
+        ShapedRecipeJsonBuilder.create(RecipeCategory.BUILDING_BLOCKS, ModBlocks.SHOP_BLOCK_HOOK.asItem())
+                .pattern(" i ")
+                .pattern("ccc")
+                .pattern(" h ")
+                .input('i', Blocks.CHAIN)
+                .input('c', Blocks.CHEST)
+                .input('h', Blocks.TRIPWIRE_HOOK)
+                .criterion(hasItem(Blocks.CHAIN), conditionsFromItem(Blocks.CHAIN))
+                .criterion(hasItem(Blocks.CHEST), conditionsFromItem(Blocks.CHEST))
+                .criterion(hasItem(Blocks.TRIPWIRE_HOOK), conditionsFromItem(Blocks.TRIPWIRE_HOOK))
+                .offerTo(consumer);
+
+
+        ShapedRecipeJsonBuilder.create(RecipeCategory.BUILDING_BLOCKS, ModBlocks.SHOP_BLOCK_RUG.asItem())
+                .pattern("   ")
+                .pattern("grg")
+                .pattern("ccc")
+                .input('g', Items.GOLD_NUGGET)
+                .input('c', Blocks.CHEST)
+                .input('r', Blocks.RED_CARPET)
+                .criterion(hasItem(Blocks.RED_CARPET), conditionsFromItem(Blocks.RED_CARPET))
+                .criterion(hasItem(Blocks.CHEST), conditionsFromItem(Blocks.CHEST))
+                .criterion(hasItem(Items.GOLD_NUGGET), conditionsFromItem(Items.GOLD_NUGGET))
+                .offerTo(consumer);
+
+        ShapedRecipeJsonBuilder.create(RecipeCategory.BUILDING_BLOCKS, ModBlocks.SHOP_BLOCK_CRATE.asItem())
+                .pattern("  b")
+                .pattern(" b ")
+                .pattern("b  ")
+                .input('b', Blocks.BARREL)
+                .criterion(hasItem(Blocks.BARREL), conditionsFromItem(Blocks.BARREL))
+                .offerTo(consumer);
+
+        ShapedRecipeJsonBuilder.create(RecipeCategory.BUILDING_BLOCKS, ModBlocks.SHOP_BLOCK_WINDOW_ANDESITE.asItem())
+                .pattern("   ")
+                .pattern("sss")
+                .pattern("ccc")
+                .input('c', Blocks.CHEST)
+                .input('s', Blocks.ANDESITE)
+                .criterion(hasItem(Blocks.CHEST), conditionsFromItem(Blocks.CHEST))
+                .criterion(hasItem(Blocks.ANDESITE), conditionsFromItem(Blocks.ANDESITE))
+                .offerTo(consumer);
+
+        ShapedRecipeJsonBuilder.create(RecipeCategory.BUILDING_BLOCKS, ModBlocks.SHOP_BLOCK_WINDOW_CALCITE.asItem())
+                .pattern("   ")
+                .pattern("sss")
+                .pattern("ccc")
+                .input('c', Blocks.CHEST)
+                .input('s', Blocks.CALCITE)
+                .criterion(hasItem(Blocks.CHEST), conditionsFromItem(Blocks.CHEST))
+                .criterion(hasItem(Blocks.CALCITE), conditionsFromItem(Blocks.CALCITE))
+                .offerTo(consumer);
+
+        ShapelessRecipeJsonBuilder.create(RecipeCategory.MISC, ModItems.CONTRACT_SCROLL)
+                .input(Items.PAPER)
+                .input(Items.FEATHER)
+                .criterion(hasItem(Items.PAPER), conditionsFromItem(Items.PAPER))
+                .criterion(hasItem(Items.FEATHER), conditionsFromItem(Items.FEATHER))
+                .offerTo(consumer);
+
     }
 
     private void makeShopRecipe(Consumer<RecipeJsonProvider> consumer, Item shopItem, Block wood, Item wool){

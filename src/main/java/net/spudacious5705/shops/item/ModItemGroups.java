@@ -16,21 +16,25 @@ public final class ModItemGroups {
             .icon(() -> new ItemStack(ModBlocks.SHOP_BLOCK_ANGLED_OAK.getDefaultColouredShopItem()))
             .entries((displayContext, entries) -> {
 
-                        entries.add(ModBlocks.SHOP_BLOCK_ANGLED_ACACIA.getDefaultColouredShopItem());
-                        entries.add(ModBlocks.SHOP_BLOCK_ANGLED_BAMBOO.getDefaultColouredShopItem());
-                        entries.add(ModBlocks.SHOP_BLOCK_ANGLED_BIRCH.getDefaultColouredShopItem());
-                        entries.add(ModBlocks.SHOP_BLOCK_ANGLED_CHERRY.getDefaultColouredShopItem());
-                        entries.add(ModBlocks.SHOP_BLOCK_ANGLED_CRIMSON.getDefaultColouredShopItem());
-                        entries.add(ModBlocks.SHOP_BLOCK_ANGLED_OAK.getDefaultColouredShopItem());
-                        entries.add(ModBlocks.SHOP_BLOCK_ANGLED_MANGROVE.getDefaultColouredShopItem());
-                        entries.add(ModBlocks.SHOP_BLOCK_ANGLED_DARK_OAK.getDefaultColouredShopItem());
-                        entries.add(ModBlocks.SHOP_BLOCK_ANGLED_SPRUCE.getDefaultColouredShopItem());
-                        entries.add(ModBlocks.SHOP_BLOCK_ANGLED_WARPED.getDefaultColouredShopItem());
-                        entries.add(ModBlocks.SHOP_BLOCK_ANGLED_JUNGLE.getDefaultColouredShopItem());
-                        entries.add(ModBlocks.SHOP_BLOCK_WINDOW_CALCITE.asItem());
-                        entries.add(ModBlocks.SHOP_BLOCK_WINDOW_ANDESITE.asItem());
+                entries.add(ModItems.CONTRACT_SCROLL);
+                entries.add(ModBlocks.SHOP_BLOCK_ANGLED_ACACIA.getDefaultColouredShopItem());
+                entries.add(ModBlocks.SHOP_BLOCK_ANGLED_BAMBOO.getDefaultColouredShopItem());
+                entries.add(ModBlocks.SHOP_BLOCK_ANGLED_BIRCH.getDefaultColouredShopItem());
+                entries.add(ModBlocks.SHOP_BLOCK_ANGLED_CHERRY.getDefaultColouredShopItem());
+                entries.add(ModBlocks.SHOP_BLOCK_ANGLED_CRIMSON.getDefaultColouredShopItem());
+                entries.add(ModBlocks.SHOP_BLOCK_ANGLED_OAK.getDefaultColouredShopItem());
+                entries.add(ModBlocks.SHOP_BLOCK_ANGLED_MANGROVE.getDefaultColouredShopItem());
+                entries.add(ModBlocks.SHOP_BLOCK_ANGLED_DARK_OAK.getDefaultColouredShopItem());
+                entries.add(ModBlocks.SHOP_BLOCK_ANGLED_SPRUCE.getDefaultColouredShopItem());
+                entries.add(ModBlocks.SHOP_BLOCK_ANGLED_WARPED.getDefaultColouredShopItem());
+                entries.add(ModBlocks.SHOP_BLOCK_ANGLED_JUNGLE.getDefaultColouredShopItem());
+                entries.add(ModBlocks.SHOP_BLOCK_WINDOW_CALCITE.asItem());
+                entries.add(ModBlocks.SHOP_BLOCK_WINDOW_ANDESITE.asItem());
+                entries.add(ModBlocks.SHOP_BLOCK_HOOK.asItem());
+                entries.add(ModBlocks.SHOP_BLOCK_RUG.asItem());
+                entries.add(ModBlocks.SHOP_BLOCK_CRATE.asItem());
 
-                    })
+            })
             .displayName(Text.translatable("itemGroup.spudaciousshops.shop_item_group"))
             .build();
 

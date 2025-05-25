@@ -25,5 +25,12 @@
   "block.spudaciousshops.shop_window_andesite": "Andesite Windowsill Shop",
   "item.spudaciousshops.shop_window_andesite": "Andesite Windowsill Shop",
   "block.spudaciousshops.shop_window_calcite": "Calcite Windowsill Shop",
-  "item.spudaciousshops.shop_window_calcite": "Calcite Windowsill Shop"
+  "item.spudaciousshops.shop_window_calcite": "Calcite Windowsill Shop",
+  "block.spudaciousshops.hook_shop": "Hook Shop",
+  "item.spudaciousshops.hook_shop": "Hook Shop",
+  "block.spudaciousshops.rug_shop": "Rug Shop",
+  "item.spudaciousshops.rug_shop": "Rug Shop",
+  "block.spudaciousshops.crate_shop": "Merchant's Crate",
+  "item.spudaciousshops.crate_shop": "Merchant's Crate",
+  "item.spudaciousshops.contract_scroll": "Contract Scroll"
 }

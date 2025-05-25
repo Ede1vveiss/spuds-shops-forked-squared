@@ -17,7 +17,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:acacia_red"
+          "name": "spudaciousshops:shop_acacia_red"
         }
       ],
       "rolls": 1.0
@@ -33,7 +33,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:acacia_white"
+          "name": "spudaciousshops:shop_acacia_white"
         }
       ],
       "rolls": 1.0
@@ -49,7 +49,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:acacia_blue"
+          "name": "spudaciousshops:shop_acacia_blue"
         }
       ],
       "rolls": 1.0
@@ -65,7 +65,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:acacia_purple"
+          "name": "spudaciousshops:shop_acacia_purple"
         }
       ],
       "rolls": 1.0
@@ -81,7 +81,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:acacia_green"
+          "name": "spudaciousshops:shop_acacia_green"
         }
       ],
       "rolls": 1.0
@@ -97,7 +97,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:acacia_lime"
+          "name": "spudaciousshops:shop_acacia_lime"
         }
       ],
       "rolls": 1.0
@@ -113,7 +113,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:acacia_orange"
+          "name": "spudaciousshops:shop_acacia_orange"
         }
       ],
       "rolls": 1.0
@@ -129,7 +129,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:acacia_gray"
+          "name": "spudaciousshops:shop_acacia_gray"
         }
       ],
       "rolls": 1.0
@@ -145,7 +145,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:acacia_black"
+          "name": "spudaciousshops:shop_acacia_black"
         }
       ],
       "rolls": 1.0
@@ -161,7 +161,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:acacia_light_gray"
+          "name": "spudaciousshops:shop_acacia_light_gray"
         }
       ],
       "rolls": 1.0
@@ -177,7 +177,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:acacia_brown"
+          "name": "spudaciousshops:shop_acacia_brown"
         }
       ],
       "rolls": 1.0
@@ -193,7 +193,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:acacia_yellow"
+          "name": "spudaciousshops:shop_acacia_yellow"
         }
       ],
       "rolls": 1.0
@@ -209,7 +209,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:acacia_light_blue"
+          "name": "spudaciousshops:shop_acacia_light_blue"
         }
       ],
       "rolls": 1.0
@@ -225,7 +225,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:acacia_cyan"
+          "name": "spudaciousshops:shop_acacia_cyan"
         }
       ],
       "rolls": 1.0
@@ -241,7 +241,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:acacia_magenta"
+          "name": "spudaciousshops:shop_acacia_magenta"
         }
       ],
       "rolls": 1.0
@@ -257,7 +257,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "spudaciousshops:acacia_pink"
+          "name": "spudaciousshops:shop_acacia_pink"
         }
       ],
       "rolls": 1.0

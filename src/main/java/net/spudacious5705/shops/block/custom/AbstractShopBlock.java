@@ -211,6 +211,11 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
             if(isStateReplacedValid(newState)){
                 return;
             }
+            //final defence
+            if(this.unbreakable()){
+                world.setBlockState(pos,this);
+                return;
+            }
             BlockEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity != null) {
                 if (blockEntity instanceof AbstractShopEntity shopEntity) {
@@ -251,6 +256,10 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
                 }
                 return;
             }
+        }
+        if(player.isCreative()){
+            world.setBlockState(pos, state.with(BREAKABLE,true));
+            //allow creative players to break
         }
         this.spawnBreakParticles(world, player, pos, state);
         world.emitGameEvent(GameEvent.BLOCK_DESTROY, pos, GameEvent.Emitter.of(player, state));

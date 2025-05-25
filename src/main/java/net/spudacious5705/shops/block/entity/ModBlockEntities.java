@@ -46,6 +46,12 @@ public class ModBlockEntities {
                             ModBlocks.SHOP_BLOCK_RUG
                     ).build());
 
+    public static final BlockEntityType<CrateShopEntity> CRATE_SHOP_ENTITY =
+            Registry.register(Registries.BLOCK_ENTITY_TYPE, new Identifier(SpudaciousShops.MOD_ID, "shop_b_e_crate"),
+                    FabricBlockEntityTypeBuilder.create(CrateShopEntity::new,
+                            ModBlocks.SHOP_BLOCK_CRATE
+                    ).build());
+
 
     public static void registerBlockEntities() {
         SpudaciousShops.LOGGER.info("Registering block entities for" + SpudaciousShops.MOD_ID);

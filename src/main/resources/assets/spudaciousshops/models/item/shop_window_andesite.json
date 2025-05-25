@@ -1,7 +1,7 @@
 {
   "parent": "spudaciousshops:block/shop_window",
   "textures": {
-    "2": "spudaciousshops:block/shop_window_andesite",
+    "1": "spudaciousshops:block/shop_window_andesite",
     "particle": "spudaciousshops:block/shop_window_andesite"
   }
 }
