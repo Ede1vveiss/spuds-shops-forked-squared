@@ -1,0 +1,215 @@
+package net.spudacious5705.shops.block.custom;
+
+import com.google.common.collect.ImmutableMap;
+import com.mojang.serialization.MapCodec;
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ShapeContext;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.block.enums.SlabType;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.item.ItemStack;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.EnumProperty;
+import net.minecraft.state.property.Properties;
+import net.minecraft.state.property.Property;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
+import net.spudacious5705.shops.block.entity.AbstractShopEntity;
+import net.spudacious5705.shops.block.entity.ModBlockEntities;
+import net.spudacious5705.shops.block.entity.ShelfShopEntity;
+import net.spudacious5705.shops.properties.PermissionLevel;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.stream.IntStream;
+
+import static net.spudacious5705.shops.block.custom.CrateShopBlock.SHAPE_NORTH;
+
+public class ShelfShopBlock extends AbstractShopBlock{
+
+    public static final VoxelShape CULLING_SHAPE = Block.createCuboidShape(0, 0, 0, 16.0, 16.0, 16.0);
+
+    public static final VoxelShape[] SHAPES_TOP = {
+            Block.createCuboidShape(0.5, 8.0, 8.0, 15.5, 14.0, 16.0),//NORTH
+            Block.createCuboidShape(8.0, 8.0, 0.5, 16.0, 14.0, 15.5),//WEST
+            Block.createCuboidShape(0.5, 8.0, 0.0, 15.5, 14.0, 8.0),//SOUTH
+            Block.createCuboidShape(0.0, 8.0, 0.5, 8.0, 14.0, 15.5)};//EAST
+
+    public static final VoxelShape[] SHAPES_BOTTOM = {
+            Block.createCuboidShape(0.5, 0.0, 8.0, 15.5, 6.0, 16.0),//NORTH
+            Block.createCuboidShape(8.0, 0.0, 0.5, 16.0, 6.0, 15.5),//WEST
+            Block.createCuboidShape(0.5, 0.0, 0.0, 15.5, 6.0, 8.0),//SOUTH
+            Block.createCuboidShape(0.0, 0.0, 0.5, 8.0, 6.0, 15.5)};//EAST
+
+    private static VoxelShape[] initShapes_double(){
+        VoxelShape[] SHAPES = new VoxelShape[4];
+        for(int i = 0; i<4; i++){
+            SHAPES[i] = VoxelShapes.union(SHAPES_TOP[i],SHAPES_BOTTOM[i]);
+        }
+        return SHAPES;
+    }
+
+    public static final VoxelShape[] SHAPES_DOUBLE = initShapes_double();
+
+
+    public static final EnumProperty<SlabType> SHELVES_ENABLED = Properties.SLAB_TYPE;
+
+    public final Block SlabWoodType;
+    public final String woodName;
+
+    public ShelfShopBlock(Settings settings, Block slab, String woodName) {
+        super(settings, ShelfShopState::new);
+        this.SlabWoodType = slab;
+        this.woodName = woodName;
+    }
+
+    @Override
+    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+        builder.add(FACING)
+                .add(SHELVES_ENABLED);
+    }
+
+    @Override
+    protected AbstractShopBlockState defaultStateProperties(AbstractShopBlockState state){
+        return (AbstractShopBlockState) state.with(FACING, Direction.NORTH)
+                .with(SHELVES_ENABLED,  SlabType.DOUBLE);
+    }
+
+    @Override
+    public BlockState getPlacementState(ItemPlacementContext ctx) {
+        BlockPos blockPos = ctx.getBlockPos();
+        BlockState blockState = ctx.getWorld().getBlockState(blockPos);
+
+        if (blockState.isOf(this)) {
+            return blockState.with(SHELVES_ENABLED, SlabType.DOUBLE);
+        }
+
+        SlabType type = ((ctx.getHitPos().y - ctx.getBlockPos().getY()) > 0.5) ? SlabType.TOP : SlabType.BOTTOM;
+        return getPlacementState(ctx, this.getDefaultState()
+                .with(FACING, ctx.getHorizontalPlayerFacing().getOpposite())
+                .with(BREAKABLE, false)
+                .with(SHELVES_ENABLED, type));
+    }
+
+    @Override
+    public @Nullable BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+        return new ShelfShopEntity(pos,state);
+    }
+
+    @Override
+    protected boolean onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player) {
+        return false;
+    }
+
+    private static BlockState importProperties(BlockState defaultState, BlockState originalState) {
+        return defaultState
+                .with(FACING, originalState.get(FACING))
+                .with(BREAKABLE, originalState.get(BREAKABLE));
+    }
+
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
+        return checkType(
+                type,
+                ModBlockEntities.SHELF_SHOP_ENTITY,
+                world.isClient() ?
+                        (world1, pos, state1, blockEntity) -> blockEntity.renderTick()
+                        :
+                        (world1, pos, shopState, blockEntity) -> blockEntity.serverTick((ServerWorld) world1, pos, (ShelfShopState) shopState)
+        );
+    }
+
+    public static class ShelfShopState extends AbstractShopBlockState {
+        public ShelfShopState(Block block, ImmutableMap<Property<?>, Comparable<?>> immutableMap, MapCodec<BlockState> mapCodec) {
+            super(block, immutableMap, mapCodec);
+        }
+
+        @Override
+        public VoxelShape getCullingShape(BlockView world, BlockPos pos) {
+            return getShape();
+        }
+
+        @Override
+        public VoxelShape getOutlineShape(BlockView world, BlockPos pos, ShapeContext context) {
+            return getShape();
+        }
+
+        @Override
+        public VoxelShape getCollisionShape(BlockView world, BlockPos pos) {
+            return getShape();
+        }
+
+        private VoxelShape getShape(){
+            int select = switch (this.get(FACING)){
+                case NORTH -> 0;
+                case WEST -> 1;
+                case SOUTH -> 2;
+                default -> 3;
+            };
+            return switch(this.get(SHELVES_ENABLED)) {
+                case DOUBLE -> SHAPES_DOUBLE[select];
+                case TOP -> SHAPES_TOP[select];
+                case BOTTOM -> SHAPES_BOTTOM[select];
+            };
+        }
+
+        @Override
+        protected boolean isStateReplacedValid(BlockState newShopState) {
+            return newShopState instanceof ShelfShopState;
+        }
+
+        @Override
+        public boolean canReplace(ItemPlacementContext context) {
+            if(this.get(SHELVES_ENABLED) == SlabType.DOUBLE) return false;
+            return context.getStack().isOf(this.getBlock().asItem());
+        }
+
+        @Override
+        public ActionResult onUse(World world, PlayerEntity player, Hand hand, BlockHitResult hit) {
+
+            if (world.isClient) return ActionResult.SUCCESS;
+
+            BlockPos pos = hit.getBlockPos();
+
+            ItemStack stack = player.getStackInHand(hand);
+
+            BlockEntity be = world.getBlockEntity(pos);
+
+            if(!(be instanceof AbstractShopEntity)) return ActionResult.FAIL;
+
+            PermissionLevel perm = userSignIn(world, pos, player);
+
+            if(!stack.isEmpty() && perm.canEditTrades()){
+                if(((AbstractShopBlock)getBlock()).onUseWithItem(stack,this.asBlockState(),world,pos,player)) return ActionResult.SUCCESS;
+            }
+
+            if(world.getBlockEntity(pos) instanceof ShelfShopEntity shop){
+
+                ExtendedScreenHandlerFactory screenHandlerFactory =
+                        shop.createScreenHandlerFactory(
+                                hit.getPos().y > 0.5 + pos.getY()
+                        );
+
+
+                if (screenHandlerFactory != null) {
+                    player.openHandledScreen(screenHandlerFactory);
+                }
+            }
+
+            return ActionResult.SUCCESS;
+        }
+    }
+
+}

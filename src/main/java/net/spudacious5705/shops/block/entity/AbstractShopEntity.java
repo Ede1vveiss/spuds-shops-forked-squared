@@ -4,6 +4,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -19,10 +20,11 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.particle.ParticleTypes;
-import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
 import net.minecraft.util.ItemScatterer;
@@ -30,31 +32,72 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
+import net.spudacious5705.shops.SpudaciousShops;
 import net.spudacious5705.shops.block.custom.AbstractShopBlock;
+import net.spudacious5705.shops.properties.ModProperties;
 import net.spudacious5705.shops.properties.PermissionLevel;
 import net.spudacious5705.shops.screen.ShopScreenHandlerCustomer;
 import net.spudacious5705.shops.screen.ShopScreenHandlerOwner;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 public abstract class AbstractShopEntity extends BlockEntity implements ExtendedScreenHandlerFactory{
     protected final int INV_SIZE = 78;
     protected final DefaultedList<ItemStack> itemStacks = DefaultedList.ofSize(INV_SIZE, ItemStack.EMPTY);
 
-    protected final PropertyDelegate propertyDelegate;
+    public static final BooleanProperty TOP_ACTIVE = Properties.UP;
+    public static final BooleanProperty BOTTOM_ACTIVE = Properties.DOWN;
 
     protected final float particleOffset;
 
-    final inventoryDelegate inventoryDelegate;
+    protected UUID ownerID;
+    protected String ownerName;
+
+    private ArrayList<playerID> identificationRecords;
+
+    private record playerID(UUID uuid, String name, PermissionLevel permissionLevel){
+
+    };
 
     public PermissionLevel userSignIn(PlayerEntity player) {
+
         if(ownerID == null){
-            setOwner(player);
+            setNewOwner(player);
         }
         if(isOwner(player))return PermissionLevel.OWNER;
         if(player.isCreative()) return PermissionLevel.SERVER_ADMIN;
         return PermissionLevel.CUSTOMER;
+    }
+
+    private void setNewOwner(PlayerEntity player){
+        if(identificationRecords.isEmpty()){
+            this.ownerID = player.getUuid();
+            this.ownerName = player.getEntityName();
+            markDirty();
+        }
+
+        int maxValue = identificationRecords.stream()
+                .mapToInt(record -> record.permissionLevel.asInt())
+                .max()
+                .orElse(-1);
+
+        identificationRecords = (ArrayList<playerID>) identificationRecords.stream()
+                .map(record -> record.permissionLevel.asInt() == maxValue ?
+                        new playerID(record.uuid,record.name,PermissionLevel.OWNER) : record)
+                .toList();
+
+    }
+
+    public boolean isOwner(PlayerEntity player){
+        return isOwner(player.getUuid());
+    }
+
+    public boolean isOwner(UUID id) {
+        if(ownerID == null){return true;}
+        return id.compareTo(ownerID) == 0;
     }
 
     protected final void clearAllPermissions(){
@@ -70,14 +113,20 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
 
     public abstract int getTextureId();
 
-    protected final class inventoryDelegate implements Inventory{
+    public final class InventoryDelegate implements Inventory{
 
         private final AbstractShopEntity shop;
-        //private final PermissionLevel permissions;
+        private final DefaultedList<ItemStack> items;
+        private final PermissionLevel permissions;
 
-        public inventoryDelegate(AbstractShopEntity shop) {
+        public InventoryDelegate(AbstractShopEntity shop, PermissionLevel permissions, DefaultedList<ItemStack> items) {
             this.shop = shop;
-            //this.permissions = permissions; ##### future improvement
+            this.permissions = permissions;
+            this.items = items;
+        }
+
+        public PermissionLevel checkPermissions(){
+            return permissions;
         }
 
         @Override
@@ -87,24 +136,53 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
 
         @Override
         public boolean isEmpty() {
-            return shop.itemStacks.isEmpty();
-        }
-        @Override
-        public ItemStack getStack(int slot) {
-            return shop.itemStacks.get(slot);
+            return items.isEmpty();
         }
 
         @Override
-        public ItemStack removeStack(int slot, int amount) {return shop.itemStacks.get(slot).split(amount);}
+        public ItemStack getStack(int slot) {
+            if(slot>this.size()||slot<0) return ItemStack.EMPTY;
+
+            if(slot>PROFIT_END) {
+                return items.get(slot);
+            }
+
+            if(permissions.canViewShopScreen()) return items.get(slot);
+
+            return ItemStack.EMPTY;
+        }
+
+        @Nullable
+        public ItemStack trade(PlayerInventory playerInv, int purchaseID, int paymentID){
+            return null;
+        }
+
+        @Override
+        public ItemStack removeStack(int slot, int amount) {
+
+            if(slot>this.size()||slot<0) return ItemStack.EMPTY;
+
+            if(permissions.canEditTrades()) return items.get(slot).split(amount);
+
+            if(slot<PAYMENT_SLOT){
+                if(permissions.canTakeItems()) return items.get(slot).split(amount);
+            }
+
+            return ItemStack.EMPTY;
+        }
 
         @Override
         public ItemStack removeStack(int slot) {
-            return shop.itemStacks.remove(slot);
+            return removeStack(slot,64);
         }
 
         @Override
         public void setStack(int slot, ItemStack stack) {
-            shop.itemStacks.set(slot, stack);
+            items.set(slot, stack); //CURRENTLY UNPROTECTED
+        }
+
+        private void validatedSetStack(int slot, ItemStack stack){
+            items.set(slot, stack);
         }
 
         @Override
@@ -124,6 +202,46 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
         @Override
         public void clear() {
         }
+
+        public Item getPaymentType() {
+            return AbstractShopEntity.getPaymentType(items);
+        }
+
+        public int getPrice() {
+            return AbstractShopEntity.getPrice(items);
+        }
+
+        public Item getDisplayItem() {
+            return AbstractShopEntity.getDisplayItem(items);
+        }
+
+        public boolean canTakeItems(PlayerEntity playerEntity) {
+            return hasEnoughStock() && spaceForMoney() && playerEntity.getInventory().contains(items.get(PAYMENT_SLOT));
+        }
+
+        public void insertTradeStack(int index, ItemStack newStack, int count) {
+
+            if(!permissions.canEditTrades())return;
+
+            if (newStack.isEmpty()) return;
+
+            ItemStack thisStack = items.get(index);;
+
+            if (thisStack.isEmpty() || thisStack.getItem() != newStack.getItem()) {
+                this.validatedSetStack(index,newStack.copy());
+                return;
+            }
+
+            int addition = thisStack.getCount() + count;
+
+            if(addition>+64){
+                thisStack.setCount(64);
+            } else {
+                thisStack.setCount(addition);
+            }
+
+            this.validatedSetStack(index,thisStack);
+        }
     }
 
     @Override
@@ -132,8 +250,25 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
         forceUpdateRenderData();
     }
 
-    public Inventory getInventory() {
-        return this.inventoryDelegate;
+    @NotNull
+    public InventoryDelegate getInventoryDelegate(PlayerEntity player) {
+        return new InventoryDelegate(this, userSignIn(player), this.itemStacks);
+    }
+
+    @Nullable
+    public final InventoryDelegate getOtherInventoryDelegate(PlayerEntity player){
+        DefaultedList<ItemStack> inv = otherInventory();
+        
+        if(inv != null){
+            return new InventoryDelegate(this,userSignIn(player),inv);
+        }
+        
+        return null;
+    }
+
+    @Nullable
+    protected DefaultedList<ItemStack> otherInventory(){
+        return null;
     }
 
 
@@ -142,66 +277,53 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
     protected static final int STOCK_END = 53;
     protected static final int PROFIT_END = 75;
 
-    protected UUID ownerID;
-
-    protected String ownerName;
-
 
     public <S extends AbstractShopEntity>AbstractShopEntity(BlockEntityType<S> type, BlockPos pos, BlockState state, float particleOffset) {
         super(type, pos, state);
         this.particleOffset = particleOffset;
-        this.inventoryDelegate = new inventoryDelegate(this);
-
-        this.propertyDelegate = new PropertyDelegate() {
-            @Override
-            public int get(int index) {
-                return AbstractShopEntity.this.inventoryDelegate.getStack(index).getCount();
-            }
-
-            @Override
-            public void set(int index, int value) {
-            }
-
-            @Override
-            public int size() {
-                return 0;
-            }
-        };
+        //this.inventoryDelegate = new InventoryDelegate(this, PermissionLevel.OWNER, this.itemStacks);
 
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
-            this.rendererData = new RendererData(this);
+            this.rendererData = new RendererData(itemStacks,this);
         }
     }
 
     public void setOwner(PlayerEntity player) {
-            this.ownerID = player.getUuid();
-            this.ownerName = player.getEntityName();
-            markDirty();
+        this.ownerID = player.getUuid();
+        this.ownerName = player.getEntityName();
+        markDirty();
     }
 
     public boolean hasEnoughStock(){
+        return hasEnoughStock(itemStacks);
+    }
+
+    public static boolean hasEnoughStock(DefaultedList<ItemStack> items){
         int stock = 0;
-        Item displayItem = this.getDisplayItem();
+        Item displayItem = getDisplayItem(items);
         for (int i = 0; i <= STOCK_END; i++) {
-            if(this.inventoryDelegate.getStack(i).getItem() == displayItem){
-                stock += this.inventoryDelegate.getStack(i).getCount();
-                if(stock >= this.inventoryDelegate.getStack(VENDING_SLOT).getCount()){return true;}
+            if(items.get(i).getItem() == displayItem){
+                stock += items.get(i).getCount();
+                if(stock >= items.get(VENDING_SLOT).getCount()){return true;}
             }
         }
         return false;
     }
 
-    public boolean spaceForMoney(){
+    protected boolean spaceForMoney(){return spaceForMoney(itemStacks);}
+    protected static boolean spaceForMoney(DefaultedList<ItemStack> items){
         int space = 0;
         ItemStack stack;
+        Item paymentType = getPaymentType(items).asItem();
+        int maxStackSize = paymentType.getMaxCount();
         for(int i = PROFIT_END; i > STOCK_END; i--) {
-            stack = this.itemStacks.get(i);
+            stack = items.get(i);
             if(stack.isEmpty()){
-                space += 64;
-            } else if (stack.isOf(this.getPaymentType())) {
-                space += 64 -stack.getCount();
+                space += maxStackSize;
+            } else if (stack.isOf(paymentType)) {
+                space += maxStackSize -stack.getCount();
             }
-            if(space >= this.getPrice()){return true;}
+            if(space >= getPrice(items)){return true;}
         }
         return false;
     }
@@ -217,20 +339,66 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
     @Environment(EnvType.CLIENT)
     public RendererData rendererData(){return  rendererData;}
 
-    @Nullable
+    /*@Nullable
     @Override
     public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
 
         //runs serverside
 
-        int result = player.getUuid().compareTo(ownerID);
+        PermissionLevel perms = userSignIn(player);
 
-        if(result==0) return new ShopScreenHandlerOwner(syncId, playerInventory, this, this.propertyDelegate);
+        if(perms.canViewShopScreen()) return new ShopScreenHandlerOwner(syncId, playerInventory, this.inventoryDelegateConstructor(perms), this.getTextureId());
 
         if(!isShopFunctional()) {return null;}
 
-        return new ShopScreenHandlerCustomer(syncId, playerInventory, this, this.propertyDelegate);
+        return new ShopScreenHandlerCustomer(syncId, playerInventory, this.inventoryDelegateConstructor(perms), this.getTextureId());
+    }*/
+
+
+    @Deprecated
+    @Override
+    public @Nullable final ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
+
+        SpudaciousShops.LOGGER.debug("Attempted to directly retrieve ScreenHandler from shop");
+
+        return null;
     }
+
+    public ExtendedScreenHandlerFactory createScreenHandlerFactory(boolean openTop) {
+
+        return new ExtendedScreenHandlerFactory() {
+            @Override
+            public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
+                buf.writeBlockPos(pos);
+                buf.writeBoolean(openTop);
+            }
+
+            @Override
+            public Text getDisplayName() {
+                return Text.literal("Shop");
+            }
+
+            @Override
+            public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
+                PermissionLevel perms = userSignIn(player);
+
+
+                InventoryDelegate delegate = openTop?getOtherInventoryDelegate(player):getInventoryDelegate(player);
+
+                if (perms.canViewShopScreen()) {
+                    return new ShopScreenHandlerOwner(syncId, playerInventory, delegate, getTextureId());
+                }
+
+                if (!isShopFunctional()) {
+                    return null;
+                }
+
+                return new ShopScreenHandlerCustomer(syncId, playerInventory, delegate, getTextureId());
+            }
+        };
+    }
+    
+    
 
     @Override
     public BlockState getCachedState() {
@@ -238,7 +406,11 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
     }
 
     public Item getPaymentType() {
-        return this.inventoryDelegate.getStack(PAYMENT_SLOT).getItem();
+        return getPaymentType(itemStacks);
+    }
+
+    public static Item getPaymentType(DefaultedList<ItemStack> items) {
+        return items.get(PAYMENT_SLOT).getItem();
     }
 
     protected final boolean functionalCheck(){
@@ -295,27 +467,21 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
         return dir;
     }
 
-    public Item getDisplayItem() {return this.inventoryDelegate.getStack(VENDING_SLOT).getItem();}
+    public  Item getDisplayItem() {return getDisplayItem(itemStacks);}
+    public static Item getDisplayItem(DefaultedList<ItemStack> items) {return items.get(VENDING_SLOT).getItem();}
 
-    public int getVendingQuantity() {return this.inventoryDelegate.getStack(VENDING_SLOT).getCount();}
+    public  int getVendingQuantity() {return getVendingQuantity(itemStacks);}
+    public static int getVendingQuantity(DefaultedList<ItemStack> items) {return items.get(VENDING_SLOT).getCount();}
 
-    public int getPrice() {
-        if(this.itemStacks.get(PAYMENT_SLOT).isEmpty()){return 0;}
-        return this.itemStacks.get(PAYMENT_SLOT).getCount();
+    public int getPrice() {return getPrice(itemStacks);}
+    public static int getPrice(DefaultedList<ItemStack> items) {
+        if(items.get(PAYMENT_SLOT).isEmpty()){return 0;}
+        return items.get(PAYMENT_SLOT).getCount();
     }
 
     @Environment(EnvType.CLIENT)
     public void renderTick() {
             this.rendererData.onTick();
-    }
-
-    public boolean isOwner(PlayerEntity player){
-        return isOwner(player.getUuid());
-    }
-
-    public boolean isOwner(UUID id) {
-        if(ownerID == null){return true;}
-        return id.compareTo(ownerID) == 0;
     }
 
     public boolean canBreak(PlayerEntity player) {
@@ -326,7 +492,7 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
     public void itemScatter(World world, BlockPos pos) {
         itemStacks.set(PAYMENT_SLOT, ItemStack.EMPTY);
         itemStacks.set(VENDING_SLOT, ItemStack.EMPTY);
-        ItemScatterer.spawn(world, pos, inventoryDelegate);
+        ItemScatterer.spawn(world, pos, itemStacks);
     }
 
     //Only call from the CLIENT
@@ -338,11 +504,10 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
     @Override
     public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
         buf.writeBlockPos(this.pos);
+        buf.writeBoolean(false);
     }
 
-    public boolean canTakeItems(PlayerEntity player) {
-        return hasEnoughStock() && spaceForMoney() && player.getInventory().contains(itemStacks.get(PAYMENT_SLOT));
-    }
+
 
     public Text cantBreakMessage() {
         if(ownerName == null){
@@ -426,7 +591,8 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
     @Environment(EnvType.CLIENT)
     public static class RendererData{
 
-        protected final AbstractShopEntity shop;
+        private final DefaultedList<ItemStack> inventory;
+        protected AbstractShopEntity shop;
         public double lastRotation = 0;
         public double targetRotation = 0;
         public double frameRotation = 0;
@@ -449,41 +615,42 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
         public final BlockPos pos;
         protected float qWidth;
 
-        public RendererData(AbstractShopEntity shop1){
-            this.shop = shop1;
-            this.world = shop1.getWorld();
-            pos = shop1.getPos();
+        public RendererData(DefaultedList<ItemStack> inv, AbstractShopEntity shop){
+            this.inventory = inv;
+            this.world = shop.getWorld();
+            this.pos = shop.getPos();
+            this.shop = shop;
         }
 
         public void update(){
             this.shopFunctional = shop.isShopFunctional();
 
             if(this.shopFunctional) {
-                this.paymentItem = new ItemStack(shop.getPaymentType());
+                this.paymentItem = new ItemStack(getPaymentType(inventory));
 
-                this.stockQuantity = Integer.toString(shop.getVendingQuantity());
+                this.stockQuantity = Integer.toString(getVendingQuantity(inventory));
 
-                this.paymentWarning = !this.shop.spaceForMoney();
-                this.stockWarning = !this.shop.hasEnoughStock();
+                this.paymentWarning = !spaceForMoney(inventory);
+                this.stockWarning = !hasEnoughStock(inventory);
 
 
-                this.displayItem = new ItemStack(shop.getDisplayItem());
+                this.displayItem = new ItemStack(getDisplayItem(inventory));
 
                 //this.lightLevel = getLightLevel(shop.getWorld(), shop.getPos());
 
-                this.text = Integer.toString(shop.getPrice());
+                this.text = Integer.toString(getPrice(inventory));
 
                 this.direction = shop.getFacingDirection();
 
                 getRotation();
 
-                if(shop.getPrice()>=10) {
+                if(getPrice(inventory)>=10) {
                     this.width = -7.0f;
                 } else {
                     this.width = -2.5f;
                 }
 
-                if(shop.getVendingQuantity()>=10) {
+                if(getVendingQuantity(inventory)>=10) {
                     this.qWidth = -7.0f;
                 } else {
                     this.qWidth = -2.5f;

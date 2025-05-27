@@ -3,6 +3,7 @@ package net.spudacious5705.shops.screen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.Text;
@@ -28,8 +29,22 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
         playerInventoryTitleX = 1000;
         titleX = 1000;
 
+        tab1Button = addDrawableChild(
+                ButtonWidget.builder(Text.of("Inventory"),button -> handler.updateTabSelection(0))
+                .dimensions(170,200,20,20)
+                .build()
+        );
+
+        tab2Button = addDrawableChild(
+                ButtonWidget.builder(Text.of("Settings"),button -> handler.updateTabSelection(1))
+                        .dimensions(200,200,20,20)
+                        .build()
+        );
 
     }
+
+    ButtonWidget tab1Button;
+    ButtonWidget tab2Button;
 
     @Override
     protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY) {

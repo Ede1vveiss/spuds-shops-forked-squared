@@ -2,6 +2,7 @@ package net.spudacious5705.shops.block.custom;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.MapCodec;
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
@@ -10,7 +11,6 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
-import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.*;
@@ -35,7 +35,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Function;
 
 
-public abstract class AbstractShopBlock extends BlockWithEntity implements BlockEntityProvider {
+public abstract class AbstractShopBlock extends BlockWithEntity implements BlockEntityProvider{
 
     public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
     public static final BooleanProperty BREAKABLE = ModProperties.BREAKABLE;
@@ -119,7 +119,7 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
     @Override
     public abstract BlockEntity createBlockEntity(BlockPos pos, BlockState state);
 
-    private static PermissionLevel userSignIn(World world, BlockPos pos, PlayerEntity player) {
+    protected static PermissionLevel userSignIn(World world, BlockPos pos, PlayerEntity player) {
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof AbstractShopEntity shopEntity) {
             return shopEntity.userSignIn(player);
@@ -164,8 +164,10 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
 
         @Override
         public ActionResult onUse(World world, PlayerEntity player, Hand hand, BlockHitResult hit) {
-            BlockPos pos = hit.getBlockPos();
+
             if (world.isClient) return ActionResult.SUCCESS;
+
+            BlockPos pos = hit.getBlockPos();
 
             ItemStack stack = player.getStackInHand(hand);
 
@@ -179,13 +181,16 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
                 if(((AbstractShopBlock)getBlock()).onUseWithItem(stack,this.asBlockState(),world,pos,player)) return ActionResult.SUCCESS;
             }
 
-            NamedScreenHandlerFactory screenHandlerFactory = (AbstractShopEntity)world.getBlockEntity(pos);
+            if(world.getBlockEntity(pos) instanceof AbstractShopEntity shop){
+                ExtendedScreenHandlerFactory screenHandlerFactory = shop.createScreenHandlerFactory(false);
             if (screenHandlerFactory != null) {
                 player.openHandledScreen(screenHandlerFactory);
-            }
+            }}
 
             return ActionResult.SUCCESS;
         }
+
+
 
         @Override
         public abstract VoxelShape getCullingShape(BlockView world, BlockPos pos);

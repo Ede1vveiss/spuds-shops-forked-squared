@@ -1,37 +1,37 @@
 package net.spudacious5705.shops.properties;
 
 public enum PermissionLevel {
-    SERVER_ADMIN(true, false,false,false,false,false,false),
-    OWNER(true,true,true,true,true,true,true),
-    MANAGER(false,true,true,true,true,false,true),
-    SUPERVISOR(false,false,true,true,true,false,true),
-    CLERK(false,false,true,false,false,false,true),
-    CUSTOMER(false,false,false,false,false,false,false);
+    SERVER_ADMIN(true, false,false,false,false,false,-1),
+    OWNER(true,true,true,true,true,true,4),
+    MANAGER(false,true,true,true,false,true,3),
+    SUPERVISOR(false,false,true,true,false,true,2),
+    CLERK(false,false,true,false,false,true,1),
+    CUSTOMER(false,false,false,false,false,false,0);
 
     final boolean breakBlock;
     final boolean editPermissions;
     final boolean importStock;
-    final boolean importCurrency;
     final boolean takeItems;
     final boolean editTrades;
     final boolean viewShopScreen;
+    final int level;
 
         PermissionLevel(
                 boolean breakBlock,
                 boolean editPermissions,
                 boolean importStock,
-                boolean importCurrency,
                 boolean takeItems,
                 boolean editTrades,
-                boolean viewShopScreen
+                boolean viewShopScreen,
+                int level
         ) {
             this.breakBlock = breakBlock;
             this.editPermissions = editPermissions;
             this.importStock = importStock;
-            this.importCurrency = importCurrency;
             this.takeItems = takeItems;
             this.editTrades = editTrades;
             this.viewShopScreen = viewShopScreen;
+            this.level = level;
         }
 
         // Optionally, add getter methods to access the field values
@@ -43,9 +43,6 @@ public enum PermissionLevel {
             return importStock;
         }
 
-        public boolean canImportCurrency() {
-            return importCurrency;
-        }
 
         public boolean canTakeItems() {
             return takeItems;
@@ -63,4 +60,7 @@ public enum PermissionLevel {
         return editPermissions;
     }
 
+    public int asInt() {
+            return level;
+    }
 }

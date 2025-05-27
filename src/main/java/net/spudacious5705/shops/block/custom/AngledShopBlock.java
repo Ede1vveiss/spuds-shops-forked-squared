@@ -3,6 +3,7 @@ package net.spudacious5705.shops.block.custom;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.MapCodec;
 import net.fabricmc.fabric.api.block.BlockPickInteractionAware;
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
@@ -26,6 +27,7 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import net.spudacious5705.shops.block.entity.AbstractShopEntity;
 import net.spudacious5705.shops.block.entity.AngledShopEntity;
 import net.spudacious5705.shops.block.entity.ModBlockEntities;
 import net.spudacious5705.shops.item.custom.ShopItem;
@@ -92,6 +94,10 @@ public class AngledShopBlock extends AbstractShopBlock implements BlockPickInter
         WOOD_TYPE = woodType;
     }
 
+    @Override
+    public Item asItem() {
+        return getDefaultColouredShopItem();
+    }
 
     @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
@@ -115,14 +121,6 @@ public class AngledShopBlock extends AbstractShopBlock implements BlockPickInter
         return new AngledShopEntity(pos, state);
     }
 
-    private static PermissionLevel userSignIn(World world, BlockPos pos, PlayerEntity player) {
-        BlockEntity blockEntity = world.getBlockEntity(pos);
-        if (blockEntity instanceof AngledShopEntity shopEntity) {
-            return shopEntity.userSignIn(player);
-        }
-        return PermissionLevel.CUSTOMER;
-    }
-
     @Override
     public ItemStack getPickedStack(BlockState state, BlockView view, BlockPos pos, PlayerEntity player, HitResult result) {
         Colour colour = Colour.RED;
@@ -136,32 +134,6 @@ public class AngledShopBlock extends AbstractShopBlock implements BlockPickInter
 
         public AngledShopBlockState(Block block, ImmutableMap<Property<?>, Comparable<?>> immutableMap, MapCodec<BlockState> mapCodec) {
             super(block, immutableMap, mapCodec);
-        }
-
-        @Override
-        public ActionResult onUse(World world, PlayerEntity player, Hand hand, BlockHitResult hit) {
-            BlockPos pos = hit.getBlockPos();
-            if (world.isClient) return ActionResult.SUCCESS;
-
-            ItemStack stack = player.getStackInHand(hand);
-
-            BlockEntity be = world.getBlockEntity(pos);
-
-            if (!(be instanceof AngledShopEntity)) return ActionResult.FAIL;
-
-            PermissionLevel perm = userSignIn(world, pos, player);
-
-            if (!stack.isEmpty() && perm.canEditTrades()) {
-                if (((AngledShopBlock) getBlock()).onUseWithItem(stack, this.asBlockState(), world, pos, player))
-                    return ActionResult.SUCCESS;
-            }
-
-            NamedScreenHandlerFactory screenHandlerFactory = (AngledShopEntity) world.getBlockEntity(pos);
-            if (screenHandlerFactory != null) {
-                player.openHandledScreen(screenHandlerFactory);
-            }
-
-            return ActionResult.SUCCESS;
         }
 
         @Override

@@ -2,6 +2,7 @@ package net.spudacious5705.shops.block;
 
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -32,7 +33,8 @@ public abstract class ModBlocks{
                 .resistance(Float.MAX_VALUE);
     }
 
-    private static final List<AbstractShopBlock> ALL_SHOPS = new ArrayList<>(20);
+    public static final List<AbstractShopBlock> ALL_SHOPS = new ArrayList<>();
+    public static final List<ShelfShopBlock> ALL_SHELF_SHOPS = new ArrayList<>(11);
 
     public static final AngledShopBlock SHOP_BLOCK_ANGLED_ACACIA = registerAngledShopBlock("acacia", Items.ACACIA_PLANKS);
     public static final AngledShopBlock SHOP_BLOCK_ANGLED_BAMBOO = registerAngledShopBlock("bamboo", Items.BAMBOO_PLANKS);
@@ -55,6 +57,19 @@ public abstract class ModBlocks{
 
     public static final CrateShopBlock SHOP_BLOCK_CRATE = registerBasic("crate_shop",new CrateShopBlock(settingsWood));
 
+    public static final ShelfShopBlock SHOP_BLOCK_SHELF_ACACIA = registerShelf("acacia",Blocks.ACACIA_SLAB);
+    public static final ShelfShopBlock SHOP_BLOCK_SHELF_BAMBOO = registerShelf("bamboo",Blocks.BAMBOO_SLAB);
+    public static final ShelfShopBlock SHOP_BLOCK_SHELF_BIRCH = registerShelf("birch",Blocks.BIRCH_SLAB);
+    public static final ShelfShopBlock SHOP_BLOCK_SHELF_CHERRY = registerShelf("cherry",Blocks.CHERRY_SLAB);
+    public static final ShelfShopBlock SHOP_BLOCK_SHELF_CRIMSON = registerShelf("crimson",Blocks.CRIMSON_SLAB);
+    public static final ShelfShopBlock SHOP_BLOCK_SHELF_DARK_OAK = registerShelf("dark_oak",Blocks.DARK_OAK_SLAB);
+    public static final ShelfShopBlock SHOP_BLOCK_SHELF_MANGROVE = registerShelf("mangrove",Blocks.MANGROVE_SLAB);
+    public static final ShelfShopBlock SHOP_BLOCK_SHELF_OAK = registerShelf("oak",Blocks.OAK_SLAB);
+    public static final ShelfShopBlock SHOP_BLOCK_SHELF_SPRUCE = registerShelf("spruce",Blocks.SPRUCE_SLAB);
+    public static final ShelfShopBlock SHOP_BLOCK_SHELF_WARPED = registerShelf("warped",Blocks.WARPED_SLAB);
+    public static final ShelfShopBlock SHOP_BLOCK_SHELF_JUNGLE = registerShelf("jungle",Blocks.JUNGLE_SLAB);
+
+
     private static <S extends AbstractShopBlock> S registerBasic(String name, S shop){
         Identifier id = SpudaciousShops.id(name);
         Registry.register(
@@ -70,6 +85,12 @@ public abstract class ModBlocks{
                         shop
                 )
         );
+    }
+
+    private static ShelfShopBlock registerShelf(String name, Block slab){
+        ShelfShopBlock newShop = registerBasic("shelf_shop_"+name,new ShelfShopBlock(settingsWood,slab,name));
+        ALL_SHELF_SHOPS.add(newShop);
+        return newShop;
     }
 
     private static WindowSillShopBlock registerWindowShopBlock(String name, Item stoneType) {

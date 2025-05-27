@@ -12,5 +12,6 @@ public class SpudaciousShopsDataGenerator implements DataGeneratorEntrypoint {
 		pack.addProvider(ModBlockTagProvider::new);//runs the datagen classes
 		pack.addProvider(ModLootTableProvider::new);
 		pack.addProvider(ModRecipeProvider::new);//all the crafting and smelting ect recipies
+		pack.addProvider(blockstateProvider::new);
 	}
 }

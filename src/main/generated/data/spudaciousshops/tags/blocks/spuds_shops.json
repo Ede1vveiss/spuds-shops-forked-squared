@@ -16,6 +16,17 @@
     "spudaciousshops:shop_window_andesite",
     "spudaciousshops:hook_shop",
     "spudaciousshops:rug_shop",
-    "spudaciousshops:crate_shop"
+    "spudaciousshops:crate_shop",
+    "spudaciousshops:shelf_shop_acacia",
+    "spudaciousshops:shelf_shop_bamboo",
+    "spudaciousshops:shelf_shop_birch",
+    "spudaciousshops:shelf_shop_cherry",
+    "spudaciousshops:shelf_shop_crimson",
+    "spudaciousshops:shelf_shop_dark_oak",
+    "spudaciousshops:shelf_shop_mangrove",
+    "spudaciousshops:shelf_shop_oak",
+    "spudaciousshops:shelf_shop_spruce",
+    "spudaciousshops:shelf_shop_warped",
+    "spudaciousshops:shelf_shop_jungle"
   ]
 }

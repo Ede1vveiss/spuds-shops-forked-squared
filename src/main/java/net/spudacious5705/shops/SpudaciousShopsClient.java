@@ -49,6 +49,7 @@ public class SpudaciousShopsClient implements ClientModInitializer {
         BlockEntityRendererFactories.register(ModBlockEntities.HOOK_SHOP_ENTITY, HookShopEntityRenderer::new);
         BlockEntityRendererFactories.register(ModBlockEntities.RUG_SHOP_ENTITY, RugShopEntityRenderer::new);
         BlockEntityRendererFactories.register(ModBlockEntities.CRATE_SHOP_ENTITY, CrateShopEntityRenderer::new);
+        BlockEntityRendererFactories.register(ModBlockEntities.SHELF_SHOP_ENTITY, ShelfShopEntityRenderer::new);
 
     }
 }

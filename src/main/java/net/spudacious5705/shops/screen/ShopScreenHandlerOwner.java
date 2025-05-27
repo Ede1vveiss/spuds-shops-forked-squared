@@ -1,30 +1,33 @@
 package net.spudacious5705.shops.screen;
 
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.screen.ArrayPropertyDelegate;
-import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
+import net.minecraft.text.Text;
+import net.minecraft.util.math.BlockPos;
 import net.spudacious5705.shops.block.entity.AbstractShopEntity;
-import net.spudacious5705.shops.block.entity.AngledShopEntity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ShopScreenHandlerOwner extends ScreenHandler {
-    private final Inventory shopInventory;
+    private final AbstractShopEntity.InventoryDelegate shopInventory;
     //private final PropertyDelegate propertyDelegate;
-    public final AbstractShopEntity shop;
+
+    private final PlayerInventory playerInventory;
 
     final int SCREEN_TEXTURE_ID;
 
-    public ShopScreenHandlerOwner(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {
-        this(syncId, playerInventory, (AbstractShopEntity) playerInventory.player.getWorld().getBlockEntity(buf.readBlockPos()),
-                new ArrayPropertyDelegate(1));
-    }
-
-
+    private final List<TogglableSlot> playerInvSlots = new ArrayList<>();
+    private final List<TogglableSlot> tab1Slots = new ArrayList<>();
+    private final List<TogglableSlot> tab2Slots = new ArrayList<>();
 
 
     private  static final int PAYMENT_SLOT = 76;
@@ -34,29 +37,82 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
     private static final int stock_itemStacks_start = 0;
     private static final int stock_itemStacks_range = 53;
 
-    public ShopScreenHandlerOwner(int syncId, PlayerInventory playerInventory, AbstractShopEntity shop, PropertyDelegate arrayPropertyDelegate) {
+    public ShopScreenHandlerOwner(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {//clientInit
         super(ModScreenHandlers.SHOP_SCREEN_HANDLER_OWNER, syncId);
-        Inventory inv = shop.getInventory();
-        checkSize(inv, 78 );
-        this.shopInventory = inv;
+        BlockPos pos = buf.readBlockPos();
+        boolean openTop = buf.readBoolean();
+        PlayerEntity player = playerInventory.player;
+
+        this.playerInventory = playerInventory;
         playerInventory.onOpen(playerInventory.player);
-        //this.propertyDelegate = arrayPropertyDelegate;
-        this.shop = shop;
-        this.SCREEN_TEXTURE_ID = shop.getTextureId();
+
+        if(player.getWorld().getBlockEntity(pos) instanceof AbstractShopEntity shop) {
+            AbstractShopEntity.InventoryDelegate inventoryDelegate = null;
+
+            if (openTop) {
+                inventoryDelegate = shop.getOtherInventoryDelegate(player);
+            }
+
+            if (inventoryDelegate == null) {
+                inventoryDelegate = shop.getInventoryDelegate(player);
+            }
+            checkSize(inventoryDelegate, 78 );
+            this.shopInventory = inventoryDelegate;
+
+            this.SCREEN_TEXTURE_ID = shop.getTextureId();
+
+            finishSetup();
+        } else {
+            MinecraftClient.getInstance().setScreen(null);
+            this.shopInventory = null;
+            this.SCREEN_TEXTURE_ID = 0;
+        }
+    }
+
+    public ShopScreenHandlerOwner(int syncId, PlayerInventory playerInventory, AbstractShopEntity.InventoryDelegate inventory, int SCREEN_TEXTURE_ID) {//serverInit
+        super(ModScreenHandlers.SHOP_SCREEN_HANDLER_OWNER, syncId);
+        checkSize(inventory, 78 );
+        this.shopInventory = inventory;
+        this.SCREEN_TEXTURE_ID = SCREEN_TEXTURE_ID;
+        this.playerInventory = playerInventory;
+        playerInventory.onOpen(playerInventory.player);
+        finishSetup();
+    }
+
+    private void finishSetup() {
 
 
         addPlayerInventory(playerInventory);
 
         addShopInventory();
 
-        this.addSlot(new shop_set_slot(shopInventory, PAYMENT_SLOT, 23, 11));
-        this.addSlot(new shop_set_slot(shopInventory, VENDING_SLOT, 23, 49));
+        new shop_trade_slot(shopInventory, PAYMENT_SLOT, 23, 11);
+        new shop_trade_slot(shopInventory, VENDING_SLOT, 23, 49);
+
+        activeTab = 0;
 
 
-        this.addProperties(arrayPropertyDelegate);
 
+    }
 
+    private int activeTab = 0;
+    void updateTabSelection(int tab){
+        activeTab = tab;
+        updateTabSelection();
+    }
+    void updateTabSelection(){
+        if(activeTab == 0){
+            tab1Slots.forEach(TogglableSlot::enable);
+            playerInvSlots.forEach(TogglableSlot::enable);
 
+            tab2Slots.forEach(TogglableSlot::disable);
+        }
+        if(activeTab == 1){
+            tab2Slots.forEach(TogglableSlot::enable);
+
+            tab1Slots.forEach(TogglableSlot::disable);
+            playerInvSlots.forEach(TogglableSlot::disable);
+        }
     }
 
     public void addShopInventory(){
@@ -65,23 +121,27 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
 
         for (int i = 0; i<6; ++i){
             for (int j = 0; j<9; ++j){
-                this.addSlot(new Slot(shopInventory,j+i*9,offsetx + j*18,offsety + i*18));
+                createShopInvSlot(j+i*9,offsetx + j*18,offsety + i*18);
             }
         }
         offsetx += -44;
         offsety += 112;
 
         for (int i = 0; i<11; ++i){
-            this.addSlot(new Slot(shopInventory,profit_itemStacks_start+i,offsetx+i*18,offsety));
+            createShopInvSlot(profit_itemStacks_start+i,offsetx+i*18,offsety);
         }
         offsety += 18;
 
         for (int i = 0; i<11; ++i){
-            this.addSlot(new Slot(shopInventory,profit_itemStacks_start+11+i,offsetx+i*18,offsety));
+            createShopInvSlot(profit_itemStacks_start+11+i,offsetx+i*18,offsety);
         }
 
+    }
 
-
+    private void createShopInvSlot(int index, int x, int y){
+        TogglableSlot slot = new TogglableSlot(shopInventory,index,x,y);
+        tab1Slots.add(slot);
+        addSlot(slot);
     }
 
 
@@ -92,12 +152,12 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
 
         for (int i = 0; i < 3; ++i) {
             for (int l = 0; l < 9; ++l) {
-                this.addSlot(new player_slot(playerInventory, l + i * 9 + 9, offsetx + l * 18, offsety + i * 18));
+                new player_slot(playerInventory, l + i * 9 + 9, offsetx + l * 18, offsety + i * 18);
             }
         }
         offsety += 58;
         for (int i = 0; i < 9; ++i) {
-            this.addSlot(new player_slot(playerInventory, i, offsetx + i * 18, offsety));
+            new player_slot(playerInventory, i, offsetx + i * 18, offsety);
         }
     }
 
@@ -105,11 +165,11 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
     public ItemStack quickMove(PlayerEntity player, int invSlot) {
         ItemStack newStack = ItemStack.EMPTY;
         Slot slot = this.slots.get(invSlot);
-        if (slot == null || !slot.hasStack()) {return newStack;}
+        if (!slot.hasStack()) {return newStack;}
         ItemStack originalStack = slot.getStack();
         newStack = originalStack.copy();
 
-        if(this.slots.get(invSlot) instanceof shop_set_slot){return ItemStack.EMPTY;}
+        if(this.slots.get(invSlot) instanceof shop_trade_slot){return ItemStack.EMPTY;}
 
         if(this.slots.get(invSlot) instanceof player_slot){
             if (!this.insertItem(originalStack, 36, 90, false)) {
@@ -146,19 +206,51 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
         return this.SCREEN_TEXTURE_ID;
     }
 
-    static class player_slot extends Slot {
+    class TogglableSlot extends Slot {
+        private boolean toggled = true;
+        public TogglableSlot(Inventory inventory, int index, int x, int y) {
+            super(inventory, index, x, y);
+        }
 
+        @Override
+        public boolean isEnabled() {
+            return toggled;
+        }
+
+        public void enable(){
+            toggled=true;
+        }
+
+        public void disable(){
+            toggled=false;
+        }
+    }
+
+    ;
+
+    class player_slot extends TogglableSlot {
+        /**
+         *
+         * Automatically adds itself to the neccecary lists
+         */
         public player_slot(Inventory inventory, int index, int x, int y) {
             super(inventory, index, x, y);
+            playerInvSlots.add(this);
+            addSlot(this);
         }
 
         public boolean isPlayerSlot() {return true;}
     }
 
-    static class shop_set_slot extends Slot {
+    class shop_trade_slot extends TogglableSlot {
 
-        public shop_set_slot(Inventory inventory, int index, int x, int y) {
+        public final AbstractShopEntity.InventoryDelegate inventory;
+
+        public shop_trade_slot(AbstractShopEntity.InventoryDelegate inventory, int index, int x, int y) {
             super(inventory, index, x, y);
+            this.inventory = inventory;
+            tab1Slots.add(this);
+            addSlot(this);
         }
 
         @Override
@@ -173,30 +265,9 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
             return this.getStack().getItem() == stack.getItem() || this.getStack().isEmpty();
         }
 
-
-
         @Override
         public ItemStack insertStack(ItemStack newStack, int count) {
-
-            if (newStack.isEmpty()) {return newStack;}
-
-            ItemStack thisStack = this.getStack();
-
-            if (thisStack.isEmpty() || thisStack.getItem() != newStack.getItem()) {
-                this.setStack(newStack.copy());
-                return newStack;
-            }
-
-            int addition = thisStack.getCount() + count;
-
-            if(addition>+64){
-                thisStack.setCount(64);
-            } else {
-                thisStack.setCount(addition);
-            }
-
-            this.setStack(thisStack);
-
+            this.inventory.insertTradeStack(this.getIndex(),newStack, count);
             return newStack;
         }
 

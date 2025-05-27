@@ -10,6 +10,7 @@ import net.minecraft.item.Items;
 import net.minecraft.recipe.book.RecipeCategory;
 import net.spudacious5705.shops.block.ModBlocks;
 import net.spudacious5705.shops.block.custom.AngledShopBlock;
+import net.spudacious5705.shops.block.custom.ShelfShopBlock;
 import net.spudacious5705.shops.item.ModItems;
 import net.spudacious5705.shops.util.CushionResources;
 import net.spudacious5705.shops.properties.Colour;
@@ -28,7 +29,7 @@ public class ModRecipeProvider extends FabricRecipeProvider {
         for(Colour colour: Colour.values()) {
 
             for(Wood wood: Wood.values()){
-                makeShopRecipe(consumer, wood.angledShopBlock.getColouredShopItem(colour),wood.block,CushionResources.COLOUR_MAP.get(colour).wool());
+                makeAngledShopRecipe(consumer, wood.angledShopBlock.getColouredShopItem(colour),wood.block,CushionResources.COLOUR_MAP.get(colour).wool());
             }
 
         }
@@ -93,9 +94,11 @@ public class ModRecipeProvider extends FabricRecipeProvider {
                 .criterion(hasItem(Items.FEATHER), conditionsFromItem(Items.FEATHER))
                 .offerTo(consumer);
 
+
+
     }
 
-    private void makeShopRecipe(Consumer<RecipeJsonProvider> consumer, Item shopItem, Block wood, Item wool){
+    private void makeAngledShopRecipe(Consumer<RecipeJsonProvider> consumer, Item shopItem, Block wood, Item wool){
         ShapedRecipeJsonBuilder.create(RecipeCategory.BUILDING_BLOCKS, shopItem)
                 .pattern(" g ").pattern("pwp").pattern("ccc")
                 .input('g', Blocks.GLASS)
@@ -108,6 +111,19 @@ public class ModRecipeProvider extends FabricRecipeProvider {
                 .criterion(hasItem(wood), conditionsFromItem(wood))
                 .criterion(hasItem(wool),
                         conditionsFromItem(wool))
+                .offerTo(consumer);
+
+    }
+
+    private void makeShelfShopRecipe(Consumer<RecipeJsonProvider> consumer, ShelfShopBlock shopItem){
+        Block slab = shopItem.SlabWoodType;
+
+        ShapedRecipeJsonBuilder.create(RecipeCategory.BUILDING_BLOCKS, shopItem)
+                .pattern("ccc").pattern("sss").pattern("ccc")
+                .input('c', Blocks.CHEST)
+                .input('s', slab)
+                .criterion(hasItem(Blocks.CHEST),conditionsFromItem(Blocks.CHEST))
+                .criterion(hasItem(slab), conditionsFromItem(slab))
                 .offerTo(consumer);
 
     }
