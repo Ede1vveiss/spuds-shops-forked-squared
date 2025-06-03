@@ -58,7 +58,7 @@ public class CrateShopEntityRenderer implements BlockEntityRenderer<CrateShopEnt
         if(data == null){
             return;
         }
-        data.tickAccumulator(tickDelta);
+        data.frameAccumulator();
 
         if (data.shopFunctional()) {
 

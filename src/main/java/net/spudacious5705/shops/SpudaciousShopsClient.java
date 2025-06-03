@@ -10,6 +10,7 @@ import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import net.spudacious5705.shops.block.ModBlocks;
 import net.spudacious5705.shops.block.entity.ModBlockEntities;
 import net.spudacious5705.shops.block.entity.renderer.*;
+import net.spudacious5705.shops.screen.networking.NetworkHelper;
 import net.spudacious5705.shops.util.CushionModel;
 import net.spudacious5705.shops.util.CushionResources;
 import net.spudacious5705.shops.util.CushionTextures;
@@ -51,5 +52,6 @@ public class SpudaciousShopsClient implements ClientModInitializer {
         BlockEntityRendererFactories.register(ModBlockEntities.CRATE_SHOP_ENTITY, CrateShopEntityRenderer::new);
         BlockEntityRendererFactories.register(ModBlockEntities.SHELF_SHOP_ENTITY, ShelfShopEntityRenderer::new);
 
+        NetworkHelper.initialiseCLIENT();
     }
 }

@@ -72,7 +72,7 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
      * dont forget to include facing.(or call super)
     */
     protected AbstractShopBlockState defaultStateProperties(AbstractShopBlockState state){
-        return (AbstractShopBlockState) state.with(FACING, Direction.NORTH);
+        return (AbstractShopBlockState) state.with(FACING, Direction.SOUTH);
     }
 
     @Override
@@ -96,7 +96,7 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
             if (placer instanceof PlayerEntity player) {
                 BlockEntity blockEntity = world.getBlockEntity(pos);
                 if (blockEntity instanceof AbstractShopEntity shopEntity) {
-                    shopEntity.setOwner(player);
+                    shopEntity.userSignIn(player);
                 }
             }
         }
@@ -138,8 +138,7 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
             if(this.getBlock() instanceof AbstractShopBlock) {
                 AbstractShopEntity shop = (AbstractShopEntity) world.getBlockEntity(pos);
                 assert shop != null;
-                PermissionLevel perms = shop.userSignIn(player);
-                if (perms.canBreakBlock()) {
+                if (shop.canBreak(player)) {
                     world.setBlockState(pos, this.withIfExists(BREAKABLE, true));
                     world.scheduleBlockTick(pos, this.owner, 140, TickPriority.EXTREMELY_HIGH);
                 } else {

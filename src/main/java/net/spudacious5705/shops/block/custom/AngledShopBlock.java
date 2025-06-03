@@ -105,7 +105,7 @@ public class AngledShopBlock extends AbstractShopBlock implements BlockPickInter
             if (placer instanceof PlayerEntity player) {
                 BlockEntity blockEntity = world.getBlockEntity(pos);
                 if (blockEntity instanceof AngledShopEntity shopEntity) {
-                    shopEntity.setOwner(player);
+                    shopEntity.userSignIn(player);
                     if (itemStack.getItem() instanceof ShopItem item) {
                         shopEntity.setCushionColour(item.colour);
                     }

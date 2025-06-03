@@ -46,7 +46,7 @@ public class AngledShopBlockRenderer implements BlockEntityRenderer<AngledShopEn
         if(data == null){
             return;
         }
-        data.tickAccumulator(tickDelta);
+        data.frameAccumulator();
         if (data.shopFunctional()) {
 
             //render item being sold

@@ -11,6 +11,7 @@ import net.spudacious5705.shops.item.ModItems;
 import net.spudacious5705.shops.lootcondition.ModLootConditions;
 import net.spudacious5705.shops.properties.ModProperties;
 import net.spudacious5705.shops.screen.ModScreenHandlers;
+import net.spudacious5705.shops.screen.networking.NetworkHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +39,8 @@ public class SpudaciousShops implements ModInitializer {
 		//DebugShopsStatesCommand.register(); //for DEBUG purposes only
 
 		ModLootConditions.registerLootConditions();
+
+		NetworkHelper.initialiseSERVER();
 	}
 
 	public static Identifier id(String path) {

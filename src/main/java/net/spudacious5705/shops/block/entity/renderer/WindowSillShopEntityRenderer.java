@@ -27,7 +27,7 @@ public class WindowSillShopEntityRenderer implements BlockEntityRenderer<WindowS
         if(data == null){
             return;
         }
-        data.tickAccumulator(tickDelta);
+        data.frameAccumulator();
 
         if (data.shopFunctional()) {
 

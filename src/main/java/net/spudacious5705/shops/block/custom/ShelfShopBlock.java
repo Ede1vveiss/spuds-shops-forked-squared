@@ -3,9 +3,7 @@ package net.spudacious5705.shops.block.custom;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.MapCodec;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ShapeContext;
+import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
@@ -23,16 +21,20 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldView;
 import net.spudacious5705.shops.block.entity.AbstractShopEntity;
 import net.spudacious5705.shops.block.entity.ModBlockEntities;
 import net.spudacious5705.shops.block.entity.ShelfShopEntity;
 import net.spudacious5705.shops.properties.PermissionLevel;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
 import static net.spudacious5705.shops.block.custom.CrateShopBlock.SHAPE_NORTH;
@@ -96,9 +98,25 @@ public class ShelfShopBlock extends AbstractShopBlock{
             return blockState.with(SHELVES_ENABLED, SlabType.DOUBLE);
         }
 
+        Direction finalDirection = ctx.getHorizontalPlayerFacing().getOpposite();
+        PlayerEntity player = ctx.getPlayer();
+        if(player != null){
+            World world = ctx.getWorld();
+
+            for(Direction direction : Direction.getEntityFacingOrder(player)){
+                if(direction.getHorizontal() != -1) {
+                    BlockPos facingBlockPos = blockPos.offset(direction);
+                    if(world.getBlockState(facingBlockPos).isSideSolid(world, facingBlockPos, direction.getOpposite(), SideShapeType.FULL)){
+                        finalDirection = direction.getOpposite();
+                        break;
+                    }
+                }
+            }
+        }
+
         SlabType type = ((ctx.getHitPos().y - ctx.getBlockPos().getY()) > 0.5) ? SlabType.TOP : SlabType.BOTTOM;
         return getPlacementState(ctx, this.getDefaultState()
-                .with(FACING, ctx.getHorizontalPlayerFacing().getOpposite())
+                .with(FACING, finalDirection)
                 .with(BREAKABLE, false)
                 .with(SHELVES_ENABLED, type));
     }
@@ -174,6 +192,12 @@ public class ShelfShopBlock extends AbstractShopBlock{
         public boolean canReplace(ItemPlacementContext context) {
             if(this.get(SHELVES_ENABLED) == SlabType.DOUBLE) return false;
             return context.getStack().isOf(this.getBlock().asItem());
+        }
+
+        @Override
+        public boolean canPlaceAt(WorldView world, BlockPos pos) {
+            Predicate<Direction> predicate = direction -> world.getBlockState(pos.offset(direction)).isSideSolid(world,pos.offset(direction),direction.getOpposite(), SideShapeType.FULL);
+            return predicate.test(Direction.NORTH)||predicate.test(Direction.SOUTH)||predicate.test(Direction.EAST)||predicate.test(Direction.WEST);
         }
 
         @Override

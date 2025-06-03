@@ -15,7 +15,10 @@ import net.spudacious5705.shops.item.ModItems;
 import net.spudacious5705.shops.util.CushionResources;
 import net.spudacious5705.shops.properties.Colour;
 
+import java.util.List;
 import java.util.function.Consumer;
+
+import static net.spudacious5705.shops.block.ModBlocks.getAllShops;
 
 public class ModRecipeProvider extends FabricRecipeProvider {
     public ModRecipeProvider(FabricDataOutput output) {
@@ -32,6 +35,15 @@ public class ModRecipeProvider extends FabricRecipeProvider {
                 makeAngledShopRecipe(consumer, wood.angledShopBlock.getColouredShopItem(colour),wood.block,CushionResources.COLOUR_MAP.get(colour).wool());
             }
 
+        }
+
+        List<ShelfShopBlock> shelfShops = getAllShops().stream()
+                .filter(ShelfShopBlock.class::isInstance)
+                .map(ShelfShopBlock.class::cast)
+                .toList();
+
+        for(ShelfShopBlock shelf : shelfShops){
+            makeShelfShopRecipe(consumer,shelf);
         }
 
         ShapedRecipeJsonBuilder.create(RecipeCategory.BUILDING_BLOCKS, ModBlocks.SHOP_BLOCK_HOOK.asItem())
@@ -118,7 +130,7 @@ public class ModRecipeProvider extends FabricRecipeProvider {
     private void makeShelfShopRecipe(Consumer<RecipeJsonProvider> consumer, ShelfShopBlock shopItem){
         Block slab = shopItem.SlabWoodType;
 
-        ShapedRecipeJsonBuilder.create(RecipeCategory.BUILDING_BLOCKS, shopItem)
+        ShapedRecipeJsonBuilder.create(RecipeCategory.BUILDING_BLOCKS, shopItem, 2)
                 .pattern("ccc").pattern("sss").pattern("ccc")
                 .input('c', Blocks.CHEST)
                 .input('s', slab)

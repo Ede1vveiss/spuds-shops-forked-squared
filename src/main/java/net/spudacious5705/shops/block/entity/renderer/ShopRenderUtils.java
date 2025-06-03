@@ -14,7 +14,11 @@ import net.spudacious5705.shops.block.entity.AbstractShopEntity.RendererData;
 
 public interface ShopRenderUtils {
 
-     static void renderShopWarns(float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay, final RendererData data, BlockEntityRendererFactory.Context context, float yOffset) {
+    static void renderShopWarns(float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay, final RendererData data, BlockEntityRendererFactory.Context context, float yOffset) {
+        renderShopWarns(tickDelta, matrices, vertexConsumers, light, overlay, data, context, yOffset, 0.5f);
+    }
+
+        static void renderShopWarns(float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay, final RendererData data, BlockEntityRendererFactory.Context context, float yOffset, float scale) {
             if(data.stockWarning || data.paymentWarning){
 
                 if(data.updateIconRotation()) {
@@ -47,7 +51,7 @@ public interface ShopRenderUtils {
                 matrices.translate(0.5f, 1.4f + yOffset, 0.5f);
                 matrices.multiply(RotationAxis.POSITIVE_Y.rotation((float)data.lastRotation));
                 matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(90.0f));
-                matrices.scale(0.5f, 0.5f, 0.5f);
+                matrices.scale(scale, scale, scale);
 
                 if(data.stockWarning && data.paymentWarning){
 

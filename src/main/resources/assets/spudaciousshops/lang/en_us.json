@@ -32,5 +32,42 @@
   "item.spudaciousshops.rug_shop": "Rug Shop",
   "block.spudaciousshops.crate_shop": "Merchant's Crate",
   "item.spudaciousshops.crate_shop": "Merchant's Crate",
-  "item.spudaciousshops.contract_scroll": "Contract Scroll"
+  "item.spudaciousshops.contract_scroll": "Contract Scroll",
+  "gui.spudaciousshops.owner": "OWNER",
+  "gui.spudaciousshops.manager": "MANAGER",
+  "gui.spudaciousshops.supervisor": "SUPERVISOR",
+  "gui.spudaciousshops.clerk": "CLERK",
+
+  "block.spudaciousshops.shelf_shop_acacia": "Acacia Shelf Shop",
+  "item.spudaciousshops.shelf_shop_acacia": "Acacia Shelf Shop",
+
+  "block.spudaciousshops.shelf_shop_bamboo": "Bamboo Shelf Shop",
+  "item.spudaciousshops.shelf_shop_bamboo": "Bamboo Shelf Shop",
+
+  "block.spudaciousshops.shelf_shop_birch": "Birch Shelf Shop",
+  "item.spudaciousshops.shelf_shop_birch": "Birch Shelf Shop",
+
+  "block.spudaciousshops.shelf_shop_cherry": "Cherry Shelf Shop",
+  "item.spudaciousshops.shelf_shop_cherry": "Cherry Shelf Shop",
+
+  "block.spudaciousshops.shelf_shop_crimson": "Crimson Shelf Shop",
+  "item.spudaciousshops.shelf_shop_crimson": "Crimson Shelf Shop",
+
+  "block.spudaciousshops.shelf_shop_dark_oak": "Dark Oak Shelf Shop",
+  "item.spudaciousshops.shelf_shop_dark_oak": "Dark Oak Shelf Shop",
+
+  "block.spudaciousshops.shelf_shop_mangrove": "Mangrove Shelf Shop",
+  "item.spudaciousshops.shelf_shop_mangrove": "Mangrove Shelf Shop",
+
+  "block.spudaciousshops.shelf_shop_oak": "Oak Shelf Shop",
+  "item.spudaciousshops.shelf_shop_oak": "Oak Shelf Shop",
+
+  "block.spudaciousshops.shelf_shop_spruce": "Spruce Shelf Shop",
+  "item.spudaciousshops.shelf_shop_spruce": "Spruce Shelf Shop",
+
+  "block.spudaciousshops.shelf_shop_warped": "Warped Shelf Shop",
+  "item.spudaciousshops.shelf_shop_warped": "Warped Shelf Shop",
+
+  "block.spudaciousshops.shelf_shop_jungle": "Jungle Shelf Shop",
+  "item.spudaciousshops.shelf_shop_jungle": "Jungle Shelf Shop"
 }

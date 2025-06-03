@@ -7,11 +7,9 @@ import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.RotationAxis;
 import net.spudacious5705.shops.block.entity.AbstractShopEntity;
 import net.spudacious5705.shops.block.entity.HookShopEntity;
-import net.spudacious5705.shops.block.entity.WindowSillShopEntity;
 
 public class HookShopEntityRenderer implements BlockEntityRenderer<HookShopEntity>, ShopRenderUtils {
 
@@ -28,7 +26,7 @@ public class HookShopEntityRenderer implements BlockEntityRenderer<HookShopEntit
         if(data == null){
             return;
         }
-        data.tickAccumulator(tickDelta);
+        data.frameAccumulator();
 
         if (data.shopFunctional()) {
 

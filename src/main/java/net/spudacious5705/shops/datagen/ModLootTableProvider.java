@@ -2,12 +2,18 @@ package net.spudacious5705.shops.datagen;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricBlockLootTableProvider;
+import net.minecraft.block.enums.SlabType;
 import net.minecraft.item.Item;
 import net.minecraft.loot.LootPool;
 import net.minecraft.loot.LootTable;
+import net.minecraft.loot.condition.BlockStatePropertyLootCondition;
 import net.minecraft.loot.entry.ItemEntry;
+import net.minecraft.loot.function.SetCountLootFunction;
 import net.minecraft.loot.provider.number.ConstantLootNumberProvider;
+import net.minecraft.predicate.StatePredicate;
+import net.minecraft.state.property.Properties;
 import net.spudacious5705.shops.block.custom.AngledShopBlock;
+import net.spudacious5705.shops.block.custom.ShelfShopBlock;
 import net.spudacious5705.shops.lootcondition.MatchingCushionColourCondition;
 import net.spudacious5705.shops.properties.Colour;
 
@@ -54,6 +60,33 @@ public class ModLootTableProvider extends FabricBlockLootTableProvider {
             }
 
             addDrop(shop,lootTable);
+        }
+
+
+        List<ShelfShopBlock> shelfShops = getAllShops().stream()
+                .filter(ShelfShopBlock.class::isInstance)
+                .map(ShelfShopBlock.class::cast)
+                .toList();
+
+        for (ShelfShopBlock shop : shelfShops) {
+            LootTable.Builder lootTable = LootTable.builder();
+
+            // Base pool: Always drops one item
+            LootPool.Builder basePool = LootPool.builder()
+                    .rolls(ConstantLootNumberProvider.create(1))
+                    .with(ItemEntry.builder(shop));
+            lootTable.pool(basePool);
+
+            // Extra pool: Adds an extra drop if the slab is double
+            LootPool.Builder extraPool = LootPool.builder()
+                    .rolls(ConstantLootNumberProvider.create(1))
+                    .conditionally(BlockStatePropertyLootCondition.builder(shop)
+                            .properties(StatePredicate.Builder.create()
+                                    .exactMatch(Properties.SLAB_TYPE, SlabType.DOUBLE)))
+                    .with(ItemEntry.builder(shop));
+            lootTable.pool(extraPool);
+
+            addDrop(shop, lootTable);
         }
 
     }

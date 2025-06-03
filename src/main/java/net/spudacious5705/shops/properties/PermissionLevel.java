@@ -34,7 +34,8 @@ public enum PermissionLevel {
             this.level = level;
         }
 
-        // Optionally, add getter methods to access the field values
+
+    // Optionally, add getter methods to access the field values
         public boolean canBreakBlock() {
             return breakBlock;
         }
@@ -62,5 +63,14 @@ public enum PermissionLevel {
 
     public int asInt() {
             return level;
+    }
+
+    public static PermissionLevel fromInt(int queryInt) {
+            for(PermissionLevel lvl : values()){
+                if (lvl.asInt()==queryInt){
+                    return lvl;
+                }
+            }
+            return PermissionLevel.CUSTOMER;
     }
 }

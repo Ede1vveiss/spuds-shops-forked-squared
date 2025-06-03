@@ -1,8 +1,10 @@
 package net.spudacious5705.shops.screen;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
@@ -10,32 +12,58 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
-import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.spudacious5705.shops.block.entity.AbstractShopEntity;
+import net.spudacious5705.shops.item.ModItems;
+import net.spudacious5705.shops.properties.PermissionLevel;
+import org.intellij.lang.annotations.MagicConstant;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
+import static net.spudacious5705.shops.block.entity.AbstractShopEntity.player_ID_Records_Delegate.checkAction;
+import static net.spudacious5705.shops.screen.networking.NetworkHelper.SHOP_TAB_SYNC_ID;
 
 public class ShopScreenHandlerOwner extends ScreenHandler {
-    private final AbstractShopEntity.InventoryDelegate shopInventory;
+
+    void initiateWarn(WarningActivator function) {
+        warningActivator = function;
+    }
+
+    interface WarningActivator{
+        void openWarnScreen(InteractorContractRemover contractRemover);
+    }
+
+    private WarningActivator warningActivator;
+
+    interface InteractorContractRemover{
+        void remove();
+    }
+
+    final AbstractShopEntity.InventoryDelegate shopInventory;
     //private final PropertyDelegate propertyDelegate;
 
-    private final PlayerInventory playerInventory;
+    private final AbstractShopEntity.player_ID_Records_Delegate ID_RECORDS_DELEGATE;
 
-    final int SCREEN_TEXTURE_ID;
+    final PlayerInventory playerInventory;
+
+    final PermissionLevel perms;
+
+    final ScreenSettingsGroup SCREEN_SETTINGS;
 
     private final List<TogglableSlot> playerInvSlots = new ArrayList<>();
-    private final List<TogglableSlot> tab1Slots = new ArrayList<>();
-    private final List<TogglableSlot> tab2Slots = new ArrayList<>();
+    private final List<TogglableSlot> tabSellerSlots = new ArrayList<>();
+    final List<TogglableSlot> tabSettingsSlots = new ArrayList<>();
+    private final List<TogglableSlot> tabCustomerSlots = new ArrayList<>();
 
 
     private  static final int PAYMENT_SLOT = 76;
     private  static final int VENDING_SLOT = 77;
     private static final int profit_itemStacks_start = 54;
-    private static final int profit_itemStacks_range = 21;
-    private static final int stock_itemStacks_start = 0;
-    private static final int stock_itemStacks_range = 53;
+    private static final int STOCK_END = 53;
+    private static final int PROFIT_END = 75;
 
     public ShopScreenHandlerOwner(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {//clientInit
         super(ModScreenHandlers.SHOP_SCREEN_HANDLER_OWNER, syncId);
@@ -58,23 +86,30 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
             }
             checkSize(inventoryDelegate, 78 );
             this.shopInventory = inventoryDelegate;
+            this.perms = shopInventory.checkPermissions();
 
-            this.SCREEN_TEXTURE_ID = shop.getTextureId();
+            this.SCREEN_SETTINGS = ScreenSettingsGroup.fromId(shop.getTextureId());
+
+            ID_RECORDS_DELEGATE = shop.getRecordsDelegate(player);
 
             finishSetup();
         } else {
             MinecraftClient.getInstance().setScreen(null);
             this.shopInventory = null;
-            this.SCREEN_TEXTURE_ID = 0;
+            this.SCREEN_SETTINGS = null;
+            this.perms = PermissionLevel.CUSTOMER;
+            ID_RECORDS_DELEGATE = null;
         }
     }
 
-    public ShopScreenHandlerOwner(int syncId, PlayerInventory playerInventory, AbstractShopEntity.InventoryDelegate inventory, int SCREEN_TEXTURE_ID) {//serverInit
+    public ShopScreenHandlerOwner(int syncId, PlayerInventory playerInventory, AbstractShopEntity.InventoryDelegate inventory, @Nullable AbstractShopEntity.player_ID_Records_Delegate idRecordsDelegate, int SCREEN_SETTINGS_ID) {//serverInit
         super(ModScreenHandlers.SHOP_SCREEN_HANDLER_OWNER, syncId);
         checkSize(inventory, 78 );
         this.shopInventory = inventory;
-        this.SCREEN_TEXTURE_ID = SCREEN_TEXTURE_ID;
+        this.perms = shopInventory.checkPermissions();
+        this.SCREEN_SETTINGS = ScreenSettingsGroup.fromId(SCREEN_SETTINGS_ID);
         this.playerInventory = playerInventory;
+        this.ID_RECORDS_DELEGATE = idRecordsDelegate;
         playerInventory.onOpen(playerInventory.player);
         finishSetup();
     }
@@ -86,32 +121,103 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
 
         addShopInventory();
 
-        new shop_trade_slot(shopInventory, PAYMENT_SLOT, 23, 11);
-        new shop_trade_slot(shopInventory, VENDING_SLOT, 23, 49);
+        addShopTrades();
 
-        activeTab = 0;
+        addContractSlots();
+
+        activeTab = SELLER_TAB;
 
 
 
     }
 
-    private int activeTab = 0;
-    void updateTabSelection(int tab){
+    private void addContractSlots() {
+        int offsetx = 80;
+        int offsety = 60;
+
+        for(int y = 0; y<4; y++) {
+            for (int i = 0; i<6; ++i){
+                new contract_slot(ID_RECORDS_DELEGATE,y*6+i,offsetx+i*22,offsety+y*22);
+            }
+        }
+    }
+
+    private void addShopTrades(){
+        int x = 23;
+        int y = 11;
+
+        new shop_trade_slot(shopInventory, PAYMENT_SLOT, x, y);
+        new shop_trade_slot(shopInventory, VENDING_SLOT, x, y + 38);
+
+        new shop_payment_slot(shopInventory, PAYMENT_SLOT, 105, 99);
+        new shop_vendor_slot(shopInventory, VENDING_SLOT, 105, 147,this);
+    }
+
+
+
+    @MagicConstant
+    static final int SELLER_TAB = 1;
+    @MagicConstant
+    static final int SETTINGS_TAB = 2;
+    @MagicConstant
+    static final int CUSTOMER_TAB = 3;
+    @MagicConstant
+    static final int WARNING_TAB = 4;
+
+    private int activeTab = SELLER_TAB;
+
+    @Environment(EnvType.CLIENT)
+    public void updateTabSelectionClientside(int tab){
         activeTab = tab;
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeInt(activeTab);
+        ClientPlayNetworking.send(SHOP_TAB_SYNC_ID, buf);
         updateTabSelection();
     }
-    void updateTabSelection(){
-        if(activeTab == 0){
-            tab1Slots.forEach(TogglableSlot::enable);
-            playerInvSlots.forEach(TogglableSlot::enable);
 
-            tab2Slots.forEach(TogglableSlot::disable);
+    public void updateTabSelectionServerside(int tab){
+        activeTab = tab;
+    }
+
+    @Environment(EnvType.CLIENT)
+    public boolean updateTabSelectionResponse(int tab){
+        if(activeTab != tab){
+            activeTab = tab;
+            updateTabSelection();
+            return true;
         }
-        if(activeTab == 1){
-            tab2Slots.forEach(TogglableSlot::enable);
+        return false;
+    }
 
-            tab1Slots.forEach(TogglableSlot::disable);
-            playerInvSlots.forEach(TogglableSlot::disable);
+    public void updateTabSelection(){
+        switch (activeTab) {
+            case SETTINGS_TAB -> {
+                tabSettingsSlots.forEach(TogglableSlot::enable);
+                playerInvSlots.forEach(TogglableSlot::enable);
+
+                tabSellerSlots.forEach(TogglableSlot::disable);
+                tabCustomerSlots.forEach(TogglableSlot::disable);
+            }
+            case CUSTOMER_TAB -> {
+                playerInvSlots.forEach(TogglableSlot::enable);
+                tabCustomerSlots.forEach(TogglableSlot::enable);
+
+                tabSettingsSlots.forEach(TogglableSlot::disable);
+                tabSellerSlots.forEach(TogglableSlot::disable);
+            }
+            case WARNING_TAB -> {
+                tabSettingsSlots.forEach(TogglableSlot::disable);
+                tabSellerSlots.forEach(TogglableSlot::disable);
+                playerInvSlots.forEach(TogglableSlot::disable);
+                tabCustomerSlots.forEach(TogglableSlot::disable);
+            }
+            default -> { //SELLER_TAB
+                tabSellerSlots.forEach(TogglableSlot::enable);
+                playerInvSlots.forEach(TogglableSlot::enable);
+
+                tabSettingsSlots.forEach(TogglableSlot::disable);
+                tabCustomerSlots.forEach(TogglableSlot::disable);
+            }
         }
     }
 
@@ -139,8 +245,8 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
     }
 
     private void createShopInvSlot(int index, int x, int y){
-        TogglableSlot slot = new TogglableSlot(shopInventory,index,x,y);
-        tab1Slots.add(slot);
+        TogglableSlot slot = new TogglableSlot(shopInventory, index, x, y);
+        tabSellerSlots.add(slot);
         addSlot(slot);
     }
 
@@ -163,6 +269,14 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
 
     @Override
     public ItemStack quickMove(PlayerEntity player, int invSlot) {
+        if(activeTab==CUSTOMER_TAB){
+            while(shopInventory.canTrade(player)){
+                shopInventory.trade(playerInventory);
+            }
+            return ItemStack.EMPTY;
+        }
+        if(activeTab!=SELLER_TAB){return ItemStack.EMPTY;}
+
         ItemStack newStack = ItemStack.EMPTY;
         Slot slot = this.slots.get(invSlot);
         if (!slot.hasStack()) {return newStack;}
@@ -170,6 +284,7 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
         newStack = originalStack.copy();
 
         if(this.slots.get(invSlot) instanceof shop_trade_slot){return ItemStack.EMPTY;}
+        if(this.slots.get(invSlot) instanceof contract_slot){return ItemStack.EMPTY;}
 
         if(this.slots.get(invSlot) instanceof player_slot){
             if (!this.insertItem(originalStack, 36, 90, false)) {
@@ -189,7 +304,6 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
         }
 
         return newStack;
-
     }
 
     @Override
@@ -202,11 +316,11 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
         return this.shopInventory.canPlayerUse(player);
     }
 
-    public int textureId() {
-        return this.SCREEN_TEXTURE_ID;
+    public ScreenSettingsGroup getSettings() {
+        return this.SCREEN_SETTINGS;
     }
 
-    class TogglableSlot extends Slot {
+    static class TogglableSlot extends Slot {
         private boolean toggled = true;
         public TogglableSlot(Inventory inventory, int index, int x, int y) {
             super(inventory, index, x, y);
@@ -242,38 +356,225 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
         public boolean isPlayerSlot() {return true;}
     }
 
-    class shop_trade_slot extends TogglableSlot {
+    class contract_slot extends TogglableSlot {
 
-        public final AbstractShopEntity.InventoryDelegate inventory;
+        private final ContractVerifier checkContract;
+
+        private interface ContractVerifier{
+            boolean belongsToInteractor(ItemStack contract);
+        }
+        /**
+         *
+         * Automatically adds itself to the neccecary lists
+         */
+        public contract_slot(AbstractShopEntity.player_ID_Records_Delegate inventory, int index, int x, int y) {
+            super(inventory, index, x, y);
+            tabSettingsSlots.add(this);
+            checkContract = inventory::checkContract;
+            addSlot(this);
+            this.disable();
+        }
+
+        @Override
+        public int getMaxItemCount(){return 1;}
+
+        @Override
+        public boolean canInsert(ItemStack stack) {
+            if(checkAction(stack, this.getIndex())){
+                return this.getStack().isEmpty();
+            }
+            return false;
+        }
+
+        @Override
+        public ItemStack insertStack(ItemStack stack) {
+            return insertStack(stack,0);
+        }
+
+        @Override
+        public ItemStack insertStack(ItemStack stack, int count) {
+            if (!stack.isEmpty()&&stack.getItem() == ModItems.CONTRACT_SCROLL) {
+                return ((AbstractShopEntity.player_ID_Records_Delegate) inventory).insertContract(stack, this.getIndex());
+            }
+            return stack;
+        }
+
+        @Override
+        public ItemStack takeStack(int amount) {
+            if(checkContract.belongsToInteractor(this.getStack())){
+                if(warningActivator!=null) {
+                    warningActivator.openWarnScreen(this::removeContract);
+                }
+                return ItemStack.EMPTY;
+            }
+            return inventory.removeStack(this.getIndex());
+        }
+
+        final void removeContract(){
+            inventory.removeStack(this.getIndex());
+        }
+
+        @Override
+        public boolean canTakeItems(PlayerEntity player) {
+            return inventory.canPlayerUse(player);
+        }
+
+        @Override
+        public int getMaxItemCount(ItemStack stack) {
+            return 1;
+        }
+
+        @Override
+        public boolean canTakePartial(PlayerEntity player) {
+            return false;
+        }//always stack size of 1 or 0
+    }
+
+    class shop_trade_slot extends TogglableSlot {
 
         public shop_trade_slot(AbstractShopEntity.InventoryDelegate inventory, int index, int x, int y) {
             super(inventory, index, x, y);
-            this.inventory = inventory;
-            tab1Slots.add(this);
+            tabSellerSlots.add(this);
             addSlot(this);
         }
 
         @Override
         public ItemStack takeStack(int amount) {
-            super.takeStack(amount);
+            this.inventory.removeStack(this.getIndex(), amount);
 
             return ItemStack.EMPTY;
         }
 
         @Override
         public boolean canInsert(ItemStack stack) {
-            return this.getStack().getItem() == stack.getItem() || this.getStack().isEmpty();
+            if(stack.getItem() != this.getStack().getItem()) {
+                this.setStack(ItemStack.EMPTY);
+                return false;
+            }
+            return true;
         }
 
         @Override
-        public ItemStack insertStack(ItemStack newStack, int count) {
-            this.inventory.insertTradeStack(this.getIndex(),newStack, count);
-            return newStack;
+        public ItemStack insertStack(ItemStack stack, int count) {
+            ItemStack oldStack = this.getStack();
+
+            if(stack.getItem() == oldStack.getItem()){
+                count += oldStack.getCount();
+                if(count>64)count=64;
+                this.inventory.setStack(this.getIndex(),stack.copyWithCount(count));
+            }else {
+                this.inventory.setStack(this.getIndex(), stack.copyWithCount(count));
+            }
+            return stack;
+        }
+
+        @Override
+        public boolean canTakePartial(PlayerEntity player) {
+            return true;
+        }
+
+        @Override
+        public ItemStack insertStack(ItemStack stack) {
+            insertStack(stack,stack.getCount());
+            return stack;
+        }
+
+    }
+
+    class shop_payment_slot extends TogglableSlot {
+
+        public shop_payment_slot(AbstractShopEntity.InventoryDelegate inventory, int index, int x, int y) {
+            super(inventory, index, x, y);
+            tabCustomerSlots.add(this);
+            addSlot(this);
+            this.disable();
+        }
+
+        @Override
+        public boolean canInsert(ItemStack stack) {
+            return false;
         }
 
         @Override
         public boolean canTakePartial(PlayerEntity player) {
             return false;
         }
+
+        @Override
+        public boolean canTakeItems(PlayerEntity playerEntity) {
+            return false;
+        }
+
+        @Override
+        public ItemStack insertStack(ItemStack stack, int count) {
+            return stack;
+        }
+
+        @Override
+        public ItemStack insertStack(ItemStack stack) {
+            return stack;
+        }
+
+        @Override
+        public void setStack(ItemStack stack) {
+        }
+
+        @Override
+        public ItemStack getStack() {
+            return super.getStack();
+        }
     }
+
+    class shop_vendor_slot extends TogglableSlot {
+        private final ShopScreenHandlerOwner handler;
+        public shop_vendor_slot(AbstractShopEntity.InventoryDelegate inventory, int index, int x, int y, ShopScreenHandlerOwner handler) {
+            super(inventory, index, x, y);
+            this.handler = handler;
+            tabCustomerSlots.add(this);
+            addSlot(this);
+            this.disable();
+        }
+
+        @Override
+        public ItemStack takeStack(int amount) {
+            handler.trade();
+            return ItemStack.EMPTY;
+        }
+
+        @Override
+        public boolean canTakeItems(PlayerEntity playerEntity) {
+            return shopInventory.canTrade(playerEntity);
+        }
+
+        @Override
+        public boolean canInsert(ItemStack stack) {
+            return false;
+        }
+
+        @Override
+        public boolean canTakePartial(PlayerEntity player) {
+            return false;
+        }
+
+        @Override
+        public ItemStack insertStack(ItemStack stack, int amount) {
+            return stack;
+        }
+
+        @Override
+        public void setStack(ItemStack stack) {}
+    }
+
+    private void trade() {
+        this.shopInventory.trade(playerInventory);
+    }
+
+    public static boolean canUseInTrade(ItemStack stack, ItemStack otherStack) {
+        if (!stack.isOf(otherStack.getItem())) {
+            return false;
+        } else {
+            return Objects.equals(stack.getNbt(), otherStack.getNbt());
+        }
+    }
+
 }

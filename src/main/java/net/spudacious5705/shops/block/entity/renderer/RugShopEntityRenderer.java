@@ -7,11 +7,11 @@ import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.RotationAxis;
 import net.spudacious5705.shops.block.entity.AbstractShopEntity;
 import net.spudacious5705.shops.block.entity.RugShopEntity;
-import net.spudacious5705.shops.block.entity.WindowSillShopEntity;
+
+import static net.minecraft.util.math.MathHelper.clamp;
 
 public class RugShopEntityRenderer implements BlockEntityRenderer<RugShopEntity>, ShopRenderUtils {
 
@@ -21,6 +21,7 @@ public class RugShopEntityRenderer implements BlockEntityRenderer<RugShopEntity>
         this.context = ctx;
     }
 
+
     @Override
     public void render(RugShopEntity shop, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
         ModelTransformationMode mode;
@@ -28,7 +29,12 @@ public class RugShopEntityRenderer implements BlockEntityRenderer<RugShopEntity>
         if(data == null){
             return;
         }
-        data.tickAccumulator(tickDelta);
+
+        long currentNanoTime = System.nanoTime();
+        float delta = (currentNanoTime-shop.lastNanoTime)*0.00000004f;
+        shop.lastNanoTime=currentNanoTime;
+
+        data.frameAccumulator();
 
         if (data.shopFunctional()) {
 
@@ -51,8 +57,8 @@ public class RugShopEntityRenderer implements BlockEntityRenderer<RugShopEntity>
 
             float foo = shop.itemHeight;
 
-            float rand = (float) (Math.random() * 0.02f);
-            foo = (foo + tickDelta*(0.02f+rand)) % 6.28318530718f ;
+            float rand = (float)(Math.random() * 0.02f);
+            foo = (foo + delta*(0.02f+rand)) % 6.28318530718f ;
 
 
 
@@ -60,31 +66,42 @@ public class RugShopEntityRenderer implements BlockEntityRenderer<RugShopEntity>
 
             shop.itemHeight = foo;
 
-            rand = (float) (Math.random() * 0.03);
+            rand = (float)(Math.random() * 0.03);
 
             foo = shop.itemRotationY;
             if(shop.rotateDirectionY) {
-                foo = (foo + tickDelta * (0.4f + rand)) % 360;
+                foo = (foo + delta * (0.2f + rand)) % 360;
             } else{
-                foo = (foo - tickDelta * (0.4f + rand)) % 360;
+                foo = (foo - delta * (0.2f + rand)) % 360;
             }
 
             matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(foo));
 
             shop.itemRotationY = foo;
 
-            rand = (float) (Math.random()*0.1f);
+            rand = (float)(Math.random()*0.05f);
             foo = shop.itemRotationX;
 
             if(shop.rotateDirectionX) {
-                foo = (foo + tickDelta * (1.25f + rand)) % 360;
+                foo = (foo + delta * (1.25f + rand)) % 360;
             } else{
-                foo = (foo - tickDelta * (1.25f + rand)) % 360;
+                foo = (foo - delta * (1.25f + rand)) % 360;
             }
 
             matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(foo));
 
             shop.itemRotationX = foo;
+
+            foo = shop.itemRotationSpeedZ;
+            foo = (float) clamp(foo+((Math.random())-0.5f)*delta*0.05f,-0.3f,0.3f);
+            shop.itemRotationSpeedZ = foo;
+
+            foo = (shop.itemRotationZ+foo)%360f;
+
+            matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(foo));
+
+            shop.itemRotationZ = foo;
+
 
             matrices.scale(0.8f, 0.8f, 0.8f);
 
