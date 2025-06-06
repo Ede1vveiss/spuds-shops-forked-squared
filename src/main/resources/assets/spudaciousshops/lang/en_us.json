@@ -37,6 +37,11 @@
   "gui.spudaciousshops.manager": "MANAGER",
   "gui.spudaciousshops.supervisor": "SUPERVISOR",
   "gui.spudaciousshops.clerk": "CLERK",
+  "gui.spudaciousshops.delete_warn_title": "DELETE YOUR CONTRACT",
+  "gui.spudaciousshops.delete_warn_message_line1": "You are about to delete your contract",
+  "gui.spudaciousshops.delete_warn_message_line2": "and remove all your permissions.",
+  "gui.spudaciousshops.cancel": "CANCEL",
+  "gui.spudaciousshops.delete": "DELETE",
 
   "block.spudaciousshops.shelf_shop_acacia": "Acacia Shelf Shop",
   "item.spudaciousshops.shelf_shop_acacia": "Acacia Shelf Shop",

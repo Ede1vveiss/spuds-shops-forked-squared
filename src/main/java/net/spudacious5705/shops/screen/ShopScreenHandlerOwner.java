@@ -42,6 +42,10 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
         }
     }
 
+    public int getActiveTab(){
+        return activeTab;
+    }
+
     interface WarningActivator{
         void openWarnScreen();
     }

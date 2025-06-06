@@ -22,6 +22,8 @@ import org.intellij.lang.annotations.MagicConstant;
 
 import java.util.List;
 
+import static net.spudacious5705.shops.screen.ShopScreenHandlerOwner.SETTINGS_TAB;
+import static net.spudacious5705.shops.screen.ShopScreenHandlerOwner.WARNING_TAB;
 import static net.spudacious5705.shops.screen.networking.NetworkHelper.SHOP_SELF_DEMOTE;
 
 public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
@@ -29,7 +31,13 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
 
     private Identifier TEXTURE;
 
-    private static final Identifier WARNING_TEXTURE = SpudaciousShops.id("textures/gui/warning_screen.png");;
+    private static final Identifier WARNING_TEXTURE = SpudaciousShops.id("textures/gui/warning_screen.png");
+
+    private static final Identifier RED_BUTTON = SpudaciousShops.id("textures/gui/red_button.png");
+    private static final Identifier RED_BUTTON_SELECTED = SpudaciousShops.id("textures/gui/red_button_selected.png");
+    private static final Identifier GREEN_BUTTON = SpudaciousShops.id("textures/gui/green_button.png");
+    private static final Identifier GREEN_BUTTON_SELECTED = SpudaciousShops.id("textures/gui/green_button_selected.png");
+
 
     public ShopScreenOwner(ShopScreenHandlerOwner handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
@@ -90,15 +98,16 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
         ShopFrontTabButton = addDrawableChild(new TabWidget(posX, posY, Text.of(""), this::switchToCustomerTab, true, SHOPFRONT_ICON));
 
 
-        posX = 130+x;
-        posY = 150+y;
-        WarningCancel = addDrawableChild(new ButtonWidget(posX, posY, Text.of("CANCEL"), this::closeWarnPopup, COG_ICON, COG_ICON));
+        posX = 22+x;
+        posY = 128+y;
+        WarningCancel = addDrawableChild(new ButtonWidget(posX, posY, Text.of("CANCEL"), this::closeWarnPopup, GREEN_BUTTON, GREEN_BUTTON_SELECTED));
 
-        posX = 40+x;
-        WarningProceed = addDrawableChild(new ButtonWidget(posX, posY, Text.of("CONTINUE"), this::WarnPopupContinue,COG_ICON, COG_ICON));
+        posX += 113;
+        WarningProceed = addDrawableChild(new ButtonWidget(posX, posY, Text.of("CONTINUE"), this::WarnPopupContinue, RED_BUTTON, RED_BUTTON_SELECTED));
 
 
         addToolTipTexts();
+        addWarnPopupTexts();
     }
 
     private void switchToCustomerTab() {
@@ -123,7 +132,7 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
     }
 
     private void switchToSettingsTab() {
-        handler.updateTabSelectionClientside(ShopScreenHandlerOwner.SETTINGS_TAB);
+        handler.updateTabSelectionClientside(SETTINGS_TAB);
         settingsGUI();
     }
     private void settingsGUI(){
@@ -133,7 +142,7 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
     }
 
     void openWarnPopup(){
-        handler.updateTabSelectionClientside(ShopScreenHandlerOwner.WARNING_TAB);
+        handler.updateTabSelectionClientside(WARNING_TAB);
         warnGUI();
     }
     private void warnGUI(){
@@ -145,13 +154,13 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
     public void updateTabSelectionResponse(int tab) {
         if(handler.updateTabSelectionResponse(tab)) {
             switch (tab) {
-                case ShopScreenHandlerOwner.WARNING_TAB -> {
+                case WARNING_TAB -> {
                     warnGUI();
                 }
                 case ShopScreenHandlerOwner.CUSTOMER_TAB -> {
                     customerGUI();
                 }
-                case ShopScreenHandlerOwner.SETTINGS_TAB -> {
+                case SETTINGS_TAB -> {
                     settingsGUI();
                 }
                 default -> {
@@ -182,11 +191,19 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
     private static final MutableText MANAGER = Text.translatable("gui.spudaciousshops.manager");
     private static final MutableText SUPERVISOR = Text.translatable("gui.spudaciousshops.supervisor");
     private static final MutableText CLERK = Text.translatable("gui.spudaciousshops.clerk");
+    private static final MutableText WARN_TITLE = Text.translatable("gui.spudaciousshops.delete_warn_title");
+    private static final MutableText WARN_LINE_1 = Text.translatable("gui.spudaciousshops.delete_warn_message_line1");
+    private static final MutableText WARN_LINE_2 = Text.translatable("gui.spudaciousshops.delete_warn_message_line2");
+    private static final MutableText CANCEL = Text.translatable("gui.spudaciousshops.cancel");
+    private static final MutableText DELETE = Text.translatable("gui.spudaciousshops.delete");
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         renderBackground(context);
-        if(this.handler.tabSettingsSlots.get(0).isEnabled()) {
+        super.render(context, mouseX, mouseY, delta);
+
+        int activeTab = this.handler.getActiveTab();
+        if(activeTab == SETTINGS_TAB) {
             for (int k = 0; k < this.handler.tabSettingsSlots.size(); k++) {
                 Slot slot = this.handler.tabSettingsSlots.get(k);
                 if (slot.isEnabled()) {
@@ -199,15 +216,20 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
                     }
                 }
             }
-
             if(client != null) {
                 TextRenderer textRenderer = client.textRenderer;
                 for(ToolTipText ttt : TEXTS){
                     ttt.render(context,textRenderer,mouseX,mouseY);
                 }
             }
+        }else if(activeTab == WARNING_TAB){
+            if(client != null) {
+                TextRenderer textRenderer = client.textRenderer;
+                for(Warn_popup_texts t : WARN_TEXTS){
+                    t.render(context,textRenderer);
+                }
+            }
         }
-        super.render(context, mouseX, mouseY, delta);
         drawMouseoverTooltip(context, mouseX, mouseY);
     }
 
@@ -259,6 +281,24 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
 
     }
 
+    //TODO make this method static
+    private void addWarnPopupTexts(){
+        int textX = x+55;
+        int textY = y+84;
+        WARN_TEXTS[0] = new Warn_popup_texts(textX,textY,WARN_TITLE,14745600, true);
+        textX -= 43;
+        textY += 20;
+        WARN_TEXTS[1] = new Warn_popup_texts(textX,textY,WARN_LINE_1,986895, false);
+        textX += 15;
+        textY += 10;
+        WARN_TEXTS[2] = new Warn_popup_texts(textX,textY,WARN_LINE_2,986895, false);
+        textX += 12;
+        textY += 27;
+        WARN_TEXTS[3] = new Warn_popup_texts(textX,textY,CANCEL,3840, false);
+        textX += 113;
+        WARN_TEXTS[4] = new Warn_popup_texts(textX,textY,DELETE,984320, false);
+    }
+
     private final ToolTipText[] TEXTS = new ToolTipText[4];
 
     private static class ToolTipText{
@@ -294,7 +334,7 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
         void switchTo();
     }
 
-    private class TabWidget extends ClickableWidget{
+    private static class TabWidget extends ClickableWidget{
 
         private final TabSwitcher thisTab;
 
@@ -345,14 +385,14 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
         protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
     }
 
-    private class ButtonWidget extends ClickableWidget{
+    private static class ButtonWidget extends ClickableWidget{
 
         private final TabSwitcher FUNCTION;
         private final Identifier TEXTURE;
         private final Identifier TEXTURE_HOVERED;
 
         public ButtonWidget(int x, int y, Text message, TabSwitcher function, Identifier texture, Identifier textureHovered) {
-            super(x, y, 40, 20, message);
+            super(x, y, 64, 28, message);
             this.FUNCTION = function;
             this.visible = false;
             this.TEXTURE = texture;
@@ -362,11 +402,11 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
         @Override
         protected void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
             int x = this.getX();
-            int y = this.getY();
+            int y = this.getY()-16;
             if(hovered){
-                context.drawTexture(TEXTURE_HOVERED,x,y,32,32,0f,0f,32,32,32,32);
+                context.drawTexture(TEXTURE_HOVERED,x,y,64,64,0f,0f,64,64,64,64);
             }else{
-                context.drawTexture(TEXTURE,x,y,32,32,0f,0f,32,32,32,32);
+                context.drawTexture(TEXTURE,x,y,64,64,0f,0f,64,64,64,64);
             }
         }
 
@@ -377,5 +417,13 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
 
         @Override
         protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
+    }
+
+    private final Warn_popup_texts[] WARN_TEXTS = new Warn_popup_texts[5];
+
+    private record Warn_popup_texts(int x, int y, MutableText text, int colour, boolean shadow){
+        void render(DrawContext context, TextRenderer textRenderer) {
+            context.drawText(textRenderer, text, x, y, colour, shadow);
+        }
     }
 }
