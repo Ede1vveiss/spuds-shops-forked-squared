@@ -12,6 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.spudacious5705.shops.block.entity.AbstractShopEntity;
 import net.spudacious5705.shops.item.ModItems;
@@ -24,6 +25,8 @@ import java.util.List;
 import java.util.Objects;
 
 import static net.spudacious5705.shops.block.entity.AbstractShopEntity.player_ID_Records_Delegate.checkAction;
+import static net.spudacious5705.shops.block.entity.ShopInventory.PAYMENT_SLOT;
+import static net.spudacious5705.shops.block.entity.ShopInventory.VENDING_SLOT;
 import static net.spudacious5705.shops.screen.networking.NetworkHelper.SHOP_TAB_SYNC_ID;
 
 public class ShopScreenHandlerOwner extends ScreenHandler {
@@ -32,15 +35,18 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
         warningActivator = function;
     }
 
+
+    public void selfDemotePlayer(ServerPlayerEntity player) {
+        if(activeTab==WARNING_TAB){
+            ID_RECORDS_DELEGATE.selfDemote(player);
+        }
+    }
+
     interface WarningActivator{
-        void openWarnScreen(InteractorContractRemover contractRemover);
+        void openWarnScreen();
     }
 
     private WarningActivator warningActivator;
-
-    interface InteractorContractRemover{
-        void remove();
-    }
 
     final AbstractShopEntity.InventoryDelegate shopInventory;
     //private final PropertyDelegate propertyDelegate;
@@ -59,11 +65,7 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
     private final List<TogglableSlot> tabCustomerSlots = new ArrayList<>();
 
 
-    private  static final int PAYMENT_SLOT = 76;
-    private  static final int VENDING_SLOT = 77;
     private static final int profit_itemStacks_start = 54;
-    private static final int STOCK_END = 53;
-    private static final int PROFIT_END = 75;
 
     public ShopScreenHandlerOwner(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {//clientInit
         super(ModScreenHandlers.SHOP_SCREEN_HANDLER_OWNER, syncId);
@@ -356,9 +358,10 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
         public boolean isPlayerSlot() {return true;}
     }
 
+
     class contract_slot extends TogglableSlot {
 
-        private final ContractVerifier checkContract;
+        private final ContractVerifier contractVerifier;
 
         private interface ContractVerifier{
             boolean belongsToInteractor(ItemStack contract);
@@ -370,7 +373,7 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
         public contract_slot(AbstractShopEntity.player_ID_Records_Delegate inventory, int index, int x, int y) {
             super(inventory, index, x, y);
             tabSettingsSlots.add(this);
-            checkContract = inventory::checkContract;
+            contractVerifier = inventory::checkContract;
             addSlot(this);
             this.disable();
         }
@@ -401,21 +404,20 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
 
         @Override
         public ItemStack takeStack(int amount) {
-            if(checkContract.belongsToInteractor(this.getStack())){
+            if(contractVerifier.belongsToInteractor(this.getStack())){
                 if(warningActivator!=null) {
-                    warningActivator.openWarnScreen(this::removeContract);
+                    warningActivator.openWarnScreen();
                 }
                 return ItemStack.EMPTY;
             }
             return inventory.removeStack(this.getIndex());
         }
 
-        final void removeContract(){
-            inventory.removeStack(this.getIndex());
-        }
-
         @Override
         public boolean canTakeItems(PlayerEntity player) {
+            if(contractVerifier.belongsToInteractor(this.getStack())){
+                return true;
+            }
             return inventory.canPlayerUse(player);
         }
 

@@ -152,105 +152,22 @@ public class ShopScreenHandlerCustomer extends ScreenHandler {
         }
     }
 
-    boolean hasEnoughMoneyyyyyyyy(PlayerEntity player) {
-        Inventory inv = player.getInventory();
-        Item paymentType = this.shopInventory.getPaymentType();
-        int money = 0;
-        for (int i = 0; i <= 36; i++) {
-            if(inv.getStack(i).getItem() == paymentType){
-                money += inv.getStack(i).getCount();
-                if(money >= this.shopInventory.getPrice()){return true;};
-            }
-        }
-        return false;
-    }
-
-    private void extractItems(int quantity, int endPoint, Item item, Inventory inv){
-
-        for(int i = STOCK_END; i >= 0; i--){
-
-            if(inv.getStack(i).getItem() != item){continue;}
-
-            if(inv.getStack(i).getCount() >= quantity){
-                inv.getStack(i).decrement(quantity);
-                break;
-            } else {
-                quantity -= inv.getStack(i).getCount();
-                inv.removeStack(i);
-            }
-        }
-    }
-
-
-
-    public ItemStack takeStack(int amount) {
-        int vendQuantity = shopInventory.getStack(VENDING_SLOT).getCount();
-        if(amount<vendQuantity){return ItemStack.EMPTY;}
-
-        //extract from stockpile
-
-        extractItems(vendQuantity, STOCK_END, this.shopInventory.getDisplayItem(), this.shopInventory);
-
-        //extract payment from player inventory
-
-        extractItems(this.shopInventory.getPrice(), 35, this.shopInventory.getPaymentType(), this.playerInventory);
-
-        //insert payment into shop
-
-        ItemStack stack = new ItemStack(this.shopInventory.getPaymentType(),this.shopInventory.getPrice());
-        int pointer = STOCK_END;
-        ItemStack shopStack;
-        int space;
-
-        while (stack.getCount() > 0){
-            pointer++;
-            shopStack = this.shopInventory.getStack(pointer);
-            if(shopStack.isEmpty()){
-                this.shopInventory.setStack(pointer, stack);
-                break;
-            }
-            if(!shopStack.isOf(this.shopInventory.getPaymentType())){continue;}
-
-            space = 64 - shopStack.getCount();
-            if(space >= stack.getCount()){
-                shopInventory.getStack(pointer).increment(stack.getCount());
-                break;
-            } else {
-                stack.decrement(space);
-                shopInventory.getStack(pointer).increment(space);
-            }
-
-        }
-
-
-        return new ItemStack(shopInventory.getStack(VENDING_SLOT).getItem(), shopInventory.getStack(VENDING_SLOT).getCount());
-    }
-
-    private void message(String message){
-
-        PlayerEntity player = playerInventory.player;
-        if(player.getWorld().isClient()) {
-            player.sendMessage(Text.of(message), true);
-        }
-    }
-
     class shop_vendor_slot extends Slot {
         private final ShopScreenHandlerCustomer handler;
-        public shop_vendor_slot(Inventory inventory, int index, int x, int y, ShopScreenHandlerCustomer handler1) {
+        public shop_vendor_slot(AbstractShopEntity.InventoryDelegate inventory, int index, int x, int y, ShopScreenHandlerCustomer handler) {
             super(inventory, index, x, y);
-            this.handler = handler1;
-
+            this.handler = handler;
         }
 
         @Override
         public ItemStack takeStack(int amount) {
-            return this.handler.takeStack(amount);
+            handler.trade();
+            return ItemStack.EMPTY;
         }
 
         @Override
         public boolean canTakeItems(PlayerEntity playerEntity) {
-            shopInventory.canTrade(playerEntity);
-            return true;
+            return shopInventory.canTrade(playerEntity);
         }
 
         @Override
@@ -259,8 +176,21 @@ public class ShopScreenHandlerCustomer extends ScreenHandler {
         }
 
         @Override
+        public boolean canTakePartial(PlayerEntity player) {
+            return false;
+        }
+
+        @Override
         public ItemStack insertStack(ItemStack stack, int amount) {
             return stack;
         }
+
+        @Override
+        public void setStack(ItemStack stack) {}
     }
+
+    private void trade() {
+        this.shopInventory.trade(playerInventory);
+    }
+
 }

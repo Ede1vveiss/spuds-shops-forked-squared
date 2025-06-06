@@ -3,20 +3,17 @@ package net.spudacious5705.shops.block.entity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.spudacious5705.shops.block.custom.AbstractShopBlock;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class RugShopEntity extends AbstractShopEntity{
+public class RugShopEntity extends AbstractShopEntity {
 
     public long lastNanoTime;
 
@@ -24,13 +21,32 @@ public class RugShopEntity extends AbstractShopEntity{
         super(ModBlockEntities.RUG_SHOP_ENTITY, pos, state, -0.3f);
     }
 
-    public float itemRotationY = (float)(Math.random()*360);
-    public float itemRotationX =  (float)(Math.random()*360);
-    public float itemRotationZ = (float)(Math.random()*360);
-    public float itemRotationSpeedZ = (float)(Math.random()*360);
-    public float itemHeight =  (float)(Math.random()*Math.PI*2);
-    public final boolean rotateDirectionY = Math.random()>0.5f;
-    public final boolean rotateDirectionX = Math.random()>0.5f;
+    @Environment(EnvType.CLIENT)
+    protected RugRenderData furtherData;
+    @Environment(EnvType.CLIENT)
+    public RugRenderData furtherData(){
+        return furtherData;
+    }
+    @Environment(EnvType.CLIENT)
+    public static class RugRenderData {
+        public float itemRotationY;
+        public float itemRotationX;
+        public float itemRotationZ;
+        public float itemRotationSpeedZ;
+        public float itemHeight;
+        public final boolean rotateDirectionY;
+        public final boolean rotateDirectionX;
+
+        public RugRenderData() {
+            this.itemRotationY = (float) (Math.random() * 360);
+            this.itemRotationX = (float) (Math.random() * 360);
+            this.itemRotationZ = (float) (Math.random() * 360);
+            this.itemRotationSpeedZ = (float) (Math.random() * 360);
+            this.itemHeight = (float) (Math.random() * Math.PI * 2);
+            this.rotateDirectionY = Math.random() > 0.5f;
+            this.rotateDirectionX = Math.random() > 0.5f;
+        }
+    }
 
     @Override
     public @Nullable Packet<ClientPlayPacketListener> toUpdatePacket() {
@@ -39,7 +55,7 @@ public class RugShopEntity extends AbstractShopEntity{
 
 
     @Override
-    public Direction getFacingDirection() {
+    public Direction getCachedFacingDirection() {
         return Direction.NORTH;
     }
 
@@ -56,19 +72,8 @@ public class RugShopEntity extends AbstractShopEntity{
     @Override
     @Environment(EnvType.CLIENT)
     protected void createRendererData(){
-        this.rendererData = new RugRendererData<>(itemStacks,this);
-    }
-
-    public static class RugRendererData<shopType extends RugShopEntity> extends RendererData<shopType> {
-
-        public RugRendererData(@NotNull DefaultedList<ItemStack> inv, shopType shop) {
-            super(inv, shop);
-        }
-
-        @Override
-        protected Direction facingDirection() {
-            return Direction.NORTH;
-        }
+        this.rendererData = new RendererData(shopInventory);
+        this.furtherData = new RugRenderData();
     }
 
     public int getTextureId() {

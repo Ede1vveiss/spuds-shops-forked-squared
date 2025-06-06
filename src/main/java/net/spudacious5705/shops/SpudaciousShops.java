@@ -40,7 +40,7 @@ public class SpudaciousShops implements ModInitializer {
 
 		ModLootConditions.registerLootConditions();
 
-		NetworkHelper.initialiseSERVER();
+		NetworkHelper.initialise();
 	}
 
 	public static Identifier id(String path) {

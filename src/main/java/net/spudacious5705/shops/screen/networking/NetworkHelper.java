@@ -14,7 +14,10 @@ import net.spudacious5705.shops.screen.ShopScreenOwner;
 public class NetworkHelper {
     public static final Identifier SHOP_TAB_SYNC_ID = SpudaciousShops.id("shop_tab_sync");
     public static final Identifier SHOP_TAB_SYNC_RESPONSE_ID = SpudaciousShops.id("shop_tab_sync");
-    public static void initialiseSERVER(){
+    public static final Identifier SHOP_SELF_DEMOTE = SpudaciousShops.id("shop_self_demote");
+
+
+    public static void initialise(){
         ServerPlayNetworking.registerGlobalReceiver(SHOP_TAB_SYNC_ID,
                 (server, player, handler, buf, responseSender) -> {
                     int tab = buf.readInt();
@@ -26,6 +29,16 @@ public class NetworkHelper {
                             PacketByteBuf responseBuf = PacketByteBufs.create();
                             responseBuf.writeInt(tab);
                             ServerPlayNetworking.send(player, SHOP_TAB_SYNC_RESPONSE_ID, responseBuf);
+                        }
+                    });
+                });
+
+        ServerPlayNetworking.registerGlobalReceiver(SHOP_SELF_DEMOTE,
+                (server, player, handler, buf, responseSender) -> {
+                    server.execute(() -> {
+                        if (player.currentScreenHandler instanceof ShopScreenHandlerOwner screenHandler) {
+                            screenHandler.selfDemotePlayer(player);
+                            player.closeHandledScreen();
                         }
                     });
                 });
@@ -44,4 +57,6 @@ public class NetworkHelper {
                 });
 
     }
+
+
 }

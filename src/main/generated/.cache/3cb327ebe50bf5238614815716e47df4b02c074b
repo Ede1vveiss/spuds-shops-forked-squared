@@ -1,4 +1,4 @@
-// 1.20.1	2025-06-03T23:09:53.014744398	Spud's Shops/Recipes
+// 1.20.1	2025-06-06T02:03:45.595917843	Spud's Shops/Recipes
 f661ed5a2729bf8a9eb3e408030747915660f803 data/spuds_shops/recipes/shop_warped_purple.json
 07b6ca03811ece04ecfbb5609ee47830e1683d80 data/spuds_shops/advancements/recipes/building_blocks/shop_spruce_black.json
 bf9532f9e6198e944659d4de2ba89f27b5331a84 data/spuds_shops/advancements/recipes/building_blocks/shop_jungle_orange.json
@@ -68,6 +68,7 @@ fc86e1e57ffef81fc0800ab3b35b39fb2972d5e8 data/spuds_shops/advancements/recipes/b
 9d61de3cf79ee87290699fd378cf330e2763731c data/spuds_shops/advancements/recipes/building_blocks/shelf_shop_oak.json
 a1e4c060072dc2c8b49e2fb9b3bf27c7cb53693a data/spuds_shops/advancements/recipes/building_blocks/shop_spruce_red.json
 08ea6e26fad8c409dc767878bfe21d8b93783416 data/spuds_shops/recipes/shop_mangrove_cyan.json
+7956923f757191ef1d2182706be11d5733f66dce data/spuds_shops/advancements/recipes/misc/contract_scroll_wipe.json
 e51b38283a3820a8f973166d9bfac963df105fd8 data/spuds_shops/recipes/shop_spruce_pink.json
 dac2ca10e6a83112c5f0575695195727d9fa5c32 data/spuds_shops/advancements/recipes/building_blocks/shop_spruce_gray.json
 3a5b8db3074eceae1a5ceaa8de96baa26a85d72c data/spuds_shops/advancements/recipes/building_blocks/shop_birch_blue.json
@@ -218,6 +219,7 @@ e1d5d59112b229bdbfce606514deb4250845f9eb data/spuds_shops/advancements/recipes/b
 8bbbd38271a9a3182cae6ee86164a81da256bcf2 data/spuds_shops/recipes/shop_bamboo_purple.json
 7941cd019979da4a381cde98206367847fc4a4e9 data/spuds_shops/recipes/shop_spruce_light_gray.json
 5f9a377797075c462cff11022c3808fbbfae8ea0 data/spuds_shops/advancements/recipes/building_blocks/shop_dark_oak_white.json
+c5fcaf9c4d4a8d41fe9f3986f6c9a3f67c4ecf40 data/spuds_shops/recipes/contract_scroll_wipe.json
 9540ed36f0e083b5a6859ed12497f4cc24d0294c data/spuds_shops/advancements/recipes/building_blocks/shop_bamboo_gray.json
 63d83e67405a730d01f5bb3017e4101797706cb0 data/spuds_shops/advancements/recipes/building_blocks/shop_spruce_light_gray.json
 183c115690c3cae39bee4bad81b1d1a3dd3ef781 data/spuds_shops/advancements/recipes/building_blocks/shop_cherry_white.json

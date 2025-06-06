@@ -1,4 +1,4 @@
-// 1.20.1	2025-06-03T23:09:53.013580215	Spud's Shops/Model Definitions
+// 1.20.1	2025-06-06T02:03:45.59480877	Spud's Shops/Model Definitions
 5b0b0f8e7f53e59f018c1168cb78db9dc9d4bc0d assets/spudaciousshops/models/block/shelf_shop_mangrove_bottom.json
 2825ed5dbd6cf03a36288502b3cdc7b7397f0ebb assets/spudaciousshops/models/block/shelf_shop_crimson_bottom.json
 a75a042a7711f9256dee46cde40056a569630a0e assets/spudaciousshops/blockstates/shelf_shop_jungle.json
@@ -22,8 +22,8 @@ b246ab103a22d4698abc307fe2651b40aef09fd6 assets/spudaciousshops/blockstates/shel
 4261fbc454472662134139ddcaf248570a713be3 assets/spudaciousshops/models/block/shelf_shop_jungle_top.json
 7a9788eab43762f30edba317effeb18ec36be12d assets/spudaciousshops/blockstates/shelf_shop_birch.json
 a0ef6ecc863771b5b01c575ec28803dd74bfb552 assets/spudaciousshops/models/block/shelf_shop_warped_top.json
-bf0efd02b0411f946fcebdb7372cf81b0b992d44 assets/spudaciousshops/models/block/shelf_shop_acacia_bottom.json
 4de26f3a47d8a4a0393b734e96dd4a7490218532 assets/spudaciousshops/models/block/shelf_shop_cherry_top.json
+bf0efd02b0411f946fcebdb7372cf81b0b992d44 assets/spudaciousshops/models/block/shelf_shop_acacia_bottom.json
 b1dce1c32a7aef07cce933facc2a741e3289707c assets/spudaciousshops/models/block/shelf_shop_oak.json
 174eb4326c50ec27e61fdf1159060733ec11e1c6 assets/spudaciousshops/models/block/shelf_shop_bamboo.json
 e8d1d6485f816e632a388b2f7065e5484f404836 assets/spudaciousshops/models/block/shelf_shop_spruce.json

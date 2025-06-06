@@ -137,16 +137,17 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
         public void onBlockBreakStart(World world, BlockPos pos, PlayerEntity player) {
             if(this.getBlock() instanceof AbstractShopBlock) {
                 AbstractShopEntity shop = (AbstractShopEntity) world.getBlockEntity(pos);
-                assert shop != null;
-                if (shop.canBreak(player)) {
-                    world.setBlockState(pos, this.withIfExists(BREAKABLE, true));
-                    world.scheduleBlockTick(pos, this.owner, 140, TickPriority.EXTREMELY_HIGH);
-                } else {
+                if(shop != null){
+                if (!shop.canBreak(player)) {
                     world.setBlockState(pos, this.withIfExists(BREAKABLE, false));
                     if (world.isClient()) {
                         player.sendMessage(shop.cantBreakMessage(), true);
                     }
+                    return;
                 }
+                }
+                world.setBlockState(pos, this.withIfExists(BREAKABLE, true));
+                world.scheduleBlockTick(pos, this.owner, 140, TickPriority.EXTREMELY_HIGH);
             }
         }
 
@@ -211,18 +212,29 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
         }
 
         @Override
+        public void onBlockAdded(World world, BlockPos pos, BlockState state, boolean notify) {
+            BlockEntity blockEntity = world.getBlockEntity(pos);
+            if (blockEntity != null) {
+                if (blockEntity instanceof AbstractShopEntity shopEntity) {
+                    shopEntity.markDirty();
+                }
+            }
+            super.onBlockAdded(world, pos, state, notify);
+        }
+
+        @Override
         public final void onStateReplaced(World world, BlockPos pos, BlockState newState, boolean moved) {
             if(isStateReplacedValid(newState)){
-                return;
-            }
-            //final defence
-            if(this.unbreakable()){
-                world.setBlockState(pos,this);
                 return;
             }
             BlockEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity != null) {
                 if (blockEntity instanceof AbstractShopEntity shopEntity) {
+                    //final defence
+                    if(this.unbreakable()){
+                        world.setBlockState(pos,this);
+                        return;
+                    }
                     shopEntity.itemScatter(world,pos);
                     world.updateComparators(pos, this.getBlock());
                 }

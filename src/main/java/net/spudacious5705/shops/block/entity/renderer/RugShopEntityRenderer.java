@@ -25,7 +25,8 @@ public class RugShopEntityRenderer implements BlockEntityRenderer<RugShopEntity>
     @Override
     public void render(RugShopEntity shop, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
         ModelTransformationMode mode;
-        final AbstractShopEntity.RendererData data = shop.rendererData();
+        final RugShopEntity.RendererData data = shop.rendererData();
+        final RugShopEntity.RugRenderData furtherData = shop.furtherData();
         if(data == null){
             return;
         }
@@ -55,7 +56,7 @@ public class RugShopEntityRenderer implements BlockEntityRenderer<RugShopEntity>
             matrices.translate(0f, 0.5f, 0f);
 
 
-            float foo = shop.itemHeight;
+            float foo = furtherData.itemHeight;
 
             float rand = (float)(Math.random() * 0.02f);
             foo = (foo + delta*(0.02f+rand)) % 6.28318530718f ;
@@ -64,12 +65,12 @@ public class RugShopEntityRenderer implements BlockEntityRenderer<RugShopEntity>
 
             matrices.translate(0f, Math.sin(foo)*0.15f, 0f);
 
-            shop.itemHeight = foo;
+            furtherData.itemHeight = foo;
 
             rand = (float)(Math.random() * 0.03);
 
-            foo = shop.itemRotationY;
-            if(shop.rotateDirectionY) {
+            foo = furtherData.itemRotationY;
+            if(furtherData.rotateDirectionY) {
                 foo = (foo + delta * (0.2f + rand)) % 360;
             } else{
                 foo = (foo - delta * (0.2f + rand)) % 360;
@@ -77,12 +78,12 @@ public class RugShopEntityRenderer implements BlockEntityRenderer<RugShopEntity>
 
             matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(foo));
 
-            shop.itemRotationY = foo;
+            furtherData.itemRotationY = foo;
 
             rand = (float)(Math.random()*0.05f);
-            foo = shop.itemRotationX;
+            foo = furtherData.itemRotationX;
 
-            if(shop.rotateDirectionX) {
+            if(furtherData.rotateDirectionX) {
                 foo = (foo + delta * (1.25f + rand)) % 360;
             } else{
                 foo = (foo - delta * (1.25f + rand)) % 360;
@@ -90,17 +91,17 @@ public class RugShopEntityRenderer implements BlockEntityRenderer<RugShopEntity>
 
             matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(foo));
 
-            shop.itemRotationX = foo;
+            furtherData.itemRotationX = foo;
 
-            foo = shop.itemRotationSpeedZ;
+            foo = furtherData.itemRotationSpeedZ;
             foo = (float) clamp(foo+((Math.random())-0.5f)*delta*0.05f,-0.3f,0.3f);
-            shop.itemRotationSpeedZ = foo;
+            furtherData.itemRotationSpeedZ = foo;
 
-            foo = (shop.itemRotationZ+foo)%360f;
+            foo = (furtherData.itemRotationZ+foo)%360f;
 
             matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(foo));
 
-            shop.itemRotationZ = foo;
+            furtherData.itemRotationZ = foo;
 
 
             matrices.scale(0.8f, 0.8f, 0.8f);

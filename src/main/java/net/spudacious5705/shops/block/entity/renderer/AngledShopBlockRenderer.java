@@ -10,8 +10,8 @@ import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.RotationAxis;
+import net.spudacious5705.shops.block.entity.AbstractShopEntity;
 import net.spudacious5705.shops.block.entity.AngledShopEntity;
-import net.spudacious5705.shops.block.entity.AbstractShopEntity.RendererData;
 import net.spudacious5705.shops.util.CushionModel;
 
 public class AngledShopBlockRenderer implements BlockEntityRenderer<AngledShopEntity> {
@@ -28,7 +28,7 @@ public class AngledShopBlockRenderer implements BlockEntityRenderer<AngledShopEn
     @Override
     public void render(AngledShopEntity shop, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
         ModelTransformationMode mode;
-        final RendererData data = shop.rendererData();
+        final AngledShopEntity.RendererData data = shop.rendererData();
 
         matrices.push();
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(

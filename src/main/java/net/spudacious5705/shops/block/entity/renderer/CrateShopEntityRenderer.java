@@ -54,7 +54,7 @@ public class CrateShopEntityRenderer implements BlockEntityRenderer<CrateShopEnt
     @Override
     public void render(CrateShopEntity shop, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
         ModelTransformationMode mode;
-        final AbstractShopEntity.RendererData data = shop.rendererData();
+        final CrateShopEntity.RendererData data = shop.rendererData();
         if(data == null){
             return;
         }

@@ -34,6 +34,8 @@ public abstract class ModBlocks{
     }
 
     public static final List<AbstractShopBlock> ALL_SHOPS = new ArrayList<>();
+    public static final List<AbstractShopBlock> BASIC_SHOPS = new ArrayList<>();
+
     public static final List<ShelfShopBlock> ALL_SHELF_SHOPS = new ArrayList<>(11);
 
     public static final AngledShopBlock SHOP_BLOCK_ANGLED_ACACIA = registerAngledShopBlock("acacia", Items.ACACIA_PLANKS);
@@ -78,34 +80,44 @@ public abstract class ModBlocks{
                 new BlockItem(shop, new FabricItemSettings())
         );
 
-        return addToAllShops(
+        return addToBasicShops(
+                addToAllShops(
+                Registry.register(
+                        Registries.BLOCK,
+                        id,
+                        shop
+                )
+                )
+        );
+    }
+
+    private static ShelfShopBlock registerShelf(String name, Block slab){
+
+        ShelfShopBlock shop = new ShelfShopBlock(settingsWood,slab,name);
+
+        name = "shelf_shop_"+name;
+        Identifier id = SpudaciousShops.id(name);
+
+        Registry.register(
+                Registries.ITEM,
+                id,
+                new BlockItem(shop, new FabricItemSettings())
+        );
+
+        shop = addToAllShops(
                 Registry.register(
                         Registries.BLOCK,
                         id,
                         shop
                 )
         );
-    }
 
-    private static ShelfShopBlock registerShelf(String name, Block slab){
-        ShelfShopBlock newShop = registerBasic("shelf_shop_"+name,new ShelfShopBlock(settingsWood,slab,name));
-        ALL_SHELF_SHOPS.add(newShop);
-        return newShop;
+        ALL_SHELF_SHOPS.add(shop);
+        return shop;
     }
 
     private static WindowSillShopBlock registerWindowShopBlock(String name, Item stoneType) {
-        Identifier id = SpudaciousShops.id("shop_window_"+name);
-        WindowSillShopBlock block = new WindowSillShopBlock(settingsStone, stoneType);
-
-        Registry.register(Registries.ITEM, id, new BlockItem(block, new FabricItemSettings()));
-
-        return addToAllShops(
-                Registry.register(
-                        Registries.BLOCK,
-                        id,
-                        block
-                )
-        );
+        return registerBasic("shop_window_"+name,new WindowSillShopBlock(settingsStone, stoneType));
     }
 
     private static AngledShopBlock registerAngledShopBlock(String name, Item woodType) {
@@ -128,6 +140,11 @@ public abstract class ModBlocks{
 
     private static <S extends AbstractShopBlock> S addToAllShops(S register) {
         ALL_SHOPS.add(register);
+        return register;
+    }
+
+    private static <S extends AbstractShopBlock> S addToBasicShops(S register) {
+        BASIC_SHOPS.add(register);
         return register;
     }
 

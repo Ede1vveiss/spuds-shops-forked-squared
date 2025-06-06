@@ -26,9 +26,9 @@ public enum ScreenSettingsGroup {
                     33,172,
                     60,10,
                     23,11),
-            198,164,
-            198,190,
-            198,216
+            201,169,
+            201,195,
+            201,221
     );
 
     final ScreenSettings CUSTOMER;

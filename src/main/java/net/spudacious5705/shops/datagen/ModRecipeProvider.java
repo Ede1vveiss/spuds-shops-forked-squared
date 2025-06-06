@@ -8,6 +8,7 @@ import net.minecraft.data.server.recipe.*;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.recipe.book.RecipeCategory;
+import net.spudacious5705.shops.SpudaciousShops;
 import net.spudacious5705.shops.block.ModBlocks;
 import net.spudacious5705.shops.block.custom.AngledShopBlock;
 import net.spudacious5705.shops.block.custom.ShelfShopBlock;
@@ -106,7 +107,10 @@ public class ModRecipeProvider extends FabricRecipeProvider {
                 .criterion(hasItem(Items.FEATHER), conditionsFromItem(Items.FEATHER))
                 .offerTo(consumer);
 
-
+        ShapelessRecipeJsonBuilder.create(RecipeCategory.MISC, ModItems.CONTRACT_SCROLL)
+                .input(ModItems.CONTRACT_SCROLL)
+                .criterion(hasItem(ModItems.CONTRACT_SCROLL), conditionsFromItem(ModItems.CONTRACT_SCROLL))
+                .offerTo(consumer, SpudaciousShops.id("contract_scroll_wipe"));
 
     }
 

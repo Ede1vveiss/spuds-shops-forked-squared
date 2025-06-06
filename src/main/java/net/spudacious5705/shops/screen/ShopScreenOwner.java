@@ -3,6 +3,8 @@ package net.spudacious5705.shops.screen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
@@ -10,6 +12,7 @@ import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
@@ -18,6 +21,8 @@ import net.spudacious5705.shops.SpudaciousShops;
 import org.intellij.lang.annotations.MagicConstant;
 
 import java.util.List;
+
+import static net.spudacious5705.shops.screen.networking.NetworkHelper.SHOP_SELF_DEMOTE;
 
 public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
     private final ScreenSettingsGroup SETTINGS;
@@ -38,16 +43,15 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
         handler.initiateWarn(this::openWarnPopup);
     }
 
-    private ShopScreenHandlerOwner.InteractorContractRemover remover;
-
     private void closeWarnPopup(){
         setStateAllButtons(true);
         switchToSettingsTab();
     }
 
-    private void endOwnership(){
-        if(remover != null)remover.remove();
-        this.close();
+    private void WarnPopupContinue(){
+        PacketByteBuf buf = PacketByteBufs.create();
+        ClientPlayNetworking.send(SHOP_SELF_DEMOTE,buf);
+
     }
 
     private void setStateAllButtons(boolean state){
@@ -73,31 +77,29 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
 
         int posX = SETTINGS.tab1ButtonX+x;
         int posY = SETTINGS.tab1ButtonY+y;
-        SellerTabButton = addDrawableChild(new TabWidget(posX, posY, 20,20, Text.of(""), this::switchToSellerTab, true, STORAGE_ICON, true));
+        SellerTabButton = addDrawableChild(new TabWidget(posX, posY, Text.of(""), this::switchToSellerTab, true, STORAGE_ICON, true));
 
 
         posX = SETTINGS.tab2ButtonX+x;
         posY = SETTINGS.tab2ButtonY+y;
-        SettingsTabButton = addDrawableChild(new TabWidget(posX, posY, 20,20, Text.of(""), this::switchToSettingsTab, true, COG_ICON));
+        SettingsTabButton = addDrawableChild(new TabWidget(posX, posY, Text.of(""), this::switchToSettingsTab, true, COG_ICON));
 
 
         posX = SETTINGS.tab3ButtonX+x;
         posY = SETTINGS.tab3ButtonY+y;
-        ShopFrontTabButton = addDrawableChild(new TabWidget(posX, posY, 20,20, Text.of(""), this::switchToCustomerTab, true, SHOPFRONT_ICON));
+        ShopFrontTabButton = addDrawableChild(new TabWidget(posX, posY, Text.of(""), this::switchToCustomerTab, true, SHOPFRONT_ICON));
 
 
         posX = 130+x;
         posY = 150+y;
-        WarningCancel = addDrawableChild(new TabWidget(posX, posY, 20,20, Text.of(""), this::closeWarnPopup, false, COG_ICON));
+        WarningCancel = addDrawableChild(new ButtonWidget(posX, posY, Text.of("CANCEL"), this::closeWarnPopup, COG_ICON, COG_ICON));
 
+        posX = 40+x;
+        WarningProceed = addDrawableChild(new ButtonWidget(posX, posY, Text.of("CONTINUE"), this::WarnPopupContinue,COG_ICON, COG_ICON));
 
-        posX = 150+x;
-        posY = 150+y;
-        WarningProceed = addDrawableChild(new TabWidget(posX, posY, 20,20, Text.of(""), this::endOwnership, false, COG_ICON));
 
         addToolTipTexts();
     }
-
 
     private void switchToCustomerTab() {
         handler.updateTabSelectionClientside(ShopScreenHandlerOwner.CUSTOMER_TAB);
@@ -130,9 +132,8 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
         SellerTabButton.unToggle();
     }
 
-    void openWarnPopup(ShopScreenHandlerOwner.InteractorContractRemover remover){
+    void openWarnPopup(){
         handler.updateTabSelectionClientside(ShopScreenHandlerOwner.WARNING_TAB);
-        this.remover = remover;
         warnGUI();
     }
     private void warnGUI(){
@@ -164,8 +165,8 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
     TabWidget SellerTabButton;
     TabWidget SettingsTabButton;
     TabWidget ShopFrontTabButton;
-    TabWidget WarningCancel;
-    TabWidget WarningProceed;
+    ButtonWidget WarningCancel;
+    ButtonWidget WarningProceed;
 
     @Override
     protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY) {
@@ -301,12 +302,12 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
 
         private boolean toggle;
 
-        public TabWidget(int x, int y, int width, int height, Text message, TabSwitcher tab, boolean visible, Identifier texture) {
-            this(x,y,width,height,message,tab,visible,texture,false);
+        public TabWidget(int x, int y, Text message, TabSwitcher tab, boolean visible, Identifier texture) {
+            this(x,y, message,tab,visible,texture,false);
         }
 
-        public TabWidget(int x, int y, int width, int height, Text message, TabSwitcher tab, boolean visible, Identifier texture, boolean toggle) {
-            super(x, y, width, height, message);
+        public TabWidget(int x, int y, Text message, TabSwitcher tab, boolean visible, Identifier texture, boolean toggle) {
+            super(x, y, 18, 20, message);
             this.thisTab = tab;
             this.visible = visible;
             this.toggle = toggle;
@@ -315,8 +316,8 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
 
         @Override
         protected void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
-            int x = this.getX();
-            int y = this.getY();
+            int x = this.getX()-3;
+            int y = this.getY()-6;
             if(toggle){
                 context.drawTexture(TAB_SELECTED,x,y,32,32,0f,0f,32,32,32,32);
             }else if(hovered){
@@ -332,15 +333,46 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
             toggle = true;
         }
 
-        public void onRelease(double mouseX, double mouseY) {
-        }
-
         void unToggle(){
             this.toggle = false;
         }
 
         void toggle(){
             this.toggle = true;
+        }
+
+        @Override
+        protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
+    }
+
+    private class ButtonWidget extends ClickableWidget{
+
+        private final TabSwitcher FUNCTION;
+        private final Identifier TEXTURE;
+        private final Identifier TEXTURE_HOVERED;
+
+        public ButtonWidget(int x, int y, Text message, TabSwitcher function, Identifier texture, Identifier textureHovered) {
+            super(x, y, 40, 20, message);
+            this.FUNCTION = function;
+            this.visible = false;
+            this.TEXTURE = texture;
+            this.TEXTURE_HOVERED = textureHovered;
+        }
+
+        @Override
+        protected void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
+            int x = this.getX();
+            int y = this.getY();
+            if(hovered){
+                context.drawTexture(TEXTURE_HOVERED,x,y,32,32,0f,0f,32,32,32,32);
+            }else{
+                context.drawTexture(TEXTURE,x,y,32,32,0f,0f,32,32,32,32);
+            }
+        }
+
+        @Override
+        public void onClick(double mouseX, double mouseY) {
+            FUNCTION.switchTo();
         }
 
         @Override

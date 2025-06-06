@@ -12,6 +12,8 @@ import net.minecraft.loot.function.SetCountLootFunction;
 import net.minecraft.loot.provider.number.ConstantLootNumberProvider;
 import net.minecraft.predicate.StatePredicate;
 import net.minecraft.state.property.Properties;
+import net.spudacious5705.shops.block.ModBlocks;
+import net.spudacious5705.shops.block.custom.AbstractShopBlock;
 import net.spudacious5705.shops.block.custom.AngledShopBlock;
 import net.spudacious5705.shops.block.custom.ShelfShopBlock;
 import net.spudacious5705.shops.lootcondition.MatchingCushionColourCondition;
@@ -19,8 +21,7 @@ import net.spudacious5705.shops.properties.Colour;
 
 import java.util.List;
 
-import static net.spudacious5705.shops.block.ModBlocks.getAllShops;
-import static net.spudacious5705.shops.block.ModBlocks.registerModBlocks;
+import static net.spudacious5705.shops.block.ModBlocks.*;
 
 
 public class ModLootTableProvider extends FabricBlockLootTableProvider {
@@ -87,6 +88,15 @@ public class ModLootTableProvider extends FabricBlockLootTableProvider {
             lootTable.pool(extraPool);
 
             addDrop(shop, lootTable);
+        }
+        
+
+        for(AbstractShopBlock shop : BASIC_SHOPS) {
+            addDrop(shop, LootTable.builder().pool(
+                    LootPool.builder()
+                            .rolls(ConstantLootNumberProvider.create(1))
+                            .with(ItemEntry.builder(shop))));
+
         }
 
     }

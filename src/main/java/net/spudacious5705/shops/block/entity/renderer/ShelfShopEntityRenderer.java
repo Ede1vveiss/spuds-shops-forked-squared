@@ -8,6 +8,7 @@ import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.RotationAxis;
+import net.spudacious5705.shops.block.entity.AbstractShopEntity;
 import net.spudacious5705.shops.block.entity.ShelfShopEntity;
 
 public class ShelfShopEntityRenderer implements BlockEntityRenderer<ShelfShopEntity>, ShopRenderUtils {
@@ -22,8 +23,8 @@ public class ShelfShopEntityRenderer implements BlockEntityRenderer<ShelfShopEnt
     @Override
     public void render(ShelfShopEntity shop, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
 
-        final ShelfShopEntity.RendererData2 data1 = (ShelfShopEntity.RendererData2) shop.rendererData();
-        final ShelfShopEntity.RendererData2 data2 = shop.rendererData2();
+        final ShelfShopEntity.RendererData data1 = shop.rendererData();
+        final ShelfShopEntity.RendererData data2 = shop.rendererDataTop();
 
         //global rotation and translation
         matrices.push();
@@ -38,21 +39,22 @@ public class ShelfShopEntityRenderer implements BlockEntityRenderer<ShelfShopEnt
                         }),
                 0f, 0f, 0f);
 
-        renderShelf(data1, tickDelta, matrices, vertexConsumers, light, overlay);
+        //render bottom
+        renderShelf(data1, tickDelta, matrices, vertexConsumers, light, overlay, shop.furtherDataBottom());
 
+        //render top
         matrices.translate(0f, 0.44f, 0f);
-        renderShelf(data2, tickDelta, matrices, vertexConsumers, light, overlay);
+        renderShelf(data2, tickDelta, matrices, vertexConsumers, light, overlay, shop.furtherDataTop());
 
         matrices.pop();
-        if(data1.shopFunctional()) {
-            ShopRenderUtils.renderShopWarns(tickDelta, matrices, vertexConsumers, light, overlay, data1, context, -1.05f, 0.3f);
-        }
-        if(data2.shopFunctional()) {
-            ShopRenderUtils.renderShopWarns(tickDelta, matrices, vertexConsumers, light, overlay, data2, context, -0.6f, 0.3f);
-        }
+
+        ShopRenderUtils.renderShopWarns(tickDelta, matrices, vertexConsumers, light, overlay, data1, context, -1.05f, 0.3f);
+
+        ShopRenderUtils.renderShopWarns(tickDelta, matrices, vertexConsumers, light, overlay, data2, context, -0.6f, 0.3f);
+
     }
 
-    private void renderShelf(ShelfShopEntity.RendererData2 data, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay){
+    private void renderShelf(ShelfShopEntity.RendererData data, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay, ShelfShopEntity.ShelfRenderData furtherData){
         ModelTransformationMode mode;
         float itemTranslationFactor;
         RotationAxis rotationAxis;
@@ -86,14 +88,14 @@ public class ShelfShopEntityRenderer implements BlockEntityRenderer<ShelfShopEnt
                     //left
                     matrices.push();
                     matrices.translate(-itemTranslationFactor, 0f, -y*0.05f);
-                    matrices.multiply(rotationAxis.rotationDegrees(data.itemLrotation+(y+1)*55f));
+                    matrices.multiply(rotationAxis.rotationDegrees(furtherData.itemLrotation+(y+1)*55f));
                     this.context.getItemRenderer().renderItem(data.displayItem(), mode, light, OverlayTexture.DEFAULT_UV, matrices, vertexConsumers, data.world(), 1);
                     matrices.pop();
 
                     //right
                     matrices.push();
                     matrices.translate(itemTranslationFactor, 0f, -y*0.05f);
-                    matrices.multiply(rotationAxis.rotationDegrees(data.itemRrotation+(y+1)*55f));
+                    matrices.multiply(rotationAxis.rotationDegrees(furtherData.itemRrotation+(y+1)*55f));
                     this.context.getItemRenderer().renderItem(data.displayItem(), mode, light, OverlayTexture.DEFAULT_UV, matrices, vertexConsumers, data.world(), 1);
                     matrices.pop();
                 }

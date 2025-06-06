@@ -22,7 +22,7 @@ public class HookShopEntityRenderer implements BlockEntityRenderer<HookShopEntit
     @Override
     public void render(HookShopEntity shop, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
         ModelTransformationMode mode;
-        final AbstractShopEntity.RendererData data = shop.rendererData();
+        final HookShopEntity.RendererData data = shop.rendererData();
         if(data == null){
             return;
         }

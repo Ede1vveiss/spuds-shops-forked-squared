@@ -62,5 +62,6 @@ public class ModBlockEntities {
 
     public static void registerBlockEntities() {
         SpudaciousShops.LOGGER.info("Registering block entities for" + SpudaciousShops.MOD_ID);
+        AbstractShopEntity.initialiseStaticMethods();
     }
 }
