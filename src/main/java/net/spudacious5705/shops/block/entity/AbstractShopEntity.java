@@ -17,6 +17,8 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
@@ -609,26 +611,30 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
 
     @Override
     public void readNbt(NbtCompound nbt) {
-        super.readNbt(nbt);
         Inventories.readNbt(nbt, shopInventory);
         identificationRecords.clear();
-        int index = 0;
-        String extension = Integer.toString(index);
-        while (nbt.contains(CONTRACT_UUID+extension)){
-            String name = nbt.getString(CONTRACT_NAME+extension);
-            UUID uuid = nbt.getUuid(CONTRACT_UUID+extension);
-            PermissionLevel perms = PermissionLevel.fromInt(nbt.getInt(CONTRACT_LEVEL+extension));
-            if(perms.asInt()>0){
-            identificationRecords.add(
-                    new PlayerID(
-                            uuid,
-                            name,
-                            perms
-                    )
-            );
+
+        if(nbt.contains(CONTRACTS, NbtCompound.LIST_TYPE)){
+            NbtList contractList = nbt.getList(CONTRACTS, NbtElement.COMPOUND_TYPE);
+
+            for (int index = 0; index < contractList.size(); index++) {
+                NbtCompound contract = contractList.getCompound(index);
+
+                String name = contract.getString(CONTRACT_NAME);
+                UUID uuid = contract.getUuid(CONTRACT_UUID);
+                PermissionLevel perms = PermissionLevel.fromInt(contract.getInt(CONTRACT_LEVEL));
+
+                if(perms.asInt()>0){
+                    identificationRecords.add(
+                            new PlayerID(
+                                    uuid,
+                                    name,
+                                    perms
+                            )
+                    );
+                }
+
             }
-            index++;
-            extension = Integer.toString(index);
         }
 
         copyRecordsToContracts();
@@ -658,19 +664,30 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
     private static final String CONTRACT_UUID = "contract_uuid";
     @MagicConstant
     private static final String CONTRACT_LEVEL = "contract_lvl";
+    @MagicConstant
+    private static final String CONTRACTS = "contracts";
 
     @Override
     protected void writeNbt(NbtCompound nbt) {
-        Inventories.writeNbt(nbt, shopInventory);
-        int index = 0;
-        String extension;
+        Inventories.writeNbt(nbt, shopInventory, false);
+
+        NbtList contractList = new NbtList();
+
         for(PlayerID id :identificationRecords){
-            extension = Integer.toString(index);
-            nbt.putString(CONTRACT_NAME+extension,id.name);
-            nbt.putUuid(CONTRACT_UUID+extension,id.uuid);
-            nbt.putInt(CONTRACT_LEVEL+extension,id.permissionLevel.asInt());
-            index++;
+
+            NbtCompound contractNBT = new NbtCompound();
+
+            contractNBT.putString(CONTRACT_NAME,id.name);
+            contractNBT.putUuid(CONTRACT_UUID,id.uuid);
+            contractNBT.putInt(CONTRACT_LEVEL,id.permissionLevel.asInt());
+
+            contractList.add(contractNBT);
         }
+
+        if (!contractList.isEmpty()) {
+            nbt.put(CONTRACTS, contractList);
+        }
+
 
         nbt.putInt("decay_timer",this.decayTimer);
         super.writeNbt(nbt);

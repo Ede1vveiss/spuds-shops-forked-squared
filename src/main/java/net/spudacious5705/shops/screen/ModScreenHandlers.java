@@ -23,6 +23,5 @@ public class ModScreenHandlers {
     }
     public static void registerScreenHandlers() {
         SpudaciousShops.LOGGER.info("Registering screen handlers for " + SpudaciousShops.MOD_ID);
-
     }
 }

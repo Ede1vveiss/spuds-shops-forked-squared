@@ -12,7 +12,7 @@ import net.spudacious5705.shops.block.custom.ShelfShopBlock;
 public class ModBlockEntities {
 
     public static final BlockEntityType<AngledShopEntity> ANGLED_SHOP_ENTITY =
-            Registry.register(Registries.BLOCK_ENTITY_TYPE, new Identifier(SpudaciousShops.MOD_ID, "shop_b_e_angled"),
+            Registry.register(Registries.BLOCK_ENTITY_TYPE, new Identifier(SpudaciousShops.MOD_ID, "shop_b_e"),
                     FabricBlockEntityTypeBuilder.create(AngledShopEntity::new,
                             ModBlocks.SHOP_BLOCK_ANGLED_OAK,
                             ModBlocks.SHOP_BLOCK_ANGLED_BAMBOO,

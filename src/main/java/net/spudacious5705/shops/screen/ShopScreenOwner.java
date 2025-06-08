@@ -83,6 +83,7 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
         playerInventoryTitleX = 1000;
         titleX = 1000;
 
+        String t = Text.translatable("gui.spudaciousshops.text_none").getString();
         int posX = SETTINGS.tab1ButtonX+x;
         int posY = SETTINGS.tab1ButtonY+y;
         SellerTabButton = addDrawableChild(new TabWidget(posX, posY, Text.of(""), this::switchToSellerTab, true, STORAGE_ICON, true));
@@ -100,11 +101,10 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
 
         posX = 22+x;
         posY = 128+y;
-        WarningCancel = addDrawableChild(new ButtonWidget(posX, posY, Text.of("CANCEL"), this::closeWarnPopup, GREEN_BUTTON, GREEN_BUTTON_SELECTED));
+        WarningCancel = addDrawableChild(new ButtonWidget(posX, posY, Text.of("CANCEL"), this::closeWarnPopup, GREEN_BUTTON, GREEN_BUTTON_SELECTED, CANCEL, 3840));
 
         posX += 113;
-        WarningProceed = addDrawableChild(new ButtonWidget(posX, posY, Text.of("CONTINUE"), this::WarnPopupContinue, RED_BUTTON, RED_BUTTON_SELECTED));
-
+        WarningProceed = addDrawableChild(new ButtonWidget(posX, posY, Text.of("CONTINUE"), this::WarnPopupContinue, RED_BUTTON, RED_BUTTON_SELECTED, DELETE, 984329));
 
         addToolTipTexts();
         addWarnPopupTexts();
@@ -233,70 +233,75 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
         drawMouseoverTooltip(context, mouseX, mouseY);
     }
 
+    private final String PERMISSIONS = Text.translatable("gui.spudaciousshops.text_permissions").getString();
+    private final String IMPORT_ITEMS = Text.translatable("gui.spudaciousshops.text_import_items").getString();
+    private final String TAKE_ITEMS = Text.translatable("gui.spudaciousshops.text_take_items").getString();
+    private final String EDIT_PERMS = Text.translatable("gui.spudaciousshops.text_edit_perms").getString();
+    private final String CHANGE_TRADE = Text.translatable("gui.spudaciousshops.text_change_trade").getString();
+    private final String BREAK_SHOP = Text.translatable("gui.spudaciousshops.text_break_shop").getString();
+    private final String YES = Text.translatable("gui.spudaciousshops.text_yes").getString();
+    private final String NO = Text.translatable("gui.spudaciousshops.text_no").getString();
+    private final String ALL = Text.translatable("gui.spudaciousshops.text_all").getString();
+    private final String SUPERVISOR_AND_LOWER = Text.translatable("gui.spudaciousshops.text_supervisor_and_lower").getString();
+    private final String NONE = Text.translatable("gui.spudaciousshops.text_none").getString();
+
+
     private void addToolTipTexts(){
         int textX = x+14;
         int textY = y+64;
         @MagicConstant
         int increment = 22;
 
+        Text permissions_title = Text.of("§l" + PERMISSIONS + ":");
         TEXTS[0] = new ToolTipText(OWNER, textX, textY,
                 List.of(
-                        Text.of("§l Permissions:"),
-                        Text.of("§a + Import Items: YES"),
-                        Text.of("§a + Take Items: YES"),
-                        Text.of("§a + Edit permissions of: ALL"),
-                        Text.of("§a + Change the trade: YES"),
-                        Text.of("§a + Break the shop: YES")
+                        permissions_title,
+                        Text.of("§a + "+IMPORT_ITEMS+": "+YES),
+                        Text.of("§a + "+TAKE_ITEMS+": "+YES),
+                        Text.of("§a + "+EDIT_PERMS+": "+ALL),
+                        Text.of("§a + "+CHANGE_TRADE+": "+YES),
+                        Text.of("§a + "+BREAK_SHOP+": "+YES)
         ));
         textY += increment;
         TEXTS[1] = new ToolTipText(MANAGER, textX, textY,
                 List.of(
-                        Text.of("§l Permissions:"),
-                        Text.of("§a + Import Items: YES"),
-                        Text.of("§a + Take Items: YES"),
-                        Text.of("§9 + Edit permissions of: Supervisor and lower"),
-                        Text.of("§c - Change the trade: NO"),
-                        Text.of("§c - Break the shop: NO")
+                        permissions_title,
+                        Text.of("§a + "+IMPORT_ITEMS+": "+YES),
+                        Text.of("§a + "+TAKE_ITEMS+": "+YES),
+                        Text.of("§9 + "+EDIT_PERMS+": "+SUPERVISOR_AND_LOWER),
+                        Text.of("§c - "+CHANGE_TRADE+": "+NO),
+                        Text.of("§c - "+BREAK_SHOP+": "+NO)
                 ));
         textY += increment;
         TEXTS[2] = new ToolTipText(SUPERVISOR, textX, textY,
                 List.of(
-                        Text.of("§l Permissions:"),
-                        Text.of("§a + Import Items: YES"),
-                        Text.of("§a + Take Items: YES"),
-                        Text.of("§c - Edit permissions of: NONE"),
-                        Text.of("§c - Change the trade: NO"),
-                        Text.of("§c - Break the shop: NO")
+                        permissions_title,
+                        Text.of("§a + "+IMPORT_ITEMS+": "+YES),
+                        Text.of("§a + "+TAKE_ITEMS+": "+YES),
+                        Text.of("§c - "+EDIT_PERMS+": "+NONE),
+                        Text.of("§c - "+CHANGE_TRADE+": "+NO),
+                        Text.of("§c - "+BREAK_SHOP+": "+NO)
                 ));
         textY += increment;
         TEXTS[3] = new ToolTipText(CLERK, textX, textY,
                 List.of(
-                        Text.of("§l Permissions:"),
-                        Text.of("§a + Import Items: YES"),
-                        Text.of("§c - Take Items: NO"),
-                        Text.of("§c - Edit permissions of: NONE"),
-                        Text.of("§c - Change the trade: NO"),
-                        Text.of("§c - Break the shop: NO")
+                        permissions_title,
+                        Text.of("§a + "+IMPORT_ITEMS+": "+YES),
+                        Text.of("§c - "+TAKE_ITEMS+": "+NO),
+                        Text.of("§c - "+EDIT_PERMS+": "+NONE),
+                        Text.of("§c - "+CHANGE_TRADE+": "+NO),
+                        Text.of("§c - "+BREAK_SHOP+": "+NO)
                 ));
-
     }
 
-    //TODO make this method static
     private void addWarnPopupTexts(){
-        int textX = x+55;
+        int textX = x+110;
         int textY = y+84;
         WARN_TEXTS[0] = new Warn_popup_texts(textX,textY,WARN_TITLE,14745600, true);
-        textX -= 43;
         textY += 20;
         WARN_TEXTS[1] = new Warn_popup_texts(textX,textY,WARN_LINE_1,986895, false);
-        textX += 15;
         textY += 10;
         WARN_TEXTS[2] = new Warn_popup_texts(textX,textY,WARN_LINE_2,986895, false);
-        textX += 12;
-        textY += 27;
-        WARN_TEXTS[3] = new Warn_popup_texts(textX,textY,CANCEL,3840, false);
-        textX += 113;
-        WARN_TEXTS[4] = new Warn_popup_texts(textX,textY,DELETE,984320, false);
     }
 
     private final ToolTipText[] TEXTS = new ToolTipText[4];
@@ -320,7 +325,7 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
         }
 
         public void render(DrawContext context, TextRenderer textRenderer, int mouseX, int mouseY){
-            context.drawText(textRenderer, TEXT, X, Y, 11141290, true);
+            context.drawText(textRenderer, TEXT, X, Y, 11141290, false);
             if(mouseX >= X && mouseX<=Xmax){
                 if(mouseY >= Y && mouseY<=Ymax){
                     context.drawTooltip(textRenderer, TOOLTIP,mouseX,mouseY);
@@ -385,18 +390,20 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
         protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
     }
 
-    private static class ButtonWidget extends ClickableWidget{
+    private class ButtonWidget extends ClickableWidget{
 
         private final TabSwitcher FUNCTION;
         private final Identifier TEXTURE;
         private final Identifier TEXTURE_HOVERED;
+        private final Warn_popup_texts TEXT;
 
-        public ButtonWidget(int x, int y, Text message, TabSwitcher function, Identifier texture, Identifier textureHovered) {
+        public ButtonWidget(int x, int y, Text message, TabSwitcher function, Identifier texture, Identifier textureHovered, MutableText text, int colour) {
             super(x, y, 64, 28, message);
             this.FUNCTION = function;
             this.visible = false;
             this.TEXTURE = texture;
             this.TEXTURE_HOVERED = textureHovered;
+            this.TEXT = new Warn_popup_texts(x+32,y+13,text,colour, false);
         }
 
         @Override
@@ -405,8 +412,20 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
             int y = this.getY()-16;
             if(hovered){
                 context.drawTexture(TEXTURE_HOVERED,x,y,64,64,0f,0f,64,64,64,64);
+                renderText(context,true);
             }else{
                 context.drawTexture(TEXTURE,x,y,64,64,0f,0f,64,64,64,64);
+                renderText(context,false);
+            }
+        }
+
+        private void renderText(DrawContext context, boolean offset){
+            if(client != null) {
+                if(offset){
+                    TEXT.renderOffset(context,client.textRenderer);
+                }else{
+                    TEXT.render(context,client.textRenderer);
+                }
             }
         }
 
@@ -419,11 +438,15 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
         protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
     }
 
-    private final Warn_popup_texts[] WARN_TEXTS = new Warn_popup_texts[5];
+    private final Warn_popup_texts[] WARN_TEXTS = new Warn_popup_texts[3];
 
     private record Warn_popup_texts(int x, int y, MutableText text, int colour, boolean shadow){
-        void render(DrawContext context, TextRenderer textRenderer) {
-            context.drawText(textRenderer, text, x, y, colour, shadow);
+
+        void render(DrawContext context, TextRenderer textRenderer){
+            context.drawText(textRenderer, text, x - textRenderer.getWidth(text) / 2, y, colour, shadow);
+        }
+        void renderOffset(DrawContext context, TextRenderer textRenderer) {
+            context.drawText(textRenderer, text, 1+x - textRenderer.getWidth(text) / 2, y, colour, shadow);
         }
     }
 }
