@@ -72,7 +72,7 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
 
     private static final Identifier COG_ICON = SpudaciousShops.id("textures/gui/settings.png");
     private static final Identifier STORAGE_ICON = SpudaciousShops.id("textures/gui/storage.png");
-    private static final Identifier SHOPFRONT_ICON = SpudaciousShops.id("textures/gui/storage.png");
+    private static final Identifier SHOPFRONT_ICON = SpudaciousShops.id("textures/gui/trade.png");
     private static final Identifier TAB_SELECTED = SpudaciousShops.id("textures/gui/tab_selected.png");
     private static final Identifier TAB_DESELECTED = SpudaciousShops.id("textures/gui/tab_deselected.png");
     private static final Identifier TAB_HOVER = SpudaciousShops.id("textures/gui/tab_hover.png");
