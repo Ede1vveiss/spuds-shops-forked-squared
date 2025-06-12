@@ -7,6 +7,7 @@ import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.item.Items;
 import net.minecraft.util.math.RotationAxis;
 import net.spudacious5705.shops.block.entity.AbstractShopEntity;
 import net.spudacious5705.shops.block.entity.RugShopEntity;
@@ -217,7 +218,7 @@ public class RugShopEntityRenderer implements BlockEntityRenderer<RugShopEntity>
                 matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(-45f));
             }
             matrices.scale(scale, scale, scale);
-            
+
             this.context.getItemRenderer().renderItem(data.paymentType(), mode, light, overlay, matrices, vertexConsumers, data.world(), 1);
             matrices.pop();
 

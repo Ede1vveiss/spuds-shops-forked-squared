@@ -149,14 +149,14 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
     }
 
     private void addShopTrades(){
-        int x = 23;
-        int y = 11;
+        int x = 24;
+        int y = 23;
 
         new shop_trade_slot(shopInventory, PAYMENT_SLOT, x, y);
-        new shop_trade_slot(shopInventory, VENDING_SLOT, x, y + 38);
+        new shop_trade_slot(shopInventory, VENDING_SLOT, x, y + 44);
 
-        new shop_payment_slot(shopInventory, PAYMENT_SLOT, 105, 99);
-        new shop_vendor_slot(shopInventory, VENDING_SLOT, 105, 147,this);
+        new shop_payment_slot(shopInventory, PAYMENT_SLOT, 105-34, 99+25);
+        new shop_vendor_slot(shopInventory, VENDING_SLOT, 105+35, 147-23,this);
     }
 
 
@@ -229,7 +229,7 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
 
     public void addShopInventory(){
         int offsetx = 60;
-        int offsety = 10;
+        int offsety = 16;
 
         for (int i = 0; i<6; ++i){
             for (int j = 0; j<9; ++j){
@@ -237,7 +237,7 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
             }
         }
         offsetx += -44;
-        offsety += 112;
+        offsety += 111;
 
         for (int i = 0; i<11; ++i){
             createShopInvSlot(profit_itemStacks_start+i,offsetx+i*18,offsety);

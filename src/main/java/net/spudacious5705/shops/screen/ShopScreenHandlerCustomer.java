@@ -83,8 +83,8 @@ public class ShopScreenHandlerCustomer extends ScreenHandler {
     }
 
     public void addCustomerInventory() {
-        this.addSlot(new shop_payment_slot(shopInventory, PAYMENT_SLOT, 80, 11));
-        this.addSlot(new shop_vendor_slot(shopInventory, VENDING_SLOT, 80, 59, this));
+        this.addSlot(new shop_payment_slot(shopInventory, PAYMENT_SLOT, 80-34, 11+25));
+        this.addSlot(new shop_vendor_slot(shopInventory, VENDING_SLOT, 80+35, 59-23, this));
     }
 
     public void addPlayerInventory(PlayerInventory playerInv) {
