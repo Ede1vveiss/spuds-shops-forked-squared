@@ -3,7 +3,6 @@ package net.spudacious5705.shops.block.custom;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.MapCodec;
 import net.fabricmc.fabric.api.block.BlockPickInteractionAware;
-import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
@@ -13,27 +12,24 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 
-import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 
 import net.minecraft.state.property.*;
-import net.minecraft.util.*;
-import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import net.spudacious5705.shops.block.entity.AbstractShopEntity;
+import net.spudacious5705.shops.block.VariantResources;
 import net.spudacious5705.shops.block.entity.AngledShopEntity;
 import net.spudacious5705.shops.block.entity.ModBlockEntities;
 import net.spudacious5705.shops.item.custom.ShopItem;
+import net.spudacious5705.shops.screen.ScreenSettingsGroup;
 import net.spudacious5705.shops.util.CushionResources;
 import net.spudacious5705.shops.properties.Colour;
-import net.spudacious5705.shops.properties.PermissionLevel;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -83,15 +79,25 @@ public class AngledShopBlock extends AbstractShopBlock implements BlockPickInter
     );
 
     public final Item WOOD_TYPE;
+    public final VariantResources.wood_variant VARIANT;
 
-    public static final Map<Item, AngledShopBlock> WOOD_TYPE_TO_SHOP_TYPE = new HashMap<>();
-
-
-    public AngledShopBlock(Settings settings, Item woodType) {
+    public AngledShopBlock(Settings settings, Item woodType, VariantResources.wood_variant variant) {
         super(settings, AngledShopBlockState::new);
 
-        WOOD_TYPE_TO_SHOP_TYPE.put(woodType, this);
+        net.spudacious5705.shops.block.VariantResources.ANGLED.put(woodType, this);
+
         WOOD_TYPE = woodType;
+
+        VARIANT = variant;
+    }
+
+    public String getWoodName(){
+        return VARIANT.name;
+    }
+
+    @Override
+    public ScreenSettingsGroup getScreenSettings() {
+        return ScreenSettingsGroup.createBasicWood(VARIANT);
     }
 
     @Override
@@ -191,14 +197,14 @@ public class AngledShopBlock extends AbstractShopBlock implements BlockPickInter
                             stack.decrement(1);
                             group = CushionResources.COLOUR_MAP.get(originalColour);
                             ItemStack releaseStack = new ItemStack(group.wool(), 1);
-                            world.spawnEntity(new ItemEntity(world, pos.getX() + 0.5f, pos.getY() + 0.5f, pos.getZ() + 0.5f, releaseStack, 0f, 0.1f, 0f));
+                            world.spawnEntity(new ItemEntity(world, pos.getX() + 0.5f, pos.getY() + 0.6f, pos.getZ() + 0.5f, releaseStack, 0f, 0.1f, 0f));
                         }
                         world.playSound(player, pos, SoundEvents.ENTITY_SHEEP_SHEAR, SoundCategory.BLOCKS);
                         world.updateListeners(pos, state, state, Block.NOTIFY_LISTENERS);
                         return true;
                     }
-                } else if (WOOD_TYPE_TO_SHOP_TYPE.containsKey(item)) {
-                    AngledShopBlock block = WOOD_TYPE_TO_SHOP_TYPE.get(item);
+                } else if (VariantResources.ANGLED.containsKey(item)) {
+                    AngledShopBlock block = net.spudacious5705.shops.block.VariantResources.ANGLED.get(item);
                     if (WOOD_TYPE != item) {
                         if (block.getDefaultState() instanceof AngledShopBlockState defaultShopState) {
                             if(!player.isCreative()) {

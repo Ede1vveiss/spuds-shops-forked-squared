@@ -22,6 +22,7 @@ import org.intellij.lang.annotations.MagicConstant;
 
 import java.util.List;
 
+import static net.spudacious5705.shops.screen.ModScreenHandlers.CURRENCY_IMG_MAP;
 import static net.spudacious5705.shops.screen.ShopScreenHandlerOwner.*;
 import static net.spudacious5705.shops.screen.networking.NetworkHelper.SHOP_SELF_DEMOTE;
 
@@ -40,10 +41,10 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
 
     public ShopScreenOwner(ShopScreenHandlerOwner handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
-        this.backgroundWidth = 228;
-        this.backgroundHeight = 254;
+        this.backgroundWidth = 256;
+        this.backgroundHeight = 256;
         this.SETTINGS = handler.getSettings();
-        this.TEXTURE = SETTINGS.SELLER.textureID();
+        this.TEXTURE = SETTINGS.SELLER().textureID();
         this.x = (width - backgroundWidth)/2;
         this.y = (height - backgroundHeight)/2;
 
@@ -71,7 +72,10 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
 
     private static final Identifier COG_ICON = SpudaciousShops.id("textures/gui/settings.png");
     private static final Identifier STORAGE_ICON = SpudaciousShops.id("textures/gui/storage.png");
-    private static final Identifier SHOPFRONT_ICON = SpudaciousShops.id("textures/gui/trade.png");
+    private static final Identifier SHOPFRONT_ICON = CURRENCY_IMG_MAP.getOrDefault(
+            Text.translatable("gui.spudaciousshops.currency_type").getString().charAt(0),
+            SpudaciousShops.id("textures/gui/currency_textures/gbp.png")
+    );
     private static final Identifier TAB_SELECTED = SpudaciousShops.id("textures/gui/tab_selected.png");
     private static final Identifier TAB_DESELECTED = SpudaciousShops.id("textures/gui/tab_deselected.png");
     private static final Identifier TAB_HOVER = SpudaciousShops.id("textures/gui/tab_hover.png");
@@ -82,19 +86,18 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
         playerInventoryTitleX = 1000;
         titleX = 1000;
 
-        String t = Text.translatable("gui.spudaciousshops.text_none").getString();
-        int posX = SETTINGS.tab1ButtonX+x+2;
-        int posY = SETTINGS.tab1ButtonY+y+5;
+        int posX = SETTINGS.tab1ButtonX()+x;
+        int posY = SETTINGS.tab1ButtonY()+y;
         SellerTabButton = addDrawableChild(new TabWidget(posX, posY, Text.of(""), this::switchToSellerTab, true, STORAGE_ICON, true));
 
 
-        posX = SETTINGS.tab2ButtonX+x+2;
-        posY = SETTINGS.tab2ButtonY+y+4;
+        posX = SETTINGS.tab2ButtonX()+x;
+        posY = SETTINGS.tab2ButtonY()+y;
         SettingsTabButton = addDrawableChild(new TabWidget(posX, posY, Text.of(""), this::switchToSettingsTab, true, COG_ICON));
 
 
-        posX = SETTINGS.tab3ButtonX+x+2;
-        posY = SETTINGS.tab3ButtonY+y+3;
+        posX = SETTINGS.tab3ButtonX()+x;
+        posY = SETTINGS.tab3ButtonY()+y;
         ShopFrontTabButton = addDrawableChild(new TabWidget(posX, posY, Text.of(""), this::switchToCustomerTab, true, SHOPFRONT_ICON));
 
 
@@ -115,7 +118,7 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
         customerGUI();
     }
     private void customerGUI(){
-        TEXTURE = SETTINGS.CUSTOMER.textureID();
+        TEXTURE = SETTINGS.CUSTOMER().textureID();
         SellerTabButton.unToggle();
         SettingsTabButton.unToggle();
     }
@@ -126,7 +129,7 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
     }
 
     private void sellerGUI(){
-        TEXTURE = SETTINGS.SELLER.textureID();
+        TEXTURE = SETTINGS.SELLER().textureID();
         ShopFrontTabButton.unToggle();
         SettingsTabButton.unToggle();
     }
@@ -136,7 +139,7 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
         settingsGUI();
     }
     private void settingsGUI(){
-        TEXTURE = SETTINGS.SETTINGS.textureID();
+        TEXTURE = SETTINGS.SETTINGS().textureID();
         ShopFrontTabButton.unToggle();
         SellerTabButton.unToggle();
     }
@@ -154,18 +157,10 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
     public void updateTabSelectionResponse(int tab) {
         if(handler.updateTabSelectionResponse(tab)) {
             switch (tab) {
-                case WARNING_TAB -> {
-                    warnGUI();
-                }
-                case ShopScreenHandlerOwner.CUSTOMER_TAB -> {
-                    customerGUI();
-                }
-                case SETTINGS_TAB -> {
-                    settingsGUI();
-                }
-                default -> {
-                    sellerGUI();
-                }
+                case WARNING_TAB -> warnGUI();
+                case ShopScreenHandlerOwner.CUSTOMER_TAB -> customerGUI();
+                case SETTINGS_TAB -> settingsGUI();
+                default -> sellerGUI();
             }
         }
     }
@@ -185,8 +180,6 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
         context.drawTexture(TEXTURE, x , y, 0, 0, backgroundWidth, backgroundHeight);
     }
 
-    private static final Identifier CONTRACT_SLOT = SpudaciousShops.id("textures/gui/contract_slot.png");
-
     private static final MutableText OWNER = Text.translatable("gui.spudaciousshops.owner");
     private static final MutableText MANAGER = Text.translatable("gui.spudaciousshops.manager");
     private static final MutableText SUPERVISOR = Text.translatable("gui.spudaciousshops.supervisor");
@@ -204,18 +197,6 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
 
         int activeTab = this.handler.getActiveTab();
         if(activeTab == SETTINGS_TAB) {
-            for (int k = 0; k < this.handler.tabSettingsSlots.size(); k++) {
-                Slot slot = this.handler.tabSettingsSlots.get(k);
-                if (slot.isEnabled()) {
-                    if (this.client != null) {
-                        if (this.client.world != null) {
-                            context.drawTexture(CONTRACT_SLOT, slot.x + x-8, slot.y + y-8, 1, 0.0F, 0.0F, 32, 32, 32, 32);
-                        } else {
-                            context.fillGradient(slot.x, slot.y, slot.x + 18, slot.y + 18, -1072689136, -804253680);
-                        }
-                    }
-                }
-            }
             if(client != null) {
                 TextRenderer textRenderer = client.textRenderer;
                 for(ToolTipText ttt : TEXTS){
@@ -255,12 +236,13 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
 
     private void addToolTipTexts(){
         int textX = x+14;
-        int textY = y+64;
+        int textY = y+72;
         @MagicConstant
-        int increment = 22;
+        int increment = 23;
+        int colour = handler.SCREEN_SETTINGS.SETTINGS_TEXT_COLOUR();//11141290;
 
         Text permissions_title = Text.of("§l" + PERMISSIONS + ":");
-        TEXTS[0] = new ToolTipText(OWNER, textX, textY,
+        TEXTS[0] = new ToolTipText(colour,OWNER, textX, textY,
                 List.of(
                         permissions_title,
                         Text.of("§a + "+IMPORT_ITEMS+": "+YES),
@@ -270,7 +252,7 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
                         Text.of("§a + "+BREAK_SHOP+": "+YES)
         ));
         textY += increment;
-        TEXTS[1] = new ToolTipText(MANAGER, textX, textY,
+        TEXTS[1] = new ToolTipText(colour,MANAGER, textX, textY,
                 List.of(
                         permissions_title,
                         Text.of("§a + "+IMPORT_ITEMS+": "+YES),
@@ -280,7 +262,7 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
                         Text.of("§c - "+BREAK_SHOP+": "+NO)
                 ));
         textY += increment;
-        TEXTS[2] = new ToolTipText(SUPERVISOR, textX, textY,
+        TEXTS[2] = new ToolTipText(colour,SUPERVISOR, textX, textY,
                 List.of(
                         permissions_title,
                         Text.of("§a + "+IMPORT_ITEMS+": "+YES),
@@ -290,7 +272,7 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
                         Text.of("§c - "+BREAK_SHOP+": "+NO)
                 ));
         textY += increment;
-        TEXTS[3] = new ToolTipText(CLERK, textX, textY,
+        TEXTS[3] = new ToolTipText(colour,CLERK, textX, textY,
                 List.of(
                         permissions_title,
                         Text.of("§a + "+IMPORT_ITEMS+": "+YES),
@@ -312,13 +294,13 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
     }
 
     private void addStorageTexts(){
-        STORAGE_TEXTS[0] = new Warn_popup_texts(x+90,y+9,(MutableText) Text.of("Stock"),986895, false);
+        STORAGE_TEXTS[0] = new Warn_popup_texts(x+90,y+5,(MutableText) Text.of("Stock"),2434341, false);
 
-        STORAGE_TEXTS[1] = new Warn_popup_texts(x+37,y+115,(MutableText) Text.of("Register"),986895, false);
+        STORAGE_TEXTS[1] = new Warn_popup_texts(x+35,y+113,(MutableText) Text.of("Register"),2434341, false);//8282679
 
-        STORAGE_TEXTS[2] = new Warn_popup_texts(x+33,y+12,(MutableText) Text.of("Payment"),986895, false);
+        STORAGE_TEXTS[2] = new Warn_popup_texts(x+33,y+18,(MutableText) Text.of("Payment"),2434341, false);
 
-        STORAGE_TEXTS[3] = new Warn_popup_texts(x+33,y+45, (MutableText) Text.of("Product"),986895, false);
+        STORAGE_TEXTS[3] = new Warn_popup_texts(x+33,y+61, (MutableText) Text.of("Product"),2434341, false);
     }
 
     private final ToolTipText[] TEXTS = new ToolTipText[4];
@@ -330,19 +312,21 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
         private final int Xmax;
         private final int Ymax;
         private final List<Text> TOOLTIP;
+        private final int COLOUR;
 
 
-        private ToolTipText(MutableText text, int x, int y, List<Text> tooltip) {
+        private ToolTipText(int colour, MutableText text, int x, int y, List<Text> tooltip) {
             TEXT = text;
             X = x;
             Y = y;
             Xmax = X+56;
             Ymax = Y+8;
             TOOLTIP = tooltip;
+            COLOUR = colour;
         }
 
         public void render(DrawContext context, TextRenderer textRenderer, int mouseX, int mouseY){
-            context.drawText(textRenderer, TEXT, X, Y, 11141290, false);
+            context.drawText(textRenderer, TEXT, X, Y, COLOUR, false);
             if(mouseX >= X && mouseX<=Xmax){
                 if(mouseY >= Y && mouseY<=Ymax){
                     context.drawTooltip(textRenderer, TOOLTIP,mouseX,mouseY);
@@ -392,7 +376,7 @@ public class ShopScreenOwner extends HandledScreen<ShopScreenHandlerOwner> {
 
         public void onClick(double mouseX, double mouseY) {
             thisTab.switchTo();
-            toggle = true;
+            toggle();
         }
 
         void unToggle(){

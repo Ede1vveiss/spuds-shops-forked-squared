@@ -2,6 +2,7 @@ package net.spudacious5705.shops.block.custom;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.MapCodec;
+import net.fabricmc.fabric.api.mininglevel.v1.FabricMineableTags;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
@@ -9,9 +10,12 @@ import net.minecraft.block.SideShapeType;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
@@ -26,9 +30,12 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
+import net.spudacious5705.shops.block.VariantResources;
 import net.spudacious5705.shops.block.entity.ModBlockEntities;
 import net.spudacious5705.shops.block.entity.RugShopEntity;
 import org.jetbrains.annotations.Nullable;
+
+import static net.spudacious5705.shops.block.ModBlocks.settingsCarpet;
 
 
 public class RugShopBlock extends AbstractShopBlock{
@@ -40,8 +47,13 @@ public class RugShopBlock extends AbstractShopBlock{
 
     public static final VoxelShape SHAPE = Block.createCuboidShape(0, 0, 0, 16, 1, 16);
 
-    public RugShopBlock(Settings settings) {
-        super(settings, RugShopBlockState::new);
+    public final Item CARPET;
+    public final String COLOUR;
+
+    public RugShopBlock(Block carpet, String colour) {
+        super(settingsCarpet, RugShopBlockState::new);
+        CARPET = carpet.asItem();
+        COLOUR = colour;
     }
 
     @Override
@@ -51,6 +63,42 @@ public class RugShopBlock extends AbstractShopBlock{
 
     @Override
     protected boolean onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player) {
+        Item item = stack.getItem();
+        if(item != this.CARPET) {
+            if (net.spudacious5705.shops.block.VariantResources.RUGS_CARPET.containsKey(item)) {
+                RugShopBlock newRug = net.spudacious5705.shops.block.VariantResources.RUGS_CARPET.get(item);
+
+                if (newRug.getDefaultState() instanceof RugShopBlockState defaultShopState) {
+                    if(!player.isCreative()) {
+                        stack.decrement(1);
+
+                        world.spawnEntity(new ItemEntity(world, pos.getX() + 0.5f, pos.getY() + 0.2f, pos.getZ() + 0.5f, CARPET.getDefaultStack(), 0f, 0.1f, 0f));
+                    }
+
+                    BlockState newBlockState = importProperties(defaultShopState, state);
+                    world.setBlockState(pos, newBlockState);
+
+                    return true;
+                }
+
+            }
+            if (net.spudacious5705.shops.block.VariantResources.RUGS_DYE.containsKey(item)) {
+                RugShopBlock newRug = VariantResources.RUGS_DYE.get(item);
+
+                if (newRug.getDefaultState() instanceof RugShopBlockState defaultShopState) {
+                    if(!player.isCreative()) {
+                        stack.decrement(1);
+                    }
+
+                    BlockState newBlockState = importProperties(defaultShopState, state);
+                    world.setBlockState(pos, newBlockState);
+
+                    return true;
+                }
+
+            }
+        }
+
         return false;
     }
 
@@ -138,7 +186,7 @@ public class RugShopBlock extends AbstractShopBlock{
                 if(CONNECTION != null){
                     return this.with(
                         CONNECTION,
-                        neighborState instanceof RugShopBlockState
+                        this.getBlock().equals(neighborState.getBlock())
                 );
                 }
             }
@@ -154,5 +202,10 @@ public class RugShopBlock extends AbstractShopBlock{
         public boolean canPlaceAt(WorldView world, BlockPos pos) {
             return world.getBlockState(pos.down()).isSideSolid(world,pos.up(),Direction.UP, SideShapeType.FULL);
         }
+    }
+
+    @Override
+    public TagKey<Block> getPreferredTool() {
+        return FabricMineableTags.SHEARS_MINEABLE;
     }
 }

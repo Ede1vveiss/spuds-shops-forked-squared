@@ -6,10 +6,7 @@ import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.tag.BlockTags;
 import net.spudacious5705.shops.block.ModBlockTags;
 import net.spudacious5705.shops.block.ModBlocks;
-import net.spudacious5705.shops.block.custom.HookShopBlock;
-import net.spudacious5705.shops.block.custom.WindowSillShopBlock;
 
-import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 
 public class ModBlockTagProvider extends FabricTagProvider.BlockTagProvider {
@@ -25,11 +22,7 @@ public class ModBlockTagProvider extends FabricTagProvider.BlockTagProvider {
         FabricTagBuilder pick = getOrCreateTagBuilder(BlockTags.PICKAXE_MINEABLE);
         FabricTagBuilder axe = getOrCreateTagBuilder(BlockTags.AXE_MINEABLE);
         ModBlocks.getAllShops().forEach(shop ->{
-            if(shop instanceof WindowSillShopBlock || shop instanceof HookShopBlock){
-                pick.add(shop);
-            }else{
-                axe.add(shop);
-            }
+            getOrCreateTagBuilder(shop.getPreferredTool()).add(shop);
         });
 
 

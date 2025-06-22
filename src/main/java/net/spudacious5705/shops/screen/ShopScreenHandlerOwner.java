@@ -94,7 +94,7 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
             this.shopInventory = inventoryDelegate;
             this.perms = shopInventory.checkPermissions();
 
-            this.SCREEN_SETTINGS = ScreenSettingsGroup.fromId(shop.getTextureId());
+            this.SCREEN_SETTINGS = shop.getScreenSettings();
 
             ID_RECORDS_DELEGATE = shop.getRecordsDelegate(player);
 
@@ -108,12 +108,12 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
         }
     }
 
-    public ShopScreenHandlerOwner(int syncId, PlayerInventory playerInventory, AbstractShopEntity.InventoryDelegate inventory, @Nullable AbstractShopEntity.player_ID_Records_Delegate idRecordsDelegate, int SCREEN_SETTINGS_ID) {//serverInit
+    public ShopScreenHandlerOwner(int syncId, PlayerInventory playerInventory, AbstractShopEntity.InventoryDelegate inventory, @Nullable AbstractShopEntity.player_ID_Records_Delegate idRecordsDelegate, ScreenSettingsGroup screen_settings) {//serverInit
         super(ModScreenHandlers.SHOP_SCREEN_HANDLER_OWNER, syncId);
         checkSize(inventory, 78 );
         this.shopInventory = inventory;
         this.perms = shopInventory.checkPermissions();
-        this.SCREEN_SETTINGS = ScreenSettingsGroup.fromId(SCREEN_SETTINGS_ID);
+        this.SCREEN_SETTINGS = screen_settings;
         this.playerInventory = playerInventory;
         this.ID_RECORDS_DELEGATE = idRecordsDelegate;
         playerInventory.onOpen(playerInventory.player);
@@ -138,25 +138,25 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
     }
 
     private void addContractSlots() {
-        int offsetx = 80;
-        int offsety = 60;
+        int offsetx = 81;
+        int offsety = 69;
 
         for(int y = 0; y<4; y++) {
             for (int i = 0; i<6; ++i){
-                new contract_slot(ID_RECORDS_DELEGATE,y*6+i,offsetx+i*22,offsety+y*22);
+                new contract_slot(ID_RECORDS_DELEGATE,y*6+i,offsetx+i*23,offsety+y*23);
             }
         }
     }
 
     private void addShopTrades(){
-        int x = 24;
-        int y = 23;
+        int x = 25;
+        int y = 31;
 
         new shop_trade_slot(shopInventory, PAYMENT_SLOT, x, y);
-        new shop_trade_slot(shopInventory, VENDING_SLOT, x, y + 44);
+        new shop_trade_slot(shopInventory, VENDING_SLOT, x, y + 47);
 
-        new shop_payment_slot(shopInventory, PAYMENT_SLOT, 105-34, 99+25);
-        new shop_vendor_slot(shopInventory, VENDING_SLOT, 105+35, 147-23,this);
+        new shop_payment_slot(shopInventory, PAYMENT_SLOT, 71, 126);
+        new shop_vendor_slot(shopInventory, VENDING_SLOT, 140, 126,this);
     }
 
 
@@ -228,8 +228,8 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
     }
 
     public void addShopInventory(){
-        int offsetx = 60;
-        int offsety = 16;
+        int offsetx = 59;
+        int offsety = 15;
 
         for (int i = 0; i<6; ++i){
             for (int j = 0; j<9; ++j){
@@ -237,7 +237,7 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
             }
         }
         offsetx += -44;
-        offsety += 111;
+        offsety += 110;
 
         for (int i = 0; i<11; ++i){
             createShopInvSlot(profit_itemStacks_start+i,offsetx+i*18,offsety);
@@ -260,7 +260,7 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
     private void addPlayerInventory(PlayerInventory playerInventory) {
 
         int offsetx = 33;
-        int offsety = 172;
+        int offsety = 174;
 
         for (int i = 0; i < 3; ++i) {
             for (int l = 0; l < 9; ++l) {

@@ -2,6 +2,8 @@ package net.spudacious5705.shops.block.custom;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.MapCodec;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
@@ -11,6 +13,8 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.tag.BlockTags;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.*;
@@ -27,9 +31,11 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 import net.minecraft.world.tick.TickPriority;
+import net.spudacious5705.shops.block.VariantResources;
 import net.spudacious5705.shops.block.entity.AbstractShopEntity;
 import net.spudacious5705.shops.properties.ModProperties;
 import net.spudacious5705.shops.properties.PermissionLevel;
+import net.spudacious5705.shops.screen.ScreenSettingsGroup;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
@@ -125,6 +131,10 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
             return shopEntity.userSignIn(player);
         }
         return PermissionLevel.CUSTOMER;
+    }
+
+    public TagKey<Block> getPreferredTool() {
+        return BlockTags.AXE_MINEABLE;
     }
 
     public abstract static class AbstractShopBlockState extends BlockState {
@@ -279,6 +289,10 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
         }
         this.spawnBreakParticles(world, player, pos, state);
         world.emitGameEvent(GameEvent.BLOCK_DESTROY, pos, GameEvent.Emitter.of(player, state));
+    }
+
+    public ScreenSettingsGroup getScreenSettings(){
+        return ScreenSettingsGroup.createBasicWood(VariantResources.wood_variant.OAK);
     }
 }
 

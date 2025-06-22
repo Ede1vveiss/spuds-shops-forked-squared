@@ -17,9 +17,11 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import net.spudacious5705.shops.block.VariantResources;
 import net.spudacious5705.shops.block.entity.CrateShopEntity;
 import net.spudacious5705.shops.block.entity.ModBlockEntities;
 import net.spudacious5705.shops.block.entity.WindowSillShopEntity;
+import net.spudacious5705.shops.screen.ScreenSettingsGroup;
 import org.jetbrains.annotations.Nullable;
 
 public class CrateShopBlock extends AbstractShopBlock{
@@ -49,6 +51,11 @@ public class CrateShopBlock extends AbstractShopBlock{
 
     public CrateShopBlock(Settings settings) {
         super(settings, CrateShopState::new);
+    }
+
+    @Override
+    public ScreenSettingsGroup getScreenSettings() {
+        return ScreenSettingsGroup.createBasicWood(VariantResources.wood_variant.SPRUCE);
     }
 
     @Override

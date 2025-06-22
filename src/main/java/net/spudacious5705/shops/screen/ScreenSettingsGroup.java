@@ -2,12 +2,21 @@ package net.spudacious5705.shops.screen;
 
 import net.minecraft.util.Identifier;
 import net.spudacious5705.shops.SpudaciousShops;
+import net.spudacious5705.shops.block.VariantResources;
 
-import java.util.Arrays;
 
+public record ScreenSettingsGroup(
+        ScreenSettings CUSTOMER,
+        ScreenSettings SELLER,
+        ScreenSettings SETTINGS,
 
-public enum ScreenSettingsGroup {
-    BASIC(0,
+        int tab1ButtonX,  int tab1ButtonY,
+        int tab2ButtonX,  int tab2ButtonY,
+        int tab3ButtonX,  int tab3ButtonY,
+
+        int SETTINGS_TEXT_COLOUR
+) {
+    /*BASIC(0,
             new ScreenSettings(
                     id("owner_customer_screen"),
                     176, 165,
@@ -26,45 +35,10 @@ public enum ScreenSettingsGroup {
                     33,172,
                     60,10,
                     23,11),
-            201,169,
+            203,174,
             201,195,
             201,221
-    );
-
-    final ScreenSettings CUSTOMER;
-    final ScreenSettings SELLER;
-    final ScreenSettings SETTINGS;
-    final int ID;
-
-    final int tab1ButtonX; final int tab1ButtonY;
-    final int tab2ButtonX; final int tab2ButtonY;
-    final int tab3ButtonX; final int tab3ButtonY;
-
-
-    ScreenSettingsGroup(int id, ScreenSettings CUSTOMER, ScreenSettings SELLER, ScreenSettings SETTINGS,
-                        int tab1ButtonX, int tab1ButtonY,
-                        int tab2ButtonX, int tab2ButtonY,
-                        int tab3ButtonX, int tab3ButtonY) {
-        this.ID = id;
-        this.CUSTOMER = CUSTOMER;
-        this.SELLER = SELLER;
-        this.SETTINGS = SETTINGS;
-        this.tab1ButtonX = tab1ButtonX;
-        this.tab1ButtonY = tab1ButtonY;
-        this.tab2ButtonX = tab2ButtonX;
-        this.tab2ButtonY = tab2ButtonY;
-        this.tab3ButtonX = tab3ButtonX;
-        this.tab3ButtonY = tab3ButtonY;
-    }
-
-    public static ScreenSettingsGroup fromId(int id){
-        for(ScreenSettingsGroup group : values()){
-            if(group.ID==id){
-                return group;
-            }
-        }
-        return BASIC;
-    }
+    );*/
 
     private static Identifier id(String texture){
         return SpudaciousShops.id("textures/gui/"+texture+".png");
@@ -76,5 +50,47 @@ public enum ScreenSettingsGroup {
             int backgroundWidth, int backgroundHeight,
             int playerInvX, int playerInvY,
             int shopInvX, int shopInvY,
-            int tradeInvX, int tradeInvY) {}
+            int tradeInvX, int tradeInvY) {
+
+        public static ScreenSettings createBasicCUSTOMER(Identifier textureID){
+            return new ScreenSettings(textureID,
+                    176, 165,
+                    8,84,
+                    0,0,
+                    80,11);
+        }
+        public static ScreenSettings createBasicSELLER(Identifier textureID){
+            return new ScreenSettings(textureID,
+                    228, 254,
+                    33,172,
+                    60,10,
+                    23,11);
+        }
+        public static ScreenSettings createBasicSETTINGS(Identifier textureID){
+            return new ScreenSettings(textureID,
+                    228, 254,
+                    33,172,
+                    60,10,
+                    23,11);
+        }
+    }
+
+    public static ScreenSettingsGroup createBasicWood(VariantResources.wood_variant VARIANT){
+        return createBasic(VARIANT.owner_trade,VARIANT.storage,VARIANT.settings,VARIANT.settings_text_colour);
+    }
+
+    public static ScreenSettingsGroup createBasic(
+            Identifier CUSTOMER,
+            Identifier SELLER,
+            Identifier SETTINGS,
+            int colour){
+        return new ScreenSettingsGroup(
+                ScreenSettings.createBasicCUSTOMER(CUSTOMER),
+                ScreenSettings.createBasicSELLER(SELLER),
+                ScreenSettings.createBasicSETTINGS(SETTINGS),
+                203,174,
+                203,199,
+                203,225,
+                colour);
+    }
 }
