@@ -7,6 +7,7 @@ import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 import net.spudacious5705.shops.SpudaciousShops;
 import net.spudacious5705.shops.block.ModBlocks;
+import net.spudacious5705.shops.block.custom.RugShopBlock;
 import net.spudacious5705.shops.block.custom.ShelfShopBlock;
 
 public class ModBlockEntities {
@@ -44,7 +45,7 @@ public class ModBlockEntities {
     public static final BlockEntityType<RugShopEntity> RUG_SHOP_ENTITY =
             Registry.register(Registries.BLOCK_ENTITY_TYPE, SpudaciousShops.id("shop_b_e_rug"),
                     FabricBlockEntityTypeBuilder.create(RugShopEntity::new,
-                            ModBlocks.SHOP_BLOCK_RUG
+                            ModBlocks.ALL_RUG_SHOPS.toArray(new RugShopBlock[0])
                     ).build());
 
     public static final BlockEntityType<CrateShopEntity> CRATE_SHOP_ENTITY =

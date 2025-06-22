@@ -30,10 +30,10 @@ public class ModRecipeProvider extends FabricRecipeProvider {
     public void generate(Consumer<RecipeJsonProvider> consumer) {
         CushionResources.initialise();
 
-        for(Colour colour: Colour.values()) {
+        for (Colour colour : Colour.values()) {
 
-            for(Wood wood: Wood.values()){
-                makeAngledShopRecipe(consumer, wood.angledShopBlock.getColouredShopItem(colour),wood.block,CushionResources.COLOUR_MAP.get(colour).wool());
+            for (Wood wood : Wood.values()) {
+                makeAngledShopRecipe(consumer, wood.angledShopBlock.getColouredShopItem(colour), wood.block, CushionResources.COLOUR_MAP.get(colour).wool());
             }
 
         }
@@ -43,8 +43,8 @@ public class ModRecipeProvider extends FabricRecipeProvider {
                 .map(ShelfShopBlock.class::cast)
                 .toList();
 
-        for(ShelfShopBlock shelf : shelfShops){
-            makeShelfShopRecipe(consumer,shelf);
+        for (ShelfShopBlock shelf : shelfShops) {
+            makeShelfShopRecipe(consumer, shelf);
         }
 
         ShapedRecipeJsonBuilder.create(RecipeCategory.BUILDING_BLOCKS, ModBlocks.SHOP_BLOCK_HOOK.asItem())
@@ -60,17 +60,18 @@ public class ModRecipeProvider extends FabricRecipeProvider {
                 .offerTo(consumer);
 
 
-        ShapedRecipeJsonBuilder.create(RecipeCategory.BUILDING_BLOCKS, ModBlocks.SHOP_BLOCK_RUG.asItem())
+        ModBlocks.ALL_RUG_SHOPS.forEach(rug -> {ShapedRecipeJsonBuilder.create(RecipeCategory.BUILDING_BLOCKS, rug.asItem())
                 .pattern("   ")
                 .pattern("grg")
                 .pattern("ccc")
                 .input('g', Items.GOLD_NUGGET)
                 .input('c', Blocks.CHEST)
-                .input('r', Blocks.RED_CARPET)
-                .criterion(hasItem(Blocks.RED_CARPET), conditionsFromItem(Blocks.RED_CARPET))
+                .input('r', rug.CARPET)
+                .criterion(hasItem(rug.CARPET), conditionsFromItem(rug.CARPET))
                 .criterion(hasItem(Blocks.CHEST), conditionsFromItem(Blocks.CHEST))
                 .criterion(hasItem(Items.GOLD_NUGGET), conditionsFromItem(Items.GOLD_NUGGET))
                 .offerTo(consumer);
+        });
 
         ShapedRecipeJsonBuilder.create(RecipeCategory.BUILDING_BLOCKS, ModBlocks.SHOP_BLOCK_CRATE.asItem())
                 .pattern("  b")
@@ -80,25 +81,17 @@ public class ModRecipeProvider extends FabricRecipeProvider {
                 .criterion(hasItem(Blocks.BARREL), conditionsFromItem(Blocks.BARREL))
                 .offerTo(consumer);
 
-        ShapedRecipeJsonBuilder.create(RecipeCategory.BUILDING_BLOCKS, ModBlocks.SHOP_BLOCK_WINDOW_ANDESITE.asItem())
+        ModBlocks.ALL_WINDOW_SHOPS.forEach(window -> {ShapedRecipeJsonBuilder.create(RecipeCategory.BUILDING_BLOCKS, window.asItem())
                 .pattern("   ")
-                .pattern("sss")
+                .pattern(" r ")
                 .pattern("ccc")
                 .input('c', Blocks.CHEST)
-                .input('s', Blocks.ANDESITE)
+                .input('r', window.STONE_TYPE)
+                .criterion(hasItem(window.STONE_TYPE), conditionsFromItem(window.STONE_TYPE))
                 .criterion(hasItem(Blocks.CHEST), conditionsFromItem(Blocks.CHEST))
-                .criterion(hasItem(Blocks.ANDESITE), conditionsFromItem(Blocks.ANDESITE))
+                .criterion(hasItem(Items.GOLD_NUGGET), conditionsFromItem(Items.GOLD_NUGGET))
                 .offerTo(consumer);
-
-        ShapedRecipeJsonBuilder.create(RecipeCategory.BUILDING_BLOCKS, ModBlocks.SHOP_BLOCK_WINDOW_CALCITE.asItem())
-                .pattern("   ")
-                .pattern("sss")
-                .pattern("ccc")
-                .input('c', Blocks.CHEST)
-                .input('s', Blocks.CALCITE)
-                .criterion(hasItem(Blocks.CHEST), conditionsFromItem(Blocks.CHEST))
-                .criterion(hasItem(Blocks.CALCITE), conditionsFromItem(Blocks.CALCITE))
-                .offerTo(consumer);
+        });
 
         ShapelessRecipeJsonBuilder.create(RecipeCategory.MISC, ModItems.CONTRACT_SCROLL)
                 .input(Items.PAPER)

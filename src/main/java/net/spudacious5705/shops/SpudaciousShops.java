@@ -5,6 +5,7 @@ import net.fabricmc.api.ModInitializer;
 import net.minecraft.util.Identifier;
 import net.spudacious5705.shops.block.ModBlockTags;
 import net.spudacious5705.shops.block.ModBlocks;
+import net.spudacious5705.shops.block.VariantResources;
 import net.spudacious5705.shops.block.entity.ModBlockEntities;
 import net.spudacious5705.shops.item.ModItemGroups;
 import net.spudacious5705.shops.item.ModItems;
@@ -30,6 +31,7 @@ public class SpudaciousShops implements ModInitializer {
 
 		ModBlocks.registerModBlocks();
 		ModItems.registerModItems();
+		VariantResources.register();
 
 		ModBlockEntities.registerBlockEntities();
 		ModScreenHandlers.registerScreenHandlers();

@@ -39,6 +39,7 @@ import net.spudacious5705.shops.block.entity.renderer.ShopRenderUtils;
 import net.spudacious5705.shops.item.ModItems;
 import net.spudacious5705.shops.item.custom.ContractScroll;
 import net.spudacious5705.shops.properties.PermissionLevel;
+import net.spudacious5705.shops.screen.ScreenSettingsGroup;
 import net.spudacious5705.shops.screen.ShopScreenHandlerCustomer;
 import net.spudacious5705.shops.screen.ShopScreenHandlerOwner;
 import org.intellij.lang.annotations.MagicConstant;
@@ -68,6 +69,10 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
         if(contractsCount>0){
             ItemScatterer.spawn(world,pos.getX(),pos.getY(),pos.getZ(),new ItemStack(ModItems.CONTRACT_SCROLL,contractsCount));
         }
+    }
+
+    public ScreenSettingsGroup getScreenSettings() {
+        return ((AbstractShopBlock) this.getCachedState().getBlock()).getScreenSettings();
     }
 
     public final class InventoryDelegate implements Inventory{
@@ -810,7 +815,7 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
                 player_ID_Records_Delegate recordsDelegate = new player_ID_Records_Delegate(perms, player.getUuid());
 
                 if (perms.canViewShopScreen()) {
-                    return new ShopScreenHandlerOwner(syncId, playerInventory, inventoryDelegate, recordsDelegate, getTextureId());
+                    return new ShopScreenHandlerOwner(syncId, playerInventory, inventoryDelegate, recordsDelegate, getScreenSettings());
                 }
 
                 if (!isShopFunctional()) {

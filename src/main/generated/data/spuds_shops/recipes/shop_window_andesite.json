@@ -5,13 +5,13 @@
     "c": {
       "item": "minecraft:chest"
     },
-    "s": {
+    "r": {
       "item": "minecraft:andesite"
     }
   },
   "pattern": [
     "   ",
-    "sss",
+    " r ",
     "ccc"
   ],
   "result": {

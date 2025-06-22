@@ -11,6 +11,8 @@ import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.tag.BlockTags;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.math.BlockPos;
@@ -85,5 +87,10 @@ public class HookShopBlock extends AbstractShopBlock{
         public boolean canPlaceAt(WorldView world, BlockPos pos) {
             return world.getBlockState(pos.up()).isSideSolid(world,pos.up(), Direction.DOWN, SideShapeType.CENTER);
         }
+    }
+
+    @Override
+    public TagKey<Block> getPreferredTool() {
+        return BlockTags.PICKAXE_MINEABLE;
     }
 }

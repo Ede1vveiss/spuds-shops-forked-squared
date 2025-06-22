@@ -67,13 +67,61 @@
   "block.spudaciousshops.hook_shop": "Hook Shop",
   "item.spudaciousshops.hook_shop": "Hook Shop",
 
-  "block.spudaciousshops.rug_shop": "Rug Shop",
-  "item.spudaciousshops.rug_shop": "Rug Shop",
+  "block.spudaciousshops.rug_shop_white": "Rug Shop White",
+  "item.spudaciousshops.rug_shop_white": "Rug Shop White",
+
+  "block.spudaciousshops.rug_shop_orange": "Rug Shop Orange",
+  "item.spudaciousshops.rug_shop_orange": "Rug Shop Orange",
+
+  "block.spudaciousshops.rug_shop_magenta": "Rug Shop Magenta",
+  "item.spudaciousshops.rug_shop_magenta": "Rug Shop Magenta",
+
+  "block.spudaciousshops.rug_shop_light_blue": "Rug Shop Light Blue",
+  "item.spudaciousshops.rug_shop_light_blue": "Rug Shop Light Blue",
+
+  "block.spudaciousshops.rug_shop_yellow": "Rug Shop Yellow",
+  "item.spudaciousshops.rug_shop_yellow": "Rug Shop Yellow",
+
+  "block.spudaciousshops.rug_shop_lime": "Rug Shop Lime",
+  "item.spudaciousshops.rug_shop_lime": "Rug Shop Lime",
+
+  "block.spudaciousshops.rug_shop_pink": "Rug Shop Pink",
+  "item.spudaciousshops.rug_shop_pink": "Rug Shop Pink",
+
+  "block.spudaciousshops.rug_shop_gray": "Rug Shop Gray",
+  "item.spudaciousshops.rug_shop_gray": "Rug Shop Gray",
+
+  "block.spudaciousshops.rug_shop_light_gray": "Rug Shop Light Gray",
+  "item.spudaciousshops.rug_shop_light_gray": "Rug Shop Light Gray",
+
+  "block.spudaciousshops.rug_shop_cyan": "Rug Shop Cyan",
+  "item.spudaciousshops.rug_shop_cyan": "Rug Shop Cyan",
+
+  "block.spudaciousshops.rug_shop_purple": "Rug Shop Purple",
+  "item.spudaciousshops.rug_shop_purple": "Rug Shop Purple",
+
+  "block.spudaciousshops.rug_shop_blue": "Rug Shop Blue",
+  "item.spudaciousshops.rug_shop_blue": "Rug Shop Blue",
+
+  "block.spudaciousshops.rug_shop_brown": "Rug Shop Brown",
+  "item.spudaciousshops.rug_shop_brown": "Rug Shop Brown",
+
+  "block.spudaciousshops.rug_shop_green": "Rug Shop Green",
+  "item.spudaciousshops.rug_shop_green": "Rug Shop Green",
+
+  "block.spudaciousshops.rug_shop": "Rug Shop Red",
+  "item.spudaciousshops.rug_shop": "Rug Shop Red",
+
+  "block.spudaciousshops.rug_shop_black": "Rug Shop Black",
+  "item.spudaciousshops.rug_shop_black": "Rug Shop Black",
+
 
   "block.spudaciousshops.crate_shop": "Merchant's Crate",
   "item.spudaciousshops.crate_shop": "Merchant's Crate",
 
   "item.spudaciousshops.contract_scroll": "Contract Scroll",
+
+  "gui.spudaciousshops.currency_type": "£",
 
   "gui.spudaciousshops.owner": "OWNER",
   "gui.spudaciousshops.manager": "MANAGER",
