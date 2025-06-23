@@ -2,6 +2,9 @@ package net.spudacious5705.shops.block.custom;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.MapCodec;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
@@ -10,7 +13,8 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
-import net.minecraft.screen.NamedScreenHandlerFactory;
+import net.minecraft.registry.tag.BlockTags;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.*;
@@ -27,15 +31,17 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 import net.minecraft.world.tick.TickPriority;
+import net.spudacious5705.shops.block.VariantResources;
 import net.spudacious5705.shops.block.entity.AbstractShopEntity;
 import net.spudacious5705.shops.properties.ModProperties;
 import net.spudacious5705.shops.properties.PermissionLevel;
+import net.spudacious5705.shops.screen.ScreenSettingsGroup;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
 
-public abstract class AbstractShopBlock extends BlockWithEntity implements BlockEntityProvider {
+public abstract class AbstractShopBlock extends BlockWithEntity implements BlockEntityProvider{
 
     public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
     public static final BooleanProperty BREAKABLE = ModProperties.BREAKABLE;
@@ -48,26 +54,31 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
     public AbstractShopBlock(Settings settings, StateManager.Factory<Block, BlockState> shopBlockStateFactory) {
         super(settings);
         StateManager.Builder<Block, BlockState> builder = new StateManager.Builder<>(this);
-        builder.add(FACING).add(BREAKABLE);
+        builder.add(BREAKABLE);
         this.appendProperties(builder);
 
         this.shopStateManager = builder.build(Block::getDefaultState, shopBlockStateFactory);
 
         this.setDefaultState(
-                furtherDefaultStateProperties(
+                defaultStateProperties(
                         (AbstractShopBlockState) this.shopStateManager.getDefaultState()
-                        .with(FACING, Direction.NORTH)
                         .with(BREAKABLE, false)
                 )
         );
     }
 
+    @Override
+    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+        builder.add(FACING);
+    }
+
     /**
-    * made to add additional block state properties
-    * use default (YourShopBlockState) state.with(PROPERTY, VALUE);
+     * made to add additional block state properties
+     * use default (YourShopBlockState) state.with(PROPERTY, VALUE);
+     * dont forget to include facing.(or call super)
     */
-    protected AbstractShopBlockState furtherDefaultStateProperties(AbstractShopBlockState state){
-        return state;
+    protected AbstractShopBlockState defaultStateProperties(AbstractShopBlockState state){
+        return (AbstractShopBlockState) state.with(FACING, Direction.SOUTH);
     }
 
     @Override
@@ -91,7 +102,7 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
             if (placer instanceof PlayerEntity player) {
                 BlockEntity blockEntity = world.getBlockEntity(pos);
                 if (blockEntity instanceof AbstractShopEntity shopEntity) {
-                    shopEntity.setOwner(player);
+                    shopEntity.userSignIn(player);
                 }
             }
         }
@@ -99,7 +110,7 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
     }
 
     @Override
-    public final BlockState getPlacementState(ItemPlacementContext ctx) {
+    public BlockState getPlacementState(ItemPlacementContext ctx) {
         return getPlacementState(ctx, this.getDefaultState()
                 .with(FACING, ctx.getHorizontalPlayerFacing().getOpposite())
                 .with(BREAKABLE, false));
@@ -114,12 +125,16 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
     @Override
     public abstract BlockEntity createBlockEntity(BlockPos pos, BlockState state);
 
-    private static PermissionLevel userSignIn(World world, BlockPos pos, PlayerEntity player) {
+    protected static PermissionLevel userSignIn(World world, BlockPos pos, PlayerEntity player) {
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof AbstractShopEntity shopEntity) {
             return shopEntity.userSignIn(player);
         }
         return PermissionLevel.CUSTOMER;
+    }
+
+    public TagKey<Block> getPreferredTool() {
+        return BlockTags.AXE_MINEABLE;
     }
 
     public abstract static class AbstractShopBlockState extends BlockState {
@@ -132,17 +147,17 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
         public void onBlockBreakStart(World world, BlockPos pos, PlayerEntity player) {
             if(this.getBlock() instanceof AbstractShopBlock) {
                 AbstractShopEntity shop = (AbstractShopEntity) world.getBlockEntity(pos);
-                assert shop != null;
-                PermissionLevel perms = shop.userSignIn(player);
-                if (perms.canBreakBlock()) {
-                    world.setBlockState(pos, this.withIfExists(BREAKABLE, true));
-                    world.scheduleBlockTick(pos, this.owner, 140, TickPriority.EXTREMELY_HIGH);
-                } else {
+                if(shop != null){
+                if (!shop.canBreak(player)) {
                     world.setBlockState(pos, this.withIfExists(BREAKABLE, false));
                     if (world.isClient()) {
                         player.sendMessage(shop.cantBreakMessage(), true);
                     }
+                    return;
                 }
+                }
+                world.setBlockState(pos, this.withIfExists(BREAKABLE, true));
+                world.scheduleBlockTick(pos, this.owner, 140, TickPriority.EXTREMELY_HIGH);
             }
         }
 
@@ -159,8 +174,10 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
 
         @Override
         public ActionResult onUse(World world, PlayerEntity player, Hand hand, BlockHitResult hit) {
-            BlockPos pos = hit.getBlockPos();
+
             if (world.isClient) return ActionResult.SUCCESS;
+
+            BlockPos pos = hit.getBlockPos();
 
             ItemStack stack = player.getStackInHand(hand);
 
@@ -174,13 +191,16 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
                 if(((AbstractShopBlock)getBlock()).onUseWithItem(stack,this.asBlockState(),world,pos,player)) return ActionResult.SUCCESS;
             }
 
-            NamedScreenHandlerFactory screenHandlerFactory = (AbstractShopEntity)world.getBlockEntity(pos);
+            if(world.getBlockEntity(pos) instanceof AbstractShopEntity shop){
+                ExtendedScreenHandlerFactory screenHandlerFactory = shop.createScreenHandlerFactory(false);
             if (screenHandlerFactory != null) {
                 player.openHandledScreen(screenHandlerFactory);
-            }
+            }}
 
             return ActionResult.SUCCESS;
         }
+
+
 
         @Override
         public abstract VoxelShape getCullingShape(BlockView world, BlockPos pos);
@@ -192,25 +212,39 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
         public abstract VoxelShape getCollisionShape(BlockView world, BlockPos pos);
 
         @Override
-        public final BlockState rotate(BlockRotation rotation) {
+        public BlockState rotate(BlockRotation rotation) {
             return this.with(FACING, rotation.rotate(this.get(FACING)));
         }
 
         @Override
-        public final BlockState mirror(BlockMirror mirror) {
+        public BlockState mirror(BlockMirror mirror) {
             return this.rotate(mirror.getRotation(this.get(FACING)));
         }
 
         @Override
-        public final void onStateReplaced(World world, BlockPos pos, BlockState newState, boolean moved) {
-            if (newState instanceof AbstractShopBlockState newShopState) {
-                if(isStateReplacedValid(newShopState)){
-                    return;
+        public void onBlockAdded(World world, BlockPos pos, BlockState state, boolean notify) {
+            BlockEntity blockEntity = world.getBlockEntity(pos);
+            if (blockEntity != null) {
+                if (blockEntity instanceof AbstractShopEntity shopEntity) {
+                    shopEntity.markDirty();
                 }
+            }
+            super.onBlockAdded(world, pos, state, notify);
+        }
+
+        @Override
+        public final void onStateReplaced(World world, BlockPos pos, BlockState newState, boolean moved) {
+            if(isStateReplacedValid(newState)){
+                return;
             }
             BlockEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity != null) {
                 if (blockEntity instanceof AbstractShopEntity shopEntity) {
+                    //final defence
+                    if(this.unbreakable()){
+                        world.setBlockState(pos,this);
+                        return;
+                    }
                     shopEntity.itemScatter(world,pos);
                     world.updateComparators(pos, this.getBlock());
                 }
@@ -218,7 +252,7 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
             world.removeBlockEntity(pos);
         }
 
-        protected abstract boolean isStateReplacedValid(AbstractShopBlockState newShopState);
+        protected abstract boolean isStateReplacedValid(BlockState newState);
 
         public final boolean unbreakable() {
             return !this.get(BREAKABLE);
@@ -249,8 +283,16 @@ public abstract class AbstractShopBlock extends BlockWithEntity implements Block
                 return;
             }
         }
+        if(player.isCreative()){
+            world.setBlockState(pos, state.with(BREAKABLE,true));
+            //allow creative players to break
+        }
         this.spawnBreakParticles(world, player, pos, state);
         world.emitGameEvent(GameEvent.BLOCK_DESTROY, pos, GameEvent.Emitter.of(player, state));
+    }
+
+    public ScreenSettingsGroup getScreenSettings(){
+        return ScreenSettingsGroup.createBasicWood(VariantResources.wood_variant.OAK);
     }
 }
 

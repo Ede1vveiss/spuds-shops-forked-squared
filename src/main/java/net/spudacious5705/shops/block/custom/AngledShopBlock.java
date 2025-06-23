@@ -12,26 +12,24 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 
-import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 
 import net.minecraft.state.property.*;
-import net.minecraft.util.*;
-import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import net.spudacious5705.shops.block.VariantResources;
 import net.spudacious5705.shops.block.entity.AngledShopEntity;
 import net.spudacious5705.shops.block.entity.ModBlockEntities;
 import net.spudacious5705.shops.item.custom.ShopItem;
+import net.spudacious5705.shops.screen.ScreenSettingsGroup;
 import net.spudacious5705.shops.util.CushionResources;
 import net.spudacious5705.shops.properties.Colour;
-import net.spudacious5705.shops.properties.PermissionLevel;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -39,47 +37,73 @@ import java.util.*;
 
 public class AngledShopBlock extends AbstractShopBlock implements BlockPickInteractionAware {
 
-    public static final VoxelShape CULLING_SHAPE = Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 8.0, 16.0);
+    public static final VoxelShape CULLING_SHAPE = Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 8.0, 17.5);
 
-
-    public static final VoxelShape BASE_NORTH = Block.createCuboidShape(0.0, 0.0, 2.0, 16.0, 6.0, 16.0);
-    public static final VoxelShape BASE_EAST = Block.createCuboidShape(0.0, 0.0, 0.0, 14.0, 6.0, 16.0);
-    public static final VoxelShape BASE_SOUTH = Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 6.0, 14.0);
-    public static final VoxelShape BASE_WEST = Block.createCuboidShape(2.0, 0.0, 0.0, 16.0, 6.0, 16.0);
+    public static final VoxelShape BASE = Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 6.0, 16.0);
+    public static final VoxelShape BASE_NORTH = VoxelShapes.union(
+            Block.createCuboidShape(0.0, 6.0, 2.0, 16.0, 12.0, 16.0),
+            BASE
+    );
+    public static final VoxelShape BASE_EAST = VoxelShapes.union(
+            Block.createCuboidShape(0.0, 6.0, 0.0, 14.0, 12.0, 16.0),
+            BASE
+    );
+    public static final VoxelShape BASE_SOUTH = VoxelShapes.union(
+            Block.createCuboidShape(0.0, 6.0, 0.0, 16.0, 12.0, 14.0),
+            BASE
+    );
+    public static final VoxelShape BASE_WEST = VoxelShapes.union(
+            Block.createCuboidShape(2.0, 6.0, 0.0, 16.0, 12.0, 16.0),
+            BASE
+    );
 
     public static final VoxelShape NORTH_SHAPE = VoxelShapes.union(
-            Block.createCuboidShape(1.0, 6.0, 3.0, 15.0, 9.0, 12.0),
-            Block.createCuboidShape(1.0, 9.0, 8.0, 15.0, 11.5, 15.0),
+            Block.createCuboidShape(1.0, 12, 3.0, 15.0, 15.0, 12.0),
+            Block.createCuboidShape(1.0, 15.0, 8.0, 15.0, 17.5, 15.0),
             BASE_NORTH
     );
     public static final VoxelShape EAST_SHAPE = VoxelShapes.union(
-            Block.createCuboidShape(4.0, 6.0, 1.0, 13.0, 9.0, 15.0),
-            Block.createCuboidShape(1.0, 9, 1.0, 8.0, 11.5, 15.0),
+            Block.createCuboidShape(4.0, 12, 1.0, 13.0, 15.0, 15.0),
+            Block.createCuboidShape(1.0, 15.0, 1.0, 8.0, 17.5, 15.0),
             BASE_EAST
     );
     public static final VoxelShape SOUTH_SHAPE = VoxelShapes.union(
-            Block.createCuboidShape(1.0, 6.0, 4.0, 15.0, 9.0, 13.0),
-            Block.createCuboidShape(1.0, 9, 1.0, 15.0, 11.5, 8.0),
+            Block.createCuboidShape(1.0, 12, 4.0, 15.0, 15.0, 13.0),
+            Block.createCuboidShape(1.0, 15.0, 1.0, 15.0, 17.5, 8.0),
             BASE_SOUTH
     );
     public static final VoxelShape WEST_SHAPE = VoxelShapes.union(
-            Block.createCuboidShape(3.0, 6.0, 1.0, 12.0, 9.0, 15),
-            Block.createCuboidShape(8.0, 9.0, 1.0, 15, 11.5, 15),
+            Block.createCuboidShape(3.0, 12, 1.0, 12.0, 15.0, 15),
+            Block.createCuboidShape(8.0, 15.0, 1.0, 15, 17.5, 15),
             BASE_WEST
     );
 
     public final Item WOOD_TYPE;
+    public final VariantResources.wood_variant VARIANT;
 
-    public static final Map<Item, AngledShopBlock> WOOD_TYPE_TO_SHOP_TYPE = new HashMap<>();
-
-
-    public AngledShopBlock(Settings settings, Item woodType) {
+    public AngledShopBlock(Settings settings, Item woodType, VariantResources.wood_variant variant) {
         super(settings, AngledShopBlockState::new);
 
-        WOOD_TYPE_TO_SHOP_TYPE.put(woodType, this);
+        net.spudacious5705.shops.block.VariantResources.ANGLED.put(woodType, this);
+
         WOOD_TYPE = woodType;
+
+        VARIANT = variant;
     }
 
+    public String getWoodName(){
+        return VARIANT.name;
+    }
+
+    @Override
+    public ScreenSettingsGroup getScreenSettings() {
+        return ScreenSettingsGroup.createBasicWood(VARIANT);
+    }
+
+    @Override
+    public Item asItem() {
+        return getDefaultColouredShopItem();
+    }
 
     @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
@@ -87,7 +111,7 @@ public class AngledShopBlock extends AbstractShopBlock implements BlockPickInter
             if (placer instanceof PlayerEntity player) {
                 BlockEntity blockEntity = world.getBlockEntity(pos);
                 if (blockEntity instanceof AngledShopEntity shopEntity) {
-                    shopEntity.setOwner(player);
+                    shopEntity.userSignIn(player);
                     if (itemStack.getItem() instanceof ShopItem item) {
                         shopEntity.setCushionColour(item.colour);
                     }
@@ -103,14 +127,6 @@ public class AngledShopBlock extends AbstractShopBlock implements BlockPickInter
         return new AngledShopEntity(pos, state);
     }
 
-    private static PermissionLevel userSignIn(World world, BlockPos pos, PlayerEntity player) {
-        BlockEntity blockEntity = world.getBlockEntity(pos);
-        if (blockEntity instanceof AngledShopEntity shopEntity) {
-            return shopEntity.userSignIn(player);
-        }
-        return PermissionLevel.CUSTOMER;
-    }
-
     @Override
     public ItemStack getPickedStack(BlockState state, BlockView view, BlockPos pos, PlayerEntity player, HitResult result) {
         Colour colour = Colour.RED;
@@ -124,32 +140,6 @@ public class AngledShopBlock extends AbstractShopBlock implements BlockPickInter
 
         public AngledShopBlockState(Block block, ImmutableMap<Property<?>, Comparable<?>> immutableMap, MapCodec<BlockState> mapCodec) {
             super(block, immutableMap, mapCodec);
-        }
-
-        @Override
-        public ActionResult onUse(World world, PlayerEntity player, Hand hand, BlockHitResult hit) {
-            BlockPos pos = hit.getBlockPos();
-            if (world.isClient) return ActionResult.SUCCESS;
-
-            ItemStack stack = player.getStackInHand(hand);
-
-            BlockEntity be = world.getBlockEntity(pos);
-
-            if (!(be instanceof AngledShopEntity)) return ActionResult.FAIL;
-
-            PermissionLevel perm = userSignIn(world, pos, player);
-
-            if (!stack.isEmpty() && perm.canEditTrades()) {
-                if (((AngledShopBlock) getBlock()).onUseWithItem(stack, this.asBlockState(), world, pos, player))
-                    return ActionResult.SUCCESS;
-            }
-
-            NamedScreenHandlerFactory screenHandlerFactory = (AngledShopEntity) world.getBlockEntity(pos);
-            if (screenHandlerFactory != null) {
-                player.openHandledScreen(screenHandlerFactory);
-            }
-
-            return ActionResult.SUCCESS;
         }
 
         @Override
@@ -169,7 +159,7 @@ public class AngledShopBlock extends AbstractShopBlock implements BlockPickInter
         }
 
         @Override
-        protected boolean isStateReplacedValid(AbstractShopBlockState newShopState) {
+        protected boolean isStateReplacedValid(BlockState newShopState) {
             return newShopState instanceof AngledShopBlockState;
         }
 
@@ -207,14 +197,14 @@ public class AngledShopBlock extends AbstractShopBlock implements BlockPickInter
                             stack.decrement(1);
                             group = CushionResources.COLOUR_MAP.get(originalColour);
                             ItemStack releaseStack = new ItemStack(group.wool(), 1);
-                            world.spawnEntity(new ItemEntity(world, pos.getX() + 0.5f, pos.getY() + 0.5f, pos.getZ() + 0.5f, releaseStack, 0f, 0.1f, 0f));
+                            world.spawnEntity(new ItemEntity(world, pos.getX() + 0.5f, pos.getY() + 0.6f, pos.getZ() + 0.5f, releaseStack, 0f, 0.1f, 0f));
                         }
                         world.playSound(player, pos, SoundEvents.ENTITY_SHEEP_SHEAR, SoundCategory.BLOCKS);
                         world.updateListeners(pos, state, state, Block.NOTIFY_LISTENERS);
                         return true;
                     }
-                } else if (WOOD_TYPE_TO_SHOP_TYPE.containsKey(item)) {
-                    AngledShopBlock block = WOOD_TYPE_TO_SHOP_TYPE.get(item);
+                } else if (VariantResources.ANGLED.containsKey(item)) {
+                    AngledShopBlock block = net.spudacious5705.shops.block.VariantResources.ANGLED.get(item);
                     if (WOOD_TYPE != item) {
                         if (block.getDefaultState() instanceof AngledShopBlockState defaultShopState) {
                             if(!player.isCreative()) {

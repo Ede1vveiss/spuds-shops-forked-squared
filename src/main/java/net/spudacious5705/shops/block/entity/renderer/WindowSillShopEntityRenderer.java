@@ -23,11 +23,11 @@ public class WindowSillShopEntityRenderer implements BlockEntityRenderer<WindowS
     @Override
     public void render(WindowSillShopEntity shop, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
         ModelTransformationMode mode;
-        final AbstractShopEntity.RendererData data = shop.rendererData();
+        final WindowSillShopEntity.RendererData data = shop.rendererData();
         if(data == null){
             return;
         }
-        data.tickAccumulator(tickDelta);
+        data.frameAccumulator();
 
         if (data.shopFunctional()) {
 

@@ -7,23 +7,32 @@ import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
 import net.spudacious5705.shops.SpudaciousShops;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ModScreenHandlers {
 
     public  static  final ScreenHandlerType<ShopScreenHandlerOwner> SHOP_SCREEN_HANDLER_OWNER =
-            Registry.register(Registries.SCREEN_HANDLER, new Identifier(SpudaciousShops.MOD_ID, "shop_gui_owner"),
+            Registry.register(Registries.SCREEN_HANDLER, id("shop_gui_owner"),
                     new ExtendedScreenHandlerType<>(ShopScreenHandlerOwner::new));
 
     public  static  final ScreenHandlerType<ShopScreenHandlerCustomer> SHOP_SCREEN_HANDLER_CUSTOMER =
-                    new ExtendedScreenHandlerType<>(ShopScreenHandlerCustomer::new);
+            Registry.register(Registries.SCREEN_HANDLER, id("shop_gui_customer"),
+                    new ExtendedScreenHandlerType<>(ShopScreenHandlerCustomer::new));
 
 
     public static Identifier id(String path) {
-        return new Identifier(SpudaciousShops.MOD_ID, path);
+        return SpudaciousShops.id(path);
     }
+
+    static final Map<Character, Identifier> CURRENCY_IMG_MAP = new HashMap<>() {{
+        put('£', SpudaciousShops.id("textures/gui/currency_textures/gbp.png"));
+        put('€', SpudaciousShops.id("textures/gui/currency_textures/eur.png"));
+        put('x', SpudaciousShops.id("textures/gui/contract_slot.png"));
+    }};
+
+
     public static void registerScreenHandlers() {
         SpudaciousShops.LOGGER.info("Registering screen handlers for " + SpudaciousShops.MOD_ID);
-
-        Registry.register(Registries.SCREEN_HANDLER, id("shop_gui_customer"), SHOP_SCREEN_HANDLER_CUSTOMER);
-
     }
 }

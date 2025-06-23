@@ -16,22 +16,20 @@ public class ModBlockTagProvider extends FabricTagProvider.BlockTagProvider {
 
     @Override
     protected void configure(RegistryWrapper.WrapperLookup wrapperLookup) {
+        ModBlocks.registerModBlocks();
 
-        addShops(getOrCreateTagBuilder(BlockTags.AXE_MINEABLE));
+
+        FabricTagBuilder pick = getOrCreateTagBuilder(BlockTags.PICKAXE_MINEABLE);
+        FabricTagBuilder axe = getOrCreateTagBuilder(BlockTags.AXE_MINEABLE);
+        ModBlocks.getAllShops().forEach(shop ->{
+            getOrCreateTagBuilder(shop.getPreferredTool()).add(shop);
+        });
+
+
         addShops(getOrCreateTagBuilder(ModBlockTags.SPUDS_SHOPS));
     }
 
     private void addShops(FabricTagBuilder builder) {
-        builder
-                .add(ModBlocks.SHOP_BLOCK_ANGLED_ACACIA)
-                .add(ModBlocks.SHOP_BLOCK_ANGLED_BAMBOO)
-                .add(ModBlocks.SHOP_BLOCK_ANGLED_BIRCH)
-                .add(ModBlocks.SHOP_BLOCK_ANGLED_CHERRY)
-                .add(ModBlocks.SHOP_BLOCK_ANGLED_CRIMSON)
-                .add(ModBlocks.SHOP_BLOCK_ANGLED_DARK_OAK)
-                .add(ModBlocks.SHOP_BLOCK_ANGLED_MANGROVE)
-                .add(ModBlocks.SHOP_BLOCK_ANGLED_OAK)
-                .add(ModBlocks.SHOP_BLOCK_ANGLED_SPRUCE)
-                .add(ModBlocks.SHOP_BLOCK_ANGLED_WARPED);
+        ModBlocks.getAllShops().forEach(builder::add);
     }
 }
