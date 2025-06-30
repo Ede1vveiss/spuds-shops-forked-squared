@@ -1,4 +1,4 @@
-// 1.20.1	2025-06-20T01:32:02.246576473	Spud's Shops/Block Loot Tables
+// 1.20.1	2025-06-26T14:53:55.724128541	Spud's Shops/Block Loot Tables
 9c8c2a0cd6159b1f404cc29a93f280f82d81176e data/spudaciousshops/loot_tables/blocks/shelf_shop_birch.json
 ffd765fd7a47fd9225270e0032d1d382c87dd058 data/spudaciousshops/loot_tables/blocks/shop_jungle.json
 408b3fa16bec8bedf171e8c302e4edfdc21881b9 data/spudaciousshops/loot_tables/blocks/shelf_shop_cherry.json
@@ -22,8 +22,8 @@ d2452d6dc1f9fc077f611ed1aa02bb5bce92f680 data/spudaciousshops/loot_tables/blocks
 2ad2d0034ee51c8997feac25f2f283eb6c197903 data/spudaciousshops/loot_tables/blocks/shop_acacia.json
 a9dae28f1c41f290db830d2a77ce4c8b379d5c9e data/spudaciousshops/loot_tables/blocks/rug_shop_green.json
 373da8d0aa13bfbb96cf055b6dd4669e1ae9ee87 data/spudaciousshops/loot_tables/blocks/rug_shop_gray.json
-45c1abcc3fdbf2660e96bff5b50044059a0f1126 data/spudaciousshops/loot_tables/blocks/shop_crimson.json
 2928236c8c984f153184ebe9f7be26e332b5cc73 data/spudaciousshops/loot_tables/blocks/rug_shop_purple.json
+45c1abcc3fdbf2660e96bff5b50044059a0f1126 data/spudaciousshops/loot_tables/blocks/shop_crimson.json
 1c75652f97556bfd8f2fd610d9266c470e663740 data/spudaciousshops/loot_tables/blocks/shelf_shop_spruce.json
 6bfde423999eabb65169afd5d3613737c2205a27 data/spudaciousshops/loot_tables/blocks/shelf_shop_warped.json
 9f800fb8c4f0d5a84845de4b886856d485278b7a data/spudaciousshops/loot_tables/blocks/shelf_shop_dark_oak.json
