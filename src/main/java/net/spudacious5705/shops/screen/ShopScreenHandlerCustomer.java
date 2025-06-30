@@ -17,7 +17,7 @@ import static net.minecraft.block.Block.dropStack;
 
 public class ShopScreenHandlerCustomer extends ScreenHandler {
     private final AbstractShopEntity.InventoryDelegate shopInventory;
-    final int SCREEN_TEXTURE_ID;
+    final ScreenSettingsGroup SCREEN_SETTINGS;
     private final PlayerInventory playerInventory;
 
 
@@ -50,20 +50,20 @@ public class ShopScreenHandlerCustomer extends ScreenHandler {
             checkSize(inventoryDelegate, 78 );
             this.shopInventory = inventoryDelegate;
 
-            this.SCREEN_TEXTURE_ID = shop.getTextureId();
+            this.SCREEN_SETTINGS = shop.getScreenSettings();
 
             finishSetup();
         } else {
             MinecraftClient.getInstance().setScreen(null);
             this.shopInventory = null;
-            this.SCREEN_TEXTURE_ID = 0;
+            this.SCREEN_SETTINGS = null;
         }
     }
 
-    public ShopScreenHandlerCustomer(int syncId, PlayerInventory playerInventory, AbstractShopEntity.InventoryDelegate inventory, int SCREEN_TEXTURE_ID) {//serverInit
+    public ShopScreenHandlerCustomer(int syncId, PlayerInventory playerInventory, AbstractShopEntity.InventoryDelegate inventory) {//serverInit
         super(ModScreenHandlers.SHOP_SCREEN_HANDLER_CUSTOMER, syncId);
         this.shopInventory = inventory;
-        this.SCREEN_TEXTURE_ID = SCREEN_TEXTURE_ID;
+        this.SCREEN_SETTINGS = null;
         this.playerInventory = playerInventory;
         finishSetup();
     }
@@ -78,8 +78,8 @@ public class ShopScreenHandlerCustomer extends ScreenHandler {
 
     }
 
-    public int textureId() {
-        return this.SCREEN_TEXTURE_ID;
+    public ScreenSettingsGroup getSettings() {
+        return this.SCREEN_SETTINGS;
     }
 
     public void addCustomerInventory() {

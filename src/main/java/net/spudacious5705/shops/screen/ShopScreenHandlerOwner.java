@@ -108,12 +108,12 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
         }
     }
 
-    public ShopScreenHandlerOwner(int syncId, PlayerInventory playerInventory, AbstractShopEntity.InventoryDelegate inventory, @Nullable AbstractShopEntity.player_ID_Records_Delegate idRecordsDelegate, ScreenSettingsGroup screen_settings) {//serverInit
+    public ShopScreenHandlerOwner(int syncId, PlayerInventory playerInventory, AbstractShopEntity.InventoryDelegate inventory, @Nullable AbstractShopEntity.player_ID_Records_Delegate idRecordsDelegate) {//serverInit
         super(ModScreenHandlers.SHOP_SCREEN_HANDLER_OWNER, syncId);
         checkSize(inventory, 78 );
         this.shopInventory = inventory;
         this.perms = shopInventory.checkPermissions();
-        this.SCREEN_SETTINGS = screen_settings;
+        this.SCREEN_SETTINGS = null;
         this.playerInventory = playerInventory;
         this.ID_RECORDS_DELEGATE = idRecordsDelegate;
         playerInventory.onOpen(playerInventory.player);

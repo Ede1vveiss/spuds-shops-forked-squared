@@ -11,18 +11,16 @@ import net.spudacious5705.shops.SpudaciousShops;
 
 public class ShopScreenCustomer extends HandledScreen<ShopScreenHandlerCustomer> {
 
-    private static final String[] TEXTURE_BANK = {
-            "textures/gui/shop_customer.png",
-    };
+    protected int textureX = 0;
+    protected int textureY = 0;
 
     private final Identifier TEXTURE;
 
-    protected int backgroundWidth = 176;
-    protected int backgroundHeight = 165;
-
     public ShopScreenCustomer(ShopScreenHandlerCustomer handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
-        TEXTURE = SpudaciousShops.id(TEXTURE_BANK[handler.SCREEN_TEXTURE_ID]);
+        TEXTURE = handler.getSettings().CUSTOMER().textureID();
+        backgroundWidth = 256;
+        backgroundHeight = 256;
     }
 
     @Override
@@ -31,6 +29,11 @@ public class ShopScreenCustomer extends HandledScreen<ShopScreenHandlerCustomer>
         playerInventoryTitleX = 1000;
         titleX = 1000;
 
+        x = (width - backgroundWidth)/2+42;
+        y = (height - backgroundHeight)/2+50;
+
+        textureX = x-25;
+        textureY = y-90;
     }
 
     @Override
@@ -38,10 +41,8 @@ public class ShopScreenCustomer extends HandledScreen<ShopScreenHandlerCustomer>
         RenderSystem.setShader(GameRenderer::getPositionTexProgram);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
-        x = (width - backgroundWidth)/2;
-        y = (height - backgroundHeight)/2;
         RenderSystem.setShaderTexture(0, TEXTURE);
-        context.drawTexture(TEXTURE, x , y, 0, 0, backgroundWidth, backgroundHeight);
+        context.drawTexture(TEXTURE, textureX , textureY, 0, 0, backgroundWidth, backgroundHeight);
     }
 
 

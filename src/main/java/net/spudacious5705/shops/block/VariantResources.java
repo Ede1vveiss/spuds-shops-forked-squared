@@ -30,13 +30,13 @@ public class VariantResources {
         ACACIA("acacia",11141290),
         BAMBOO("bamboo",11141290),
         BIRCH("birch",11141290),
-        CHERRY("cherry",11141290),
-        CRIMSON("crimson",11141290),
+        CHERRY("cherry",0),
+        CRIMSON("crimson",0),
         DARK_OAK("dark_oak",11141290),
-        MANGROVE("mangrove",11141290),
+        MANGROVE("mangrove",0),
         OAK("oak",11141290),
         SPRUCE("spruce",11141290),
-        WARPED("warped",11141290),
+        WARPED("warped",0),
         JUNGLE("jungle",11141290);
         
         public final String name;

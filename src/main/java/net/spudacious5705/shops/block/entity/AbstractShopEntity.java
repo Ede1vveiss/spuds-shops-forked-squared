@@ -815,14 +815,14 @@ public abstract class AbstractShopEntity extends BlockEntity implements Extended
                 player_ID_Records_Delegate recordsDelegate = new player_ID_Records_Delegate(perms, player.getUuid());
 
                 if (perms.canViewShopScreen()) {
-                    return new ShopScreenHandlerOwner(syncId, playerInventory, inventoryDelegate, recordsDelegate, getScreenSettings());
+                    return new ShopScreenHandlerOwner(syncId, playerInventory, inventoryDelegate, recordsDelegate);
                 }
 
                 if (!isShopFunctional()) {
                     return null;
                 }
 
-                return new ShopScreenHandlerCustomer(syncId, playerInventory, inventoryDelegate, getTextureId());
+                return new ShopScreenHandlerCustomer(syncId, playerInventory, inventoryDelegate);
             }
         };
     }

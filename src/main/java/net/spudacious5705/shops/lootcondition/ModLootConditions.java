@@ -13,7 +13,7 @@ public class ModLootConditions {
     private static LootConditionType registerCondition(JsonSerializer<MatchingCushionColourCondition> serializer) {
         LootConditionType conditionType = new LootConditionType(serializer);
 
-        Registry.register(Registries.LOOT_CONDITION_TYPE, Identifier.of(SpudaciousShops.MOD_ID, "matches_colour"), conditionType);
+        Registry.register(Registries.LOOT_CONDITION_TYPE, SpudaciousShops.id("matches_colour"), conditionType);
         return conditionType;
     }
 
