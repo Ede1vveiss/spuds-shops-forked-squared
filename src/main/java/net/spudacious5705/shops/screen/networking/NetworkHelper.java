@@ -10,11 +10,14 @@ import net.minecraft.util.Identifier;
 import net.spudacious5705.shops.SpudaciousShops;
 import net.spudacious5705.shops.screen.ShopScreenHandlerOwner;
 import net.spudacious5705.shops.screen.ShopScreenOwner;
+import net.spudacious5705.shops.screen.ToggleButtonID;
 
 public class NetworkHelper {
     public static final Identifier SHOP_TAB_SYNC_ID = SpudaciousShops.id("shop_tab_sync");
     public static final Identifier SHOP_TAB_SYNC_RESPONSE_ID = SpudaciousShops.id("shop_tab_sync");
     public static final Identifier SHOP_SELF_DEMOTE = SpudaciousShops.id("shop_self_demote");
+    public static final Identifier TOGGLE_SYNC = SpudaciousShops.id("toggle_sync");
+    public static final Identifier TOGGLE_SYNC_RESPONSE = SpudaciousShops.id("toggle_sync_response");
 
 
     public static void initialise(){
@@ -28,7 +31,7 @@ public class NetworkHelper {
                             //update client
                             PacketByteBuf responseBuf = PacketByteBufs.create();
                             responseBuf.writeInt(tab);
-                            ServerPlayNetworking.send(player, SHOP_TAB_SYNC_RESPONSE_ID, responseBuf);
+                            responseSender.sendPacket(SHOP_TAB_SYNC_RESPONSE_ID, responseBuf);
                         }
                     });
                 });
@@ -42,6 +45,33 @@ public class NetworkHelper {
                         }
                     });
                 });
+
+        ServerPlayNetworking.registerGlobalReceiver(TOGGLE_SYNC,
+                (server, player, handler, buf, responseSender) -> {
+            String tabID = buf.readString();
+            boolean state = buf.readBoolean();
+            server.execute(() -> {
+                        if(player.currentScreenHandler instanceof ShopScreenHandlerOwner screenHandler) {
+
+                            ToggleButtonID button;
+
+                            try {
+                                button = ToggleButtonID.fromString(tabID);
+                            } catch (Exception e) {
+                                return;
+                            }
+
+                            boolean response = screenHandler.toggleButtonServersideUpdate(button, state); // Sync the tab on the server
+
+                            //update client
+                            PacketByteBuf responseBuf = PacketByteBufs.create();
+                            responseBuf.writeString(tabID);
+                            responseBuf.writeBoolean(response);
+
+                            responseSender.sendPacket(TOGGLE_SYNC_RESPONSE, responseBuf);
+                        }
+            });
+        });
     }
 
     @Environment(EnvType.CLIENT)
@@ -56,6 +86,25 @@ public class NetworkHelper {
                     });
                 });
 
+        ClientPlayNetworking.registerGlobalReceiver(TOGGLE_SYNC_RESPONSE,
+                (client, handler, buf, responseSender) -> {
+            String tabID = buf.readString();
+            boolean state = buf.readBoolean();
+            client.execute(() -> {
+                if (client.currentScreen instanceof ShopScreenOwner screen) {
+                   ToggleButtonID button;
+                   try {
+                       button = ToggleButtonID.fromString(tabID);
+                        //TODO FIX ISSUE WITH THE SETTINGS TEXTURE.
+                        // THE SLOT FOR THE CREATIVE BUTTON SHOWS WHEN IN SURVIVAL
+                        // WHILST THE CREATIVE BUTTON DOES NOT
+                   } catch (Exception e) {
+                       return;
+                   }
+                   screen.getScreenHandler().updateToggleButtonFromPacket(button, state); // Update UI on client
+                }
+            });
+        });
     }
 
 

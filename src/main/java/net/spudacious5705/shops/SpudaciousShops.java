@@ -7,6 +7,7 @@ import net.spudacious5705.shops.block.ModBlockTags;
 import net.spudacious5705.shops.block.ModBlocks;
 import net.spudacious5705.shops.block.VariantResources;
 import net.spudacious5705.shops.block.entity.ModBlockEntities;
+import net.spudacious5705.shops.config.ConfigHandler;
 import net.spudacious5705.shops.item.ModItemGroups;
 import net.spudacious5705.shops.item.ModItems;
 import net.spudacious5705.shops.lootcondition.ModLootConditions;
@@ -26,6 +27,7 @@ public class SpudaciousShops implements ModInitializer {
 	@Override
 	public void onInitialize() {
 
+        ConfigHandler.initialise();
 		ModBlockTags.initialise();
         ModProperties.registerModProperties();
 

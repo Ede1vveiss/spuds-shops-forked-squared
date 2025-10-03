@@ -14,6 +14,7 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
+import net.spudacious5705.shops.SpudaciousShops;
 import net.spudacious5705.shops.block.entity.AbstractShopEntity;
 import net.spudacious5705.shops.item.ModItems;
 import net.spudacious5705.shops.properties.PermissionLevel;
@@ -27,9 +28,11 @@ import java.util.Objects;
 import static net.spudacious5705.shops.block.entity.AbstractShopEntity.player_ID_Records_Delegate.checkAction;
 import static net.spudacious5705.shops.block.entity.ShopInventory.PAYMENT_SLOT;
 import static net.spudacious5705.shops.block.entity.ShopInventory.VENDING_SLOT;
-import static net.spudacious5705.shops.screen.networking.NetworkHelper.SHOP_TAB_SYNC_ID;
+import static net.spudacious5705.shops.screen.networking.NetworkHelper.*;
 
 public class ShopScreenHandlerOwner extends ScreenHandler {
+
+    private final AbstractShopEntity.settings_Delegate SETTINGS_DELEGATE;
 
     void initiateWarn(WarningActivator function) {
         warningActivator = function;
@@ -46,8 +49,16 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
         return activeTab;
     }
 
+    public boolean isPlayerCreative() {
+        return SETTINGS_DELEGATE.isPlayerCreative();
+    }
+
     interface WarningActivator{
         void openWarnScreen();
+    }
+    private SettingsUpdater SETTINGS_UPDATER = null;
+    interface SettingsUpdater{
+        void updateSettings(ToggleButtonID id, boolean state);
     }
 
     private WarningActivator warningActivator;
@@ -67,7 +78,15 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
     private final List<TogglableSlot> tabSellerSlots = new ArrayList<>();
     final List<TogglableSlot> tabSettingsSlots = new ArrayList<>();
     private final List<TogglableSlot> tabCustomerSlots = new ArrayList<>();
+    private widgetCollection widgets;
 
+    interface widgetCollection{
+        void setToVal(boolean value);
+    }
+
+    void setWidgetFunction(widgetCollection c){
+        widgets = c;
+    }
 
     private static final int profit_itemStacks_start = 54;
 
@@ -98,6 +117,8 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
 
             ID_RECORDS_DELEGATE = shop.getRecordsDelegate(player);
 
+            SETTINGS_DELEGATE = shop.getSettingsDelegate(player);
+
             finishSetup();
         } else {
             MinecraftClient.getInstance().setScreen(null);
@@ -105,10 +126,11 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
             this.SCREEN_SETTINGS = null;
             this.perms = PermissionLevel.CUSTOMER;
             ID_RECORDS_DELEGATE = null;
+            SETTINGS_DELEGATE = null;
         }
     }
 
-    public ShopScreenHandlerOwner(int syncId, PlayerInventory playerInventory, AbstractShopEntity.InventoryDelegate inventory, @Nullable AbstractShopEntity.player_ID_Records_Delegate idRecordsDelegate) {//serverInit
+    public ShopScreenHandlerOwner(int syncId, PlayerInventory playerInventory, AbstractShopEntity.InventoryDelegate inventory, @Nullable AbstractShopEntity.player_ID_Records_Delegate idRecordsDelegate,  AbstractShopEntity.settings_Delegate settingsDelegate) {//serverInit
         super(ModScreenHandlers.SHOP_SCREEN_HANDLER_OWNER, syncId);
         checkSize(inventory, 78 );
         this.shopInventory = inventory;
@@ -116,6 +138,7 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
         this.SCREEN_SETTINGS = null;
         this.playerInventory = playerInventory;
         this.ID_RECORDS_DELEGATE = idRecordsDelegate;
+        this.SETTINGS_DELEGATE = settingsDelegate;
         playerInventory.onOpen(playerInventory.player);
         finishSetup();
     }
@@ -133,7 +156,7 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
 
         activeTab = SELLER_TAB;
 
-
+        addSettingButtons();
 
     }
 
@@ -185,6 +208,14 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
         activeTab = tab;
     }
 
+
+    public boolean toggleButtonServersideUpdate(ToggleButtonID button, boolean state) {
+        SpudaciousShops.LOGGER.debug("packet received: {} - {}", button.getSerialised(), state);
+        SETTINGS_DELEGATE.attemptSetState(button,state);
+        return SETTINGS_DELEGATE.getState(button);
+    }
+
+
     @Environment(EnvType.CLIENT)
     public boolean updateTabSelectionResponse(int tab){
         if(activeTab != tab){
@@ -198,7 +229,7 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
     public void updateTabSelection(){
         switch (activeTab) {
             case SETTINGS_TAB -> {
-                tabSettingsSlots.forEach(TogglableSlot::enable);
+                tabSettingsSlots.forEach(TogglableSlot::enable);widgets.setToVal(true);
                 playerInvSlots.forEach(TogglableSlot::enable);
 
                 tabSellerSlots.forEach(TogglableSlot::disable);
@@ -208,11 +239,11 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
                 playerInvSlots.forEach(TogglableSlot::enable);
                 tabCustomerSlots.forEach(TogglableSlot::enable);
 
-                tabSettingsSlots.forEach(TogglableSlot::disable);
+                tabSettingsSlots.forEach(TogglableSlot::disable);widgets.setToVal(false);
                 tabSellerSlots.forEach(TogglableSlot::disable);
             }
             case WARNING_TAB -> {
-                tabSettingsSlots.forEach(TogglableSlot::disable);
+                tabSettingsSlots.forEach(TogglableSlot::disable);widgets.setToVal(false);
                 tabSellerSlots.forEach(TogglableSlot::disable);
                 playerInvSlots.forEach(TogglableSlot::disable);
                 tabCustomerSlots.forEach(TogglableSlot::disable);
@@ -221,13 +252,44 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
                 tabSellerSlots.forEach(TogglableSlot::enable);
                 playerInvSlots.forEach(TogglableSlot::enable);
 
-                tabSettingsSlots.forEach(TogglableSlot::disable);
+                tabSettingsSlots.forEach(TogglableSlot::disable);widgets.setToVal(false);
                 tabCustomerSlots.forEach(TogglableSlot::disable);
             }
         }
     }
 
-    public void addShopInventory(){
+    void settingsUpdater(SettingsUpdater function) {
+        SETTINGS_UPDATER = function;
+    }
+
+    @Environment(EnvType.CLIENT)
+    public void updateToggleButtonFromPacket(ToggleButtonID button, boolean state) {
+        SETTINGS_UPDATER.updateSettings(button,state);
+    }
+
+    @Environment(EnvType.CLIENT)
+    public boolean handleToggleButtonInput(ToggleButtonID button, boolean state) {
+        if(SETTINGS_DELEGATE.attemptSetState(button,state)){
+            PacketByteBuf buf = PacketByteBufs.create();
+            buf.writeString(button.getSerialised());
+            buf.writeBoolean(state);
+
+            ClientPlayNetworking.send(TOGGLE_SYNC, buf);
+            return state;
+        }
+        return !state;//failure, return original state
+    }
+
+    @Environment(EnvType.CLIENT)
+    public boolean getStateOfSetting(ToggleButtonID button) {
+        return SETTINGS_DELEGATE.getState(button);
+    }
+
+    private void addSettingButtons() {
+
+    }
+
+    private void addShopInventory(){
         int offsetx = 59;
         int offsety = 15;
 
@@ -276,8 +338,10 @@ public class ShopScreenHandlerOwner extends ScreenHandler {
     @Override
     public ItemStack quickMove(PlayerEntity player, int invSlot) {
         if(activeTab==CUSTOMER_TAB){
-            while(shopInventory.canTrade(player)){
+            int tradeCount = 0;
+            while(tradeCount<64&shopInventory.canTrade(player)){
                 shopInventory.trade(playerInventory);
+                tradeCount++;
             }
             return ItemStack.EMPTY;
         }

@@ -20,7 +20,7 @@ public interface ShopRenderUtils {
     }
 
     static void renderShopWarns(float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay, final RendererData data, BlockEntityRendererFactory.Context context, float yOffset, float scale) {
-        if(data.shopFunctional()) {
+        if(data.shopFunctional() && data.renderIcons()) {
             if (data.stockWarning || data.paymentWarning) {
 
                 if (data.updateIconRotation()) {
