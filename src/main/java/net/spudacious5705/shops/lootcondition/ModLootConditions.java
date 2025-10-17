@@ -1,25 +1,24 @@
 package net.spudacious5705.shops.lootcondition;
 
-
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.RegisterEvent;
+import net.minecraft.loot.condition.LootConditionType;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.JsonSerializer;
 import net.spudacious5705.shops.SpudaciousShops;
 
-@Mod.EventBusSubscriber(modid = SpudaciousShops.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModLootConditions {
-    public static final ResourceLocation RESOURCE_LOCATION = ResourceLocation.fromNamespaceAndPath(SpudaciousShops.MOD_ID, "matches_colour");
+    public static final LootConditionType MATCHES_ENUM = registerCondition(new MatchingCushionColourCondition.Serializer());
 
-    public static final LootItemConditionType MATCHES_ENUM = new LootItemConditionType(new MatchingCushionColourCondition.ConditionSerializer());
+    private static LootConditionType registerCondition(JsonSerializer<MatchingCushionColourCondition> serializer) {
+        LootConditionType conditionType = new LootConditionType(serializer);
 
-    @SubscribeEvent
-    public static void registerLootConditions(RegisterEvent event) {
-        event.register(Registries.LOOT_CONDITION_TYPE, helper -> {
-            helper.register(RESOURCE_LOCATION, MATCHES_ENUM);
-        });
+        Registry.register(Registries.LOOT_CONDITION_TYPE, SpudaciousShops.id("matches_colour"), conditionType);
+        return conditionType;
+    }
+
+    public static void registerLootConditions() {
+        SpudaciousShops.LOGGER.info("Registering mod loot table conditions for " + SpudaciousShops.MOD_ID);
     }
 }
 

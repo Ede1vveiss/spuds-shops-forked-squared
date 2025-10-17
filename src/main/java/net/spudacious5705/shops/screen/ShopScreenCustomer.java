@@ -1,55 +1,56 @@
 package net.spudacious5705.shops.screen;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import net.minecraft.client.render.GameRenderer;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import net.spudacious5705.shops.SpudaciousShops;
 
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Inventory;
-import org.jetbrains.annotations.NotNull;
-
-
-public class ShopScreenCustomer extends AbstractContainerScreen<ShopScreenHandlerCustomer> {
+public class ShopScreenCustomer extends HandledScreen<ShopScreenHandlerCustomer> {
 
     protected int textureX = 0;
     protected int textureY = 0;
 
-    private final ResourceLocation TEXTURE;
+    private final Identifier TEXTURE;
 
-    public ShopScreenCustomer(ShopScreenHandlerCustomer handler, Inventory playerInventory, Component title) {
-        super(handler, playerInventory, title);
+    public ShopScreenCustomer(ShopScreenHandlerCustomer handler, PlayerInventory inventory, Text title) {
+        super(handler, inventory, title);
         TEXTURE = handler.getSettings().CUSTOMER().textureID();
-        imageWidth = 256;
-        imageHeight = 256;
+        backgroundWidth = 256;
+        backgroundHeight = 256;
     }
+
     @Override
     protected void init() {
         super.init();
+        playerInventoryTitleX = 1000;
+        titleX = 1000;
 
-        leftPos = (width - imageWidth)/2+42;
-        topPos = (height - imageHeight)/2+50;
+        x = (width - backgroundWidth)/2+42;
+        y = (height - backgroundHeight)/2+50;
 
-        textureX = leftPos-25;
-        textureY = topPos-90;
+        textureX = x-25;
+        textureY = y-90;
     }
 
     @Override
-    protected void renderLabels(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        // Do nothing — this prevents the title and inventory label from rendering
-        //TODO perhaps implement this in fabric
+    protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY) {
+        RenderSystem.setShader(GameRenderer::getPositionTexProgram);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+
+        RenderSystem.setShaderTexture(0, TEXTURE);
+        context.drawTexture(TEXTURE, textureX , textureY, 0, 0, backgroundWidth, backgroundHeight);
     }
 
 
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        guiGraphics.blit(TEXTURE, textureX, textureY, 0, 0, imageWidth, imageHeight);
-    }
-
-    @Override
-    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics);
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-        this.renderTooltip(guiGraphics, mouseX, mouseY);
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        renderBackground(context);
+        super.render(context, mouseX, mouseY, delta);
+        drawMouseoverTooltip(context, mouseX, mouseY);
     }
 }

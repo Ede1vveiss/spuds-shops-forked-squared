@@ -1,35 +1,39 @@
 package net.spudacious5705.shops.block.entity;
 
-
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.spudacious5705.shops.block.ModBlockEntities;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.enums.SlabType;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.util.ItemScatterer;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
-
-import static net.spudacious5705.shops.block.entity.ShopInventory.ItemScatterer;
+import org.jetbrains.annotations.Nullable;
 
 public class ShelfShopEntity extends AbstractShopEntity{
 
     private final ShopInventory shopInventoryTop = ShopInventory.create();
 
-    @OnlyIn(Dist.CLIENT)
+    @Environment(EnvType.CLIENT)
     protected ShelfRenderData furtherDataTop;
-    @OnlyIn(Dist.CLIENT)
+    @Environment(EnvType.CLIENT)
     protected ShelfRenderData furtherDataBottom;
 
-    @OnlyIn(Dist.CLIENT)
+    @Environment(EnvType.CLIENT)
     public ShelfRenderData furtherDataBottom(){return furtherDataBottom;}
 
-    @OnlyIn(Dist.CLIENT)
+    @Environment(EnvType.CLIENT)
     public ShelfRenderData furtherDataTop(){return furtherDataTop;}
 
-    @OnlyIn(Dist.CLIENT)
+    @Environment(EnvType.CLIENT)
     public static class ShelfRenderData {
         public final float itemLrotation = (float) ((Math.random() * 90) + 80f);
         public final float itemRrotation = (float) ((Math.random() * 90) + 80f);
@@ -41,16 +45,16 @@ public class ShelfShopEntity extends AbstractShopEntity{
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
+    @Environment(EnvType.CLIENT)
     public void forceUpdateRenderData() {
         super.forceUpdateRenderData();
         rendererDataTop.update();
     }
 
     @Override
-    public void itemScatter(Level world, BlockPos pos) {
+    public void itemScatter(World world, BlockPos pos) {
         super.itemScatter(world, pos);
-        ItemScatterer(world, pos, shopInventoryTop.prepForItemScatterer());
+        ItemScatterer.spawn(world, pos, shopInventoryTop.prepForItemScatterer());
 
     }
 
@@ -61,24 +65,32 @@ public class ShelfShopEntity extends AbstractShopEntity{
     }
 
     public ShelfShopEntity(BlockPos pos, BlockState state) {
-        super(ModBlockEntities.SHELF_SHOP_ENTITY.get(), pos, state, -0.3f);
+        super(ModBlockEntities.SHELF_SHOP_ENTITY, pos, state, -0.3f);
+
+        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+            this.rendererDataTop = new RendererData(shopInventoryTop);
+        }
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
+    @Environment(EnvType.CLIENT)
     protected void createRendererData() {
         this.rendererData = new RendererData(shopInventory);
         this.furtherDataTop = new ShelfRenderData();
         this.furtherDataBottom = new ShelfRenderData();
     }
 
-    @OnlyIn(Dist.CLIENT)
-    protected RendererData rendererDataTop = new RendererData(shopInventoryTop);
+    @Environment(EnvType.CLIENT)
+    protected RendererData rendererDataTop;
 
 
-    @OnlyIn(Dist.CLIENT)
+    @Environment(EnvType.CLIENT)
     public RendererData rendererDataTop(){return  rendererDataTop;}
 
+    @Override
+    public @Nullable Packet<ClientPlayPacketListener> toUpdatePacket() {
+        return BlockEntityUpdateS2CPacket.create(this);
+    }
 
     @Override
     protected boolean hasTrade() {
@@ -93,38 +105,37 @@ public class ShelfShopEntity extends AbstractShopEntity{
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag) {
-        ListTag nbtList = new ListTag();
+    protected void writeNbt(NbtCompound nbt) {
+        NbtList nbtList = new NbtList();
 
         for (int i = 0; i < shopInventoryTop.size(); i++) {
             ItemStack itemStack = shopInventoryTop.get(i);
             if (!itemStack.isEmpty()) {
-                CompoundTag compoundtag = new CompoundTag();
-                compoundtag.putByte("SlotTwo", (byte)i);
-                itemStack.save(compoundtag);
-                nbtList.add(compoundtag);
+                NbtCompound nbtCompound = new NbtCompound();
+                nbtCompound.putByte("SlotTwo", (byte)i);
+                itemStack.writeNbt(nbtCompound);
+                nbtList.add(nbtCompound);
             }
         }
 
         if (!nbtList.isEmpty()) {
-            tag.put("ItemsTwo", nbtList);
+            nbt.put("ItemsTwo", nbtList);
         }
-        super.saveAdditional(tag);
+        super.writeNbt(nbt);
     }
 
     @Override
-    public void load(CompoundTag nbt) {
-        ListTag nbtList = nbt.getList("ItemsTwo", 10);
-
+    public void readNbt(NbtCompound nbt) {
+        NbtList nbtList = nbt.getList("ItemsTwo", NbtElement.COMPOUND_TYPE);
 
         for (int i = 0; i < nbtList.size(); i++) {
-            CompoundTag nbtCompound = nbtList.getCompound(i);
+            NbtCompound nbtCompound = nbtList.getCompound(i);
             int j = nbtCompound.getByte("SlotTwo") & 255;
             if (j < shopInventoryTop.size()) {
-                shopInventoryTop.set(j, ItemStack.of(nbtCompound));
+                shopInventoryTop.set(j, ItemStack.fromNbt(nbtCompound));
             }
         }
-        super.load(nbt);
+        super.readNbt(nbt);
     }
     
     

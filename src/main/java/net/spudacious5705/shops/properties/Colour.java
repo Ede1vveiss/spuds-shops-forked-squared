@@ -1,11 +1,12 @@
 package net.spudacious5705.shops.properties;
 
+import net.minecraft.util.StringIdentifiable;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Objects;
 
-public enum Colour {
+public enum Colour implements StringIdentifiable {
     RED("red", 0),
     WHITE("white", 1),
     BLUE("blue", 2),
@@ -35,6 +36,7 @@ public enum Colour {
         return id;
     }
 
+    @Override
     public String asString() {
         return name;
     }

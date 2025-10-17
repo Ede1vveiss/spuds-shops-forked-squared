@@ -1,37 +1,18 @@
 package net.spudacious5705.shops.block;
 
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.item.Item;
+import net.minecraft.util.Identifier;
 import net.spudacious5705.shops.SpudaciousShops;
-import net.spudacious5705.shops.block.custom.*;
+import net.spudacious5705.shops.block.custom.AngledShopBlock;
+import net.spudacious5705.shops.block.custom.RugShopBlock;
+import net.spudacious5705.shops.block.custom.ShelfShopBlock;
+import net.spudacious5705.shops.block.custom.WindowSillShopBlock;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 
 
 public class VariantResources {
-    public static <T extends AbstractShopBlock> void putItem(
-            Map<Item, T> map,
-            PostRegAssigner<Item> assigner,
-            Supplier<T> shopGetter
-    ){
-        assigner.copy().assignTo(key ->{
-            map.put(key,shopGetter.get());
-        });
-    }
-
-    public static <T extends AbstractShopBlock> void putBlock(
-            Map<Item, T> map,
-            PostRegAssigner<Block> assigner,
-            Supplier<T> shopGetter
-    ){
-        assigner.copy().assignTo(key ->{
-            map.put(key.asItem(),shopGetter.get());
-        });
-    }
-
     public static final Map<Item, RugShopBlock> RUGS_DYE = new HashMap<>();
 
     public static final Map<Item, RugShopBlock> RUGS_CARPET = new HashMap<>();
@@ -59,15 +40,15 @@ public class VariantResources {
         JUNGLE("jungle",11141290);
         
         public final String name;
-        public final ResourceLocation customer;
-        public final ResourceLocation owner_trade;
-        public final ResourceLocation settings;
-        public final ResourceLocation storage;
-        public final ResourceLocation settings_button;
+        public final Identifier customer;
+        public final Identifier owner_trade;
+        public final Identifier settings;
+        public final Identifier storage;
+        public final Identifier settings_button;
         public final int settings_text_colour;
 
         wood_variant(String texture, int text_colour) {
-            ResourceLocation[] ids = GUIid(texture);
+            Identifier[] ids = GUIid(texture);
             name = texture;
             customer = ids[0];
             owner_trade = ids[1];
@@ -77,9 +58,9 @@ public class VariantResources {
             settings_text_colour = text_colour;
         }
 
-        private static ResourceLocation[] GUIid(String texture){
+        private static Identifier[] GUIid(String texture){
 
-            return new ResourceLocation[]{
+            return new Identifier[]{
                     SpudaciousShops.id("textures/gui/wood_gui/customer_"+texture+".png"),
                     SpudaciousShops.id("textures/gui/wood_gui/owner_trade_"+texture+".png"),
                     SpudaciousShops.id("textures/gui/wood_gui/settings_"+texture+".png"),
@@ -89,6 +70,4 @@ public class VariantResources {
 
         }
     }
-
-
 }

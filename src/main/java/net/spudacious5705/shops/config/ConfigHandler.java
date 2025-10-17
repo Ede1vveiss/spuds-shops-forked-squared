@@ -44,7 +44,7 @@ public class ConfigHandler {
         return tss;
     }
     public static Boolean getDefaultToggleSetting(ToggleButtonID ID) {
-        return toggleSettingsStates.getOrDefault(ID,false);
+        return toggleSettingsStates.get(ID);
     }
     public static void initialise(){}
 }
