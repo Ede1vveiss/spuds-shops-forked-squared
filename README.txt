@@ -5,7 +5,7 @@ A simple and decorative shop mod.
 
 Fork Information
 ----------------
-This mod is a fork of a mod made by another author.
+This mod is a fork of a mod made by Spudacious5705.
 Original Mod Link: https://modrinth.com/mod/spuds-shops
 
 Credits
