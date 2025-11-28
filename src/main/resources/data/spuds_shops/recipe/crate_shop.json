@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "b": {
+      "item": "minecraft:barrel"
+    }
+  },
+  "pattern": [
+    "  b",
+    " b ",
+    "b  "
+  ],
+  "result": {
+    "id": "spudaciousshops:crate_shop",
+    "count": 1
+  },
+  "show_notification": true
+}

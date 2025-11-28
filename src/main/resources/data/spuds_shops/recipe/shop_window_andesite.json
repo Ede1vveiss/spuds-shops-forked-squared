@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "c": {
+      "item": "minecraft:chest"
+    },
+    "r": {
+      "item": "minecraft:andesite"
+    }
+  },
+  "pattern": [
+    "   ",
+    " r ",
+    "ccc"
+  ],
+  "result": {
+    "id": "spudaciousshops:shop_window_andesite",
+    "count": 1
+  },
+  "show_notification": true
+}

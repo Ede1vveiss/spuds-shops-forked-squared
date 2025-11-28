@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "c": {
+      "item": "minecraft:chest"
+    },
+    "h": {
+      "item": "minecraft:tripwire_hook"
+    },
+    "i": {
+      "item": "minecraft:chain"
+    }
+  },
+  "pattern": [
+    " i ",
+    "ccc",
+    " h "
+  ],
+  "result": {
+    "id": "spudaciousshops:hook_shop",
+    "count": 1
+  },
+  "show_notification": true
+}
