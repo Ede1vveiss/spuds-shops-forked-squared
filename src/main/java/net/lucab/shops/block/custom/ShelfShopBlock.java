@@ -253,7 +253,8 @@ public class ShelfShopBlock extends AbstractShopBlock {
         }
 
         if (player instanceof ServerPlayer serverPlayer) {
-            boolean openTop = hit.getLocation().y - pos.getY() > 0.5;
+            boolean openTop = state.getValue(SHELVES_ENABLED) == SlabType.TOP ||
+                    (state.getValue(SHELVES_ENABLED) == SlabType.DOUBLE && hit.getLocation().y - pos.getY() > 0.5);
             serverPlayer.openMenu(shop.createScreenHandlerFactory(openTop), buf -> {
                 buf.writeBlockPos(pos);
                 buf.writeBoolean(openTop);

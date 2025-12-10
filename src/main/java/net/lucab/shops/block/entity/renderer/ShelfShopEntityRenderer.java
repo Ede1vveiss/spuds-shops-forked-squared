@@ -3,12 +3,15 @@ package net.lucab.shops.block.entity.renderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 
+import net.lucab.shops.block.custom.ShelfShopBlock;
 import net.lucab.shops.block.entity.ShelfShopEntity;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.SlabType;
 
 public class ShelfShopEntityRenderer implements BlockEntityRenderer<ShelfShopEntity> {
 
@@ -25,6 +28,11 @@ public class ShelfShopEntityRenderer implements BlockEntityRenderer<ShelfShopEnt
         final ShelfShopEntity.RendererData data1 = shop.rendererData();
         final ShelfShopEntity.RendererData data2 = shop.rendererDataTop();
 
+        BlockState state = shop.getBlockState();
+        if (!(state.getBlock() instanceof ShelfShopBlock))
+            return;
+        SlabType type = state.getValue(ShelfShopBlock.SHELVES_ENABLED);
+
         // global rotation and translation
         matrices.pushPose();
         matrices.translate(0.5f, 0.5f, 0.5f);
@@ -38,19 +46,28 @@ public class ShelfShopEntityRenderer implements BlockEntityRenderer<ShelfShopEnt
                 }));// was rotated around 0,0,0
 
         // render bottom
-        renderShelf(data1, tickDelta, matrices, vertexConsumers, light, overlay, shop.furtherDataBottom());
+        if (type == SlabType.BOTTOM || type == SlabType.DOUBLE) {
+            renderShelf(data1, tickDelta, matrices, vertexConsumers, light, overlay, shop.furtherDataBottom());
+        }
 
         // render top
         matrices.translate(0f, 0.44f, 0f);
-        renderShelf(data2, tickDelta, matrices, vertexConsumers, light, overlay, shop.furtherDataTop());
+        if (type == SlabType.TOP || type == SlabType.DOUBLE) {
+            renderShelf(data2, tickDelta, matrices, vertexConsumers, light, overlay, shop.furtherDataTop());
+        }
 
         matrices.popPose();
 
-        ShopRenderUtils.renderShopWarns(tickDelta, matrices, vertexConsumers, light, overlay, data1, context, -1.05f,
-                0.3f, shop.getLevel());
+        if (type == SlabType.BOTTOM || type == SlabType.DOUBLE) {
+            ShopRenderUtils.renderShopWarns(tickDelta, matrices, vertexConsumers, light, overlay, data1, context,
+                    -1.05f,
+                    0.3f, shop.getLevel());
+        }
 
-        ShopRenderUtils.renderShopWarns(tickDelta, matrices, vertexConsumers, light, overlay, data2, context, -0.6f,
-                0.3f, shop.getLevel());
+        if (type == SlabType.TOP || type == SlabType.DOUBLE) {
+            ShopRenderUtils.renderShopWarns(tickDelta, matrices, vertexConsumers, light, overlay, data2, context, -0.6f,
+                    0.3f, shop.getLevel());
+        }
 
     }
 

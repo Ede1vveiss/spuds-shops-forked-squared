@@ -107,8 +107,7 @@ public class ShelfShopEntity extends AbstractShopEntity {
             if (!itemStack.isEmpty()) {
                 CompoundTag compoundtag = new CompoundTag();
                 compoundtag.putByte("SlotTwo", (byte) i);
-                itemStack.save(registries, compoundtag);
-                nbtList.add(compoundtag);
+                nbtList.add(itemStack.save(registries, compoundtag));
             }
         }
 
