@@ -8,6 +8,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.SlotItemHandler;
@@ -105,6 +106,25 @@ public class ShopScreenHandlerCustomer extends AbstractContainerMenu {
     }
 
     @Override
+    public void clicked(int slotId, int button, ClickType clickType, Player player) {
+        if (slotId >= 0 && slotId < this.slots.size()) {
+            Slot slot = this.slots.get(slotId);
+            if (slot instanceof shop_payment_slot) {
+                return;
+            }
+            if (slot instanceof shop_vendor_slot) {
+                if (clickType == ClickType.PICKUP) {
+                    if (shopInventory.canTrade(player)) {
+                        trade();
+                    }
+                }
+                return;
+            }
+        }
+        super.clicked(slotId, button, clickType, player);
+    }
+
+    @Override
     public @NotNull ItemStack quickMoveStack(@NotNull Player player, int pIndex) {
         int tradeCount = 0;
         while (tradeCount < 64 && shopInventory.canTrade(player)) {
@@ -193,7 +213,7 @@ public class ShopScreenHandlerCustomer extends AbstractContainerMenu {
 
         @Override
         public boolean mayPickup(@NotNull Player playerEntity) {
-            return shopInventory.canTrade(playerEntity);
+            return false;
         }
 
         @Override

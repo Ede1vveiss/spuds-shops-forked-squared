@@ -13,6 +13,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -332,6 +333,37 @@ public class ShopScreenHandlerOwner extends AbstractContainerMenu {
         for (int i = 0; i < 9; ++i) {
             new player_slot(playerInventory, i, offsetx + i * 18, offsety);
         }
+    }
+
+    @Override
+    public void clicked(int slotId, int button, ClickType clickType, Player player) {
+        if (slotId >= 0 && slotId < this.slots.size()) {
+            Slot slot = this.slots.get(slotId);
+            // In Owner menu, customer slots are only active in CUSTOMER_TAB.
+            // If activeTab is CUSTOMER_TAB, we apply the same restriction as Customer menu:
+            // no taking, just trading.
+            if (activeTab == CUSTOMER_TAB) {
+                if (slot instanceof shop_payment_slot) {
+                    return; // Payment slot is purely visual/input in customer mode, no interaction allowed
+                            // here?
+                }
+                if (slot instanceof shop_vendor_slot) {
+                    if (clickType == ClickType.PICKUP) {
+                        if (shopInventory.canTrade(player)) {
+                            trade();
+                        }
+                    }
+                    return; // Prevent other interactions
+                }
+            } else if (activeTab == SELLER_TAB) {
+                if (slot instanceof shop_trade_slot) {
+                    if (clickType == ClickType.SWAP) {
+                        return; // Prevent swapping ghost items into hotbar
+                    }
+                }
+            }
+        }
+        super.clicked(slotId, button, clickType, player);
     }
 
     @Override
@@ -660,7 +692,7 @@ public class ShopScreenHandlerOwner extends AbstractContainerMenu {
 
         @Override
         public boolean mayPickup(@NotNull Player playerEntity) {
-            return shopInventory.canTrade(playerEntity);
+            return false;
         }
 
         @Override
