@@ -42,7 +42,7 @@ public class ModBlocks {
     private static BlockBehaviour.Properties shopSettings(Block example) {
         return BlockBehaviour.Properties.ofFullCopy(example)
                 .noOcclusion()
-                .strength(2f, Float.MAX_VALUE);
+                .strength(1f, Float.MAX_VALUE);
     }
 
     public static final List<DeferredHolder<Block, ? extends AbstractShopBlock>> ALL_SHOPS = new ArrayList<>();
