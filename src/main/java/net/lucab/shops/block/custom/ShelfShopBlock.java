@@ -22,14 +22,20 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -41,7 +47,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.Comparator;
 
-public class ShelfShopBlock extends AbstractShopBlock {
+public class ShelfShopBlock extends AbstractShopBlock implements SimpleWaterloggedBlock {
 
     public static final VoxelShape CULLING_SHAPE = createCuboidShape(2, 0, 2, 14.0, 14.0, 14.0);
 
@@ -74,6 +80,7 @@ public class ShelfShopBlock extends AbstractShopBlock {
             .apply(instance, ShelfShopBlock::new));
 
     public static final EnumProperty<SlabType> SHELVES_ENABLED = EnumProperty.create("type", SlabType.class);
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     public Block SlabWoodType;
     public final VariantResources.wood_variant VARIANT;
@@ -82,6 +89,7 @@ public class ShelfShopBlock extends AbstractShopBlock {
         super(properties);
         this.SlabWoodType = slabWoodType;
         this.VARIANT = variant;
+        this.registerDefaultState(this.defaultBlockState().setValue(WATERLOGGED, false));
     }
 
     @Override
@@ -91,7 +99,7 @@ public class ShelfShopBlock extends AbstractShopBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, BREAKABLE, SHELVES_ENABLED);
+        builder.add(FACING, BREAKABLE, SHELVES_ENABLED, WATERLOGGED);
     }
 
     public String getWoodName() {
@@ -115,6 +123,7 @@ public class ShelfShopBlock extends AbstractShopBlock {
         BlockPos pos = ctx.getClickedPos();
         BlockState blockState = ctx.getLevel().getBlockState(pos);
         Level world = ctx.getLevel();
+        FluidState fluidState = world.getFluidState(pos);
 
         // Scenario: adding a shelf to an existing block
         if (ctx.getItemInHand().is(blockState.getBlock().asItem())) {
@@ -150,6 +159,7 @@ public class ShelfShopBlock extends AbstractShopBlock {
         return this.defaultBlockState()
                 .setValue(FACING, finalDirection)
                 .setValue(BREAKABLE, false)
+                .setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER)
                 .setValue(SHELVES_ENABLED, type);
     }
 
@@ -183,7 +193,7 @@ public class ShelfShopBlock extends AbstractShopBlock {
                     }
 
                     world.setBlockAndUpdate(pos,
-                            copyValues(newShelf.defaultBlockState(), state, FACING, SHELVES_ENABLED));
+                            copyValues(newShelf.defaultBlockState(), state, FACING, SHELVES_ENABLED, WATERLOGGED));
                     shopEntity.forceUpdateClient();
                     return true;
 
@@ -269,4 +279,17 @@ public class ShelfShopBlock extends AbstractShopBlock {
         return newShopState.getBlock() instanceof ShelfShopBlock;
     }
 
+    @Override
+    public FluidState getFluidState(BlockState state) {
+        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
+    }
+
+    @Override
+    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level,
+            BlockPos currentPos, BlockPos neighborPos) {
+        if (state.getValue(WATERLOGGED)) {
+            level.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+        }
+        return super.updateShape(state, direction, neighborState, level, currentPos, neighborPos);
+    }
 }
