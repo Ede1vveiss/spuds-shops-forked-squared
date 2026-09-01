@@ -558,9 +558,14 @@ public class ShopScreenHandlerOwner extends AbstractContainerMenu {
         public boolean mayPlace(ItemStack stack) {
             if (stack.getItem() != this.getItem().getItem()) {
                 this.set(ItemStack.EMPTY);
-                return false;
             }
-            return true;
+            else if (ItemStack.isSameItemSameComponents(stack, this.getItem())){
+                return true;
+            }
+            else{
+                this.set(ItemStack.EMPTY);
+            }
+            return false;
         }
 
         @Override
